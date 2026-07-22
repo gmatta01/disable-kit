@@ -113,7 +113,8 @@ trait WP_Strip_Admin {
                 'sectionDisabled' => __('Section disabled', 'wp-strip'),
                 'tabListLabel' => __('Feature categories', 'wp-strip'),
                 'unsavedIndicator' => __('Unsaved changes', 'wp-strip'),
-                'saveChanges' => __('Save Changes', 'wp-strip')
+                'saveChanges' => __('Save Changes', 'wp-strip'),
+                'dismissNotice' => __('Dismiss this notice.', 'wp-strip')
             )
         ));
     }
@@ -229,6 +230,17 @@ trait WP_Strip_Admin {
                         </div>
 
                                 <div class="wp-strip-sections">
+                    <?php
+                    // Build global child-key set so children never appear as top-level features
+                    $global_child_keys = array();
+                    foreach ($this->features as $f_key => $f_data) {
+                        if (!empty($f_data['children'])) {
+                            foreach ($f_data['children'] as $child) {
+                                $global_child_keys[$child] = true;
+                            }
+                        }
+                    }
+                    ?>
                     <?php foreach ($categories as $category_key => $category_name) : ?>
                         <?php
                         $section_features = array();
@@ -243,9 +255,24 @@ trait WP_Strip_Admin {
                             continue;
                         }
 
+                        // Use the global child-key set built above
+                        $all_child_keys = $global_child_keys;
+
+                        // Adjust section display count: exclude children that render under a parent
+                        $section_display_count = count($section_features);
+                        foreach ($section_features as $sf_key => $sf_data) {
+                            if (isset($all_child_keys[$sf_key])) {
+                                $section_display_count--;
+                            }
+                        }
+
                         $section_all_enabled = true;
 
                         foreach ($section_features as $section_feature_key => $section_feature_data) {
+                            // Skip children in the main toggle check — they follow their parent
+                            if (isset($all_child_keys[$section_feature_key])) {
+                                continue;
+                            }
                             $section_feature_enabled = isset($settings[ $section_feature_key ]) ? (bool) $settings[ $section_feature_key ] : (bool) $section_feature_data['default'];
                             $section_feature_state   = $this->get_feature_runtime_state($section_feature_key, $section_feature_data, $section_feature_enabled);
 
@@ -268,7 +295,7 @@ trait WP_Strip_Admin {
                                     <p><?php echo esc_html($this->get_category_description($category_key)); ?></p>
                                 </div>
                                 <div class="wp-feature-section-controls">
-                                    <span class="wp-feature-section-count"><?php echo esc_html(sprintf(_n('%d feature', '%d features', count($section_features), 'wp-strip'), count($section_features))); ?></span>
+                                    <span class="wp-feature-section-count"><?php echo esc_html(sprintf(_n('%d feature', '%d features', $section_display_count, 'wp-strip'), $section_display_count)); ?></span>
                                     <label class="wp-feature-switch wp-feature-switch-section">
                                         <input
                                             type="checkbox"
@@ -285,12 +312,18 @@ trait WP_Strip_Admin {
                             <div class="wp-feature-section-content">
                                 <?php foreach ($section_features as $feature_key => $feature_data) : ?>
                                     <?php
+                                    // Skip children — they are rendered inline after their parent
+                                    if (isset($all_child_keys[$feature_key])) {
+                                        continue;
+                                    }
+
                                     $is_enabled    = isset($settings[ $feature_key ]) ? (bool) $settings[ $feature_key ] : (bool) $feature_data['default'];
                                     $runtime_state = $this->get_feature_runtime_state($feature_key, $feature_data, $is_enabled);
                                     $effective_on  = $runtime_state['locked'] ? false : $is_enabled;
+                                    $has_children  = !empty($feature_data['children']);
                                     ?>
                                     <article
-                                        class="wp-feature-item wp-feature-risk-<?php echo esc_attr($feature_data['risk']); ?><?php echo $runtime_state['locked'] ? ' is-locked' : ''; ?>"
+                                        class="wp-feature-item wp-feature-risk-<?php echo esc_attr($feature_data['risk']); ?><?php echo $runtime_state['locked'] ? ' is-locked' : ''; ?><?php echo $has_children ? ' wp-feature-item-parent' : ''; ?>"
                                         data-feature-item
                                         data-category="<?php echo esc_attr($category_key); ?>"
                                         data-feature="<?php echo esc_attr($feature_key); ?>"
@@ -353,6 +386,88 @@ trait WP_Strip_Admin {
                                             </span>
                                         </div>
                                     </article>
+
+                                    <?php
+                                    // Render children immediately after parent, with child styling
+                                    if ($has_children) :
+                                        foreach ($feature_data['children'] as $child_key) :
+                                            if (!isset($this->features[$child_key])) {
+                                                continue;
+                                            }
+                                            $child_data      = $this->features[$child_key];
+                                            $child_enabled   = isset($settings[ $child_key ]) ? (bool) $settings[ $child_key ] : (bool) $child_data['default'];
+                                            $child_state     = $this->get_feature_runtime_state($child_key, $child_data, $child_enabled);
+                                            $child_effective = $child_state['locked'] ? false : $child_enabled;
+                                    ?>
+                                    <article
+                                        class="wp-feature-item wp-feature-item-child wp-feature-risk-<?php echo esc_attr($child_data['risk']); ?><?php echo $child_state['locked'] ? ' is-locked' : ''; ?>"
+                                        data-feature-item
+                                        data-category="<?php echo esc_attr($category_key); ?>"
+                                        data-feature="<?php echo esc_attr($child_key); ?>"
+                                        data-search="<?php echo esc_attr(strtolower($feature_data['name'] . ' ' . $child_data['name'] . ' ' . $child_data['description'] . ' ' . $child_data['risk'] . ' ' . $child_data['scope'])); ?>"
+                                    >
+                                        <div class="wp-feature-primary">
+                                            <div class="wp-feature-title-row">
+                                                <label for="<?php echo esc_attr($child_key); ?>" class="wp-feature-name">
+                                                    <span class="wp-feature-child-arrow" aria-hidden="true">&#8627;</span>
+                                                    <?php echo esc_html($child_data['name']); ?>
+                                                </label>
+                                                <div class="wp-feature-meta">
+                                                    <span class="wp-feature-badge wp-feature-badge-risk wp-feature-badge-risk-<?php echo esc_attr($child_data['risk']); ?>">
+                                                        <?php echo esc_html($this->get_risk_label($child_data['risk'])); ?>
+                                                    </span>
+                                                    <span class="wp-feature-badge wp-feature-badge-scope">
+                                                        <?php echo esc_html($this->get_scope_label($child_data['scope'])); ?>
+                                                    </span>
+                                                    <?php if ($child_state['locked']) : ?>
+                                                        <span class="wp-feature-badge wp-feature-badge-locked">
+                                                            <?php _e('Already disabled', 'wp-strip'); ?>
+                                                        </span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+
+                                            <p class="wp-feature-description">
+                                                <?php echo esc_html($child_data['description']); ?>
+                                            </p>
+
+                                            <?php if ($child_state['reason']) : ?>
+                                                <p class="wp-feature-helper-text">
+                                                    <?php echo esc_html($child_state['reason']); ?>
+                                                </p>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="wp-feature-control">
+                                            <input
+                                                type="hidden"
+                                                name="<?php echo esc_attr($this->options_key); ?>[<?php echo esc_attr($child_key); ?>]"
+                                                value="<?php echo esc_attr($child_enabled ? '1' : '0'); ?>"
+                                                class="wp-feature-hidden-value"
+                                            >
+                                            <label class="wp-feature-switch" for="<?php echo esc_attr($child_key); ?>">
+                                                <input
+                                                    type="checkbox"
+                                                    id="<?php echo esc_attr($child_key); ?>"
+                                                    class="wp-feature-toggle"
+                                                    value="1"
+                                                    data-feature="<?php echo esc_attr($child_key); ?>"
+                                                    data-category="<?php echo esc_attr($category_key); ?>"
+                                                    <?php checked($child_effective); ?>
+                                                    <?php disabled($child_state['locked']); ?>
+                                                >
+                                                <span class="wp-feature-switch-ui" aria-hidden="true"></span>
+                                                <span class="screen-reader-text"><?php echo esc_html($child_data['name']); ?></span>
+                                            </label>
+                                            <span class="wp-feature-toggle-status">
+                                                <?php echo $child_state['locked'] ? esc_html__('Already disabled', 'wp-strip') : ($child_enabled ? esc_html__('Enabled', 'wp-strip') : esc_html__('Disabled', 'wp-strip')); ?>
+                                            </span>
+                                        </div>
+                                    </article>
+                                    <?php
+                                        endforeach;
+                                    endif;
+                                    ?>
                                 <?php endforeach; ?>
                             </div>
                         </section>
@@ -489,7 +604,13 @@ trait WP_Strip_Admin {
                 break;
 
             case 'site_editor':
-                if (function_exists('wp_is_block_theme') && !wp_is_block_theme()) {
+                if (!$this->is_feature_enabled('design_system')) {
+                    $state['locked'] = true;
+                    $state['reason'] = __('The Design System feature is already handling this. Disable that instead.', 'wp-strip');
+                } elseif (!post_type_exists('wp_template')) {
+                    $state['locked'] = true;
+                    $state['reason'] = __('Block template support has already been removed by another plugin or theme.', 'wp-strip');
+                } elseif (function_exists('wp_is_block_theme') && !wp_is_block_theme()) {
                     $state['locked'] = true;
                     $state['reason'] = __('The Full Site Editor is not available because the active theme is not a block theme.', 'wp-strip');
                 }

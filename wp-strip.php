@@ -129,7 +129,8 @@ class WP_Strip {
                 'risk'        => 'high',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('block_widgets', 'block_directory', 'font_library', 'block_editor_assets_non_editors', 'remove_block_library_css')
             ),
             'classic_editor' => array(
                 'name'        => __('Classic Editor (TinyMCE)', 'wp-strip'),
@@ -165,7 +166,8 @@ class WP_Strip {
                 'risk'        => 'high',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('categories', 'tags', 'revisions', 'autosave', 'adjacent_posts_links')
             ),
             'pages' => array(
                 'name'        => __('Pages', 'wp-strip'),
@@ -183,7 +185,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('attachment_pages')
             ),
             'categories' => array(
                 'name'        => __('Post Categories', 'wp-strip'),
@@ -210,7 +213,8 @@ class WP_Strip {
                 'risk'        => 'high',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('comment_reply_script', 'comment_feeds', 'comment_cookies', 'comment_threading', 'comment_url_field', 'pingbacks', 'comment_avatars', 'comment_html')
             ),
             'revisions' => array(
                 'name'        => __('Post Revision History', 'wp-strip'),
@@ -239,7 +243,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('wp_embed_script')
             ),
             'emoji' => array(
                 'name'        => __('WordPress Emoji Support', 'wp-strip'),
@@ -322,7 +327,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('jquery_migrate_admin')
             ),
             'wp_embed_script' => array(
                 'name'        => __('WordPress Embed Script', 'wp-strip'),
@@ -603,7 +609,8 @@ class WP_Strip {
                 'risk'        => 'high',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('disable_rest_api_links')
             ),
             'xmlrpc' => array(
                 'name'        => __('Legacy Remote Publishing (XML-RPC)', 'wp-strip'),
@@ -612,7 +619,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('xmlrpc_pingback')
             ),
             'wp_org_requests' => array(
                 'name'        => __('WordPress.org Communication', 'wp-strip'),
@@ -630,7 +638,8 @@ class WP_Strip {
                 'risk'        => 'high',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('core_auto_update_email', 'plugin_auto_update_email', 'theme_auto_update_email')
             ),
             'user_registration' => array(
                 'name'        => __('Public User Registration', 'wp-strip'),
@@ -659,7 +668,8 @@ class WP_Strip {
                 'risk'        => 'low',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('wp_news_dashboard')
             ),
             'admin_bar' => array(
                 'name'        => __('Admin Toolbar', 'wp-strip'),
@@ -668,7 +678,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('admin_bar_script')
             ),
             'customizer' => array(
                 'name'        => __('Theme Customizer', 'wp-strip'),
@@ -677,7 +688,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('custom_header', 'custom_background', 'custom_logo', 'site_icon')
             ),
             'theme_editor' => array(
                 'name'        => __('Theme File Editor', 'wp-strip'),
@@ -686,7 +698,8 @@ class WP_Strip {
                 'risk'        => 'low',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('plugin_editor')
             ),
             'plugin_editor' => array(
                 'name'        => __('Plugin File Editor', 'wp-strip'),
@@ -715,7 +728,8 @@ class WP_Strip {
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('rdf_feed', 'disable_rss_feed_links')
             ),
             'rdf_feed' => array(
                 'name'        => __('RDF Feed (Legacy Syndication)', 'wp-strip'),
@@ -952,7 +966,8 @@ class WP_Strip {
                 'risk'        => 'low',
                 'scope'       => 'admin',
                 'default'     => true,
-                'priority'    => 1
+                'priority'    => 1,
+                'children'    => array('export_erase_personal_data')
             ),
             'health_check' => array(
                 'name'        => __('Site Health', 'wp-strip'),
@@ -991,6 +1006,16 @@ class WP_Strip {
                 'scope'       => 'admin',
                 'default'     => true,
                 'priority'    => 1
+            ),
+            'design_system' => array(
+                'name'        => __('Design System (Block Theme UI)', 'wp-strip'),
+                'description' => __('THE FULL NUKE — removes the entire block theme Design infrastructure including the top-level Design admin menu, wp_template, wp_template_part, wp_global_styles, and wp_block (reusable blocks) post types, their REST API endpoints, block template loading, and all related theme support. Only safe on classic (non-block) themes, or if you never want block editing anywhere.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1,
+                'children'    => array('site_editor', 'global_styles_inline_css', 'svg_duotone_filters', 'core_block_patterns', 'remote_block_patterns', 'pattern_directory')
             ),
 
             // ── Granular Comment Controls ─────────────────────────────────────
@@ -1400,6 +1425,68 @@ class WP_Strip {
                 }, 999);
                 break;
                 
+            case 'design_system':
+                // Remove theme support for all FSE features
+                remove_theme_support('block-templates');
+                remove_theme_support('block-template-parts');
+                remove_theme_support('core-block-patterns');
+
+                // Unregister Design-related post types at high priority
+                add_action('init', function() {
+                    $post_types_to_remove = array('wp_template', 'wp_template_part', 'wp_global_styles', 'wp_block');
+                    foreach ($post_types_to_remove as $pt) {
+                        if (post_type_exists($pt)) {
+                            unregister_post_type($pt);
+                        }
+                    }
+                }, 100);
+
+                // Remove top-level Design menu + submenu pages
+                add_action('admin_menu', function() {
+                    remove_menu_page('site-editor.php');
+                    remove_menu_page('edit.php?post_type=wp_template');
+                    remove_menu_page('edit.php?post_type=wp_template_part');
+                    remove_menu_page('edit.php?post_type=wp_global_styles');
+                    remove_menu_page('edit.php?post_type=wp_block');
+                    remove_submenu_page('themes.php', 'site-editor.php');
+                }, 999);
+
+                // Remove REST API endpoints for Design post types
+                add_filter('rest_endpoints', function($endpoints) {
+                    $remove = array(
+                        '/wp/v2/templates',
+                        '/wp/v2/template-parts',
+                        '/wp/v2/global-styles',
+                        '/wp/v2/global-styles/themes/(?P<stylesheet>[\/\w.-]+)',
+                        '/wp/v2/themes',
+                        '/wp/v2/block-types',
+                    );
+                    foreach ($remove as $route) {
+                        if (isset($endpoints[$route])) {
+                            unset($endpoints[$route]);
+                        }
+                    }
+                    return $endpoints;
+                });
+
+                // Disable block template resolution on frontend
+                remove_filter('template_include', 'wp_resolve_block_template', 5);
+
+                // Disable global styles CSS output
+                remove_action('wp_enqueue_scripts', 'wp_enqueue_global_styles');
+                remove_action('wp_footer', 'wp_enqueue_global_styles', 1);
+                remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
+                remove_action('admin_body_open', 'wp_global_styles_render_svg_filters');
+
+                // Disable remote block patterns / pattern directory
+                add_filter('should_load_remote_block_patterns', '__return_false');
+
+                // Deregister block directory script
+                add_action('enqueue_block_editor_assets', function() {
+                    wp_deregister_script('wp-block-directory');
+                }, 100);
+                break;
+                
             case 'posts':
                 add_action('init', function() {
                     unregister_post_type('post');
@@ -1512,7 +1599,7 @@ class WP_Strip {
                 // Warning: this requires a server-side cron job to trigger wp-cron.php periodically.
                 // Without the constant, we disable the scheduled event loop as safely as possible.
                 if (!defined('DISABLE_WP_CRON')) {
-                    add_filter('pre_option_cron', '__return_null');
+                    add_filter('pre_option_cron', '__return_empty_array');
                 }
                 // Remove the cron admin panel
                 add_action('admin_menu', function() {
@@ -1567,38 +1654,26 @@ class WP_Strip {
                 
             case 'customizer':
                 add_action('admin_menu', function() {
-                    global $submenu;
-                    if (isset($submenu['themes.php'])) {
-                        foreach ($submenu['themes.php'] as $index => $menu_item) {
-                            if (strpos($menu_item[0], 'Customize') !== false) {
-                                unset($submenu['themes.php'][$index]);
-                                break;
-                            }
-                        }
-                    }
-                });
+                    remove_submenu_page('themes.php', 'customize.php');
+                }, 999);
                 break;
                 
             case 'theme_editor':
-                add_action('admin_init', function() {
-                    if (!defined('DISALLOW_FILE_EDIT')) {
-                        define('DISALLOW_FILE_EDIT', true);
+                add_filter('map_meta_cap', function($caps, $cap) {
+                    if (in_array($cap, array('edit_themes', 'edit_plugins', 'install_themes', 'update_themes', 'delete_themes', 'install_plugins', 'update_plugins', 'delete_plugins'), true)) {
+                        $caps[] = 'do_not_allow';
                     }
-                    // Also block theme installation/update
-                    if (!defined('DISALLOW_FILE_MODS')) {
-                        define('DISALLOW_FILE_MODS', true);
-                    }
-                });
+                    return $caps;
+                }, 10, 2);
                 break;
                 
             case 'plugin_editor':
-                add_action('admin_init', function() {
-                    // Use DISALLOW_FILE_MODS for plugin-level blocking
-                    // (allows theme editing while preventing plugin changes)
-                    if (!defined('DISALLOW_FILE_MODS')) {
-                        define('DISALLOW_FILE_MODS', true);
+                add_filter('map_meta_cap', function($caps, $cap) {
+                    if (in_array($cap, array('edit_plugins', 'install_plugins', 'update_plugins', 'delete_plugins'), true)) {
+                        $caps[] = 'do_not_allow';
                     }
-                });
+                    return $caps;
+                }, 10, 2);
                 break;
                 
             case 'welcome_panel':
@@ -2136,12 +2211,7 @@ class WP_Strip {
                 break;
 
             case 'registration_password':
-                add_action('register_form', function() {
-                    // Remove the password field from registration form
-                    ob_start(function($content) {
-                        return preg_replace('/<p[^>]*>.*?password.*?<\/p>/is', '', $content);
-                    });
-                });
+                add_filter('show_password_fields', '__return_false');
                 break;
 
             case 'xmlrpc_pingback':

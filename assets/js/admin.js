@@ -21,6 +21,7 @@
             this.initKeyboardShortcuts();
             this.initBeforeUnload();
             this.refreshAllSectionToggles();
+            this.refreshAllParentToggles();
         },
 
         cacheElements: function () {
@@ -118,6 +119,25 @@
                 self.syncFeatureValue($toggle, isEnabled);
                 self.markFormAsChanged();
                 self.refreshSectionToggle($toggle.data('category'));
+
+                // Cascade parent toggle to children — only for parent features
+                var $article = $toggle.closest('[data-feature-item]');
+                if ($article.length && !$article.is('.wp-feature-item-child')) {
+                    var $children = $article.nextUntil(':not(.wp-feature-item-child)');
+                    if ($children.length) {
+                        $children.find('.wp-feature-toggle').not(':disabled').each(function () {
+                            var $childToggle = $(this);
+                            if ($childToggle.is(':checked') !== isEnabled) {
+                                $childToggle.prop('checked', isEnabled);
+                                self.syncFeatureValue($childToggle, isEnabled);
+                            }
+                        });
+                    }
+                    self.refreshParentToggle($article);
+                } else {
+                    // Child toggle changed — refresh parent toggle state
+                    self.refreshParentToggle($article);
+                }
             });
         },
 
@@ -209,6 +229,14 @@
             });
         },
 
+        refreshAllParentToggles: function () {
+            var self = this;
+
+            $('.wp-feature-item-parent').each(function () {
+                self.refreshParentToggle($(this));
+            });
+        },
+
         refreshSectionToggle: function (category) {
             var $sectionToggle = this.$sectionToggles.filter('[data-category="' + category + '"]');
             var $availableToggles = $('.wp-feature-toggle[data-category="' + category + '"]').not(':disabled');
@@ -217,8 +245,43 @@
             $sectionToggle.prop('checked', allEnabled);
         },
 
+        refreshParentToggle: function ($article) {
+            if (!$article || !$article.length) {
+                return;
+            }
+
+            var $parent;
+            var $children;
+
+            if ($article.is('.wp-feature-item-child')) {
+                // This is a child — find the parent article before it
+                $parent = $article.prevAll(':not(.wp-feature-item-child)').first();
+                $children = $parent.nextUntil(':not(.wp-feature-item-child)');
+            } else {
+                // This is a parent — find its children
+                $parent = $article;
+                $children = $article.nextUntil(':not(.wp-feature-item-child)');
+            }
+
+            if (!$parent.length || !$children.length) {
+                return;
+            }
+
+            var anyChildEnabled = $children.find('.wp-feature-toggle').not(':disabled').is(':checked');
+            var $parentToggle = $parent.find('.wp-feature-toggle');
+
+            if ($parentToggle.is(':checked') !== anyChildEnabled) {
+                $parentToggle.prop('checked', anyChildEnabled);
+                // Sync the parent's hidden value and status label too
+                var parentFeature = $parentToggle.data('feature');
+                if (parentFeature) {
+                    this.syncFeatureValue($parentToggle, anyChildEnabled);
+                }
+            }
+        },
+
         isCriticalFeature: function (feature) {
-            var criticalFeatures = ['posts', 'pages', 'comments', 'rest_api', 'cron', 'search', 'wc_checkout_blocks', 'wc_cart_fragments'];
+            var criticalFeatures = ['posts', 'pages', 'comments', 'rest_api', 'cron', 'search', 'wc_checkout_blocks', 'wc_cart_fragments', 'design_system', 'site_editor'];
             return criticalFeatures.indexOf(feature) !== -1;
         },
 
@@ -328,7 +391,7 @@
             $dismissButton.append(
                 $('<span>', {
                     'class': 'screen-reader-text',
-                    text: 'Dismiss this notice.'
+                    text: wpFeatureManager.strings.dismissNotice || 'Dismiss this notice.'
                 })
             );
 
