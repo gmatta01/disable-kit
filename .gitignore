@@ -1,10 +1,9 @@
 # Ignore the doc/ directory (architecture analysis docs)
 doc/
 
-# Ignore analysis artifacts (not needed in the plugin repo)
-FEATURES_LIST.md
-IMPLEMENTATION_STATUS.md
-SECURITY_AUDIT_REPORT.md
+# Ignore all markdown files (analysis artifacts, notes, etc.)
+# Force-add README.md with git add -f if needed
+*.md
 
 # WordPress standard ignores
 wp-config.php

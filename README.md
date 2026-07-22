@@ -38,8 +38,19 @@ WP Strip can **remove** or **disable** these WordPress subsystems:
 | `comment_cookies` | Comment Author Cookies | low | frontend |
 | `comment_threading` | Threaded Comment Replies | low | frontend |
 | `comment_url_field` | Website Field in Comment Form | low | frontend |
+| `comment_avatars` | Comment Avatars | low | frontend |
+| `comment_html` | Allowed HTML in Comments | low | frontend |
+
 | `comment_avatars` | Comment Avatars Only | low | frontend |
 | `comment_html` | Allowed HTML in Comments | low | frontend |
+
+| `custom_header` | Custom Header | low | admin |
+| `custom_background` | Custom Background | low | admin |
+| `custom_logo` | Custom Logo Uploader | low | admin |
+| `site_icon` | Site Icon (Favicon) | low | admin |
+| `menus` | Navigation Menus | high | admin |
+| `widgets` | Widgets Subsystem | high | admin |
+| `pattern_directory` | Pattern Directory (Remote Patterns) | low | admin |
 
 ### Media & Embeds
 
@@ -55,6 +66,8 @@ WP Strip can **remove** or **disable** these WordPress subsystems:
 | `responsive_images` | Responsive Images (srcset) | medium | frontend |
 | `webp_uploads` | WebP Conversion on Upload | medium | both |
 | `pdf_thumbnails` | PDF Thumbnail Generation | low | admin |
+
+| `default_attachment_display` | Default Attachment Link Behaviour | low | admin |
 
 ### Site Speed (Scripts, Styles & Head Tags)
 
@@ -112,6 +125,10 @@ WP Strip can **remove** or **disable** these WordPress subsystems:
 | `login_language_selector` | Login Page Language Selector | low | frontend |
 | `lost_password` | Lost Password Flow | high | both |
 
+| `login_logo_link` | Login Logo Link to WordPress.org | low | frontend |
+| `registration_password` | User-Set Password on Registration | medium | both |
+| `xmlrpc_pingback` | XML-RPC Pingback Methods | low | both |
+
 ### Admin Interface
 
 | Key | Feature | Risk | Scope |
@@ -130,6 +147,12 @@ WP Strip can **remove** or **disable** these WordPress subsystems:
 | `export_erase_personal_data` | Export / Erase Personal Data Tools | low | admin |
 | `browser_update_nag` | Browser Update Nag | low | admin |
 | `php_update_nag` | PHP Version Update Nag | low | admin |
+
+| `browser_update_nag` | Browser Update Nag | low | admin |
+| `php_update_nag` | PHP Version Update Nag | low | admin |
+| `core_auto_update_email` | Core Auto-Update Emails | low | admin |
+| `plugin_auto_update_email` | Plugin Auto-Update Emails | low | admin |
+| `theme_auto_update_email` | Theme Auto-Update Emails | low | admin |
 
 ### Feeds & Connections
 
@@ -165,6 +188,9 @@ WP Strip can **remove** or **disable** these WordPress subsystems:
 | `wc_password_strength` | Password Strength Meter | medium | both |
 | `wc_conditional_assets` | WooCommerce Assets Only on Store Pages | medium | frontend |
 | `wc_reviews` | Product Reviews & Ratings | medium | both |
+| `wc_order_attribution` | WooCommerce Order Attribution | low | both |
+| `wc_new_product_editor` | New Product Editor (Beta) | low | admin |
+| `wc_analytics` | WooCommerce Analytics | low | admin |
 
 ---
 
@@ -232,6 +258,12 @@ Each feature shows where it applies:
 - Debug tools gated behind `WP_STRIP_DEBUG_TOOLS` constant
 - WooCommerce admin notices targetted (no more global remove_all_actions)
 - Security warning banners for update_checks and wp_org_requests
+- Theme/Customizer controls (custom header, background, logo, site icon, menus, widgets)
+- Additional login/security controls (login logo link, registration password, XML-RPC pingbacks)
+- Granular comment controls (avatars, allowed HTML)
+- Admin nags (browser update, PHP update, auto-update emails for core/plugin/theme)
+- Media defaults (force attachment link to "none")
+- WooCommerce additions (order attribution, new product editor, analytics)
 
 ## Technical Implementation
 

@@ -5,7 +5,7 @@
  * This file demonstrates how to extend the WP Strip
  * with custom features and functionality.
  * 
- *  WPStrip
+ * @package WPStrip
  */
 
 // This file is for demonstration only - do not include in production

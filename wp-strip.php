@@ -1022,6 +1022,211 @@ class WP_Strip {
                 'priority'    => 1
             ),
 
+
+
+            // ── Theme / Customiser ───────────────────────────────────────────
+            'custom_header' => array(
+                'name'        => __('Custom Header', 'wp-strip'),
+                'description' => __('Adds a custom header image uploader to the theme customizer. Disable if your theme handles headers separately.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'custom_background' => array(
+                'name'        => __('Custom Background', 'wp-strip'),
+                'description' => __('Adds a custom background color/image uploader to the theme customizer. Disable if your theme controls background styling.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'custom_logo' => array(
+                'name'        => __('Custom Logo Uploader', 'wp-strip'),
+                'description' => __('Adds a custom logo uploader to the theme customizer. Disable if your theme handles logos separately.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'site_icon' => array(
+                'name'        => __('Site Icon (Favicon Uploader)', 'wp-strip'),
+                'description' => __('The favicon uploader in the customizer. Disable if you set your favicon via theme or CDN.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'menus' => array(
+                'name'        => __('Navigation Menus', 'wp-strip'),
+                'description' => __('The navigation menu system (Appearance → Menus). Disable if your theme uses a different navigation approach or menus are hardcoded.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'widgets' => array(
+                'name'        => __('Widgets Subsystem', 'wp-strip'),
+                'description' => __('The entire widgets system including Appearance → Widgets. Disable if your theme uses block-based widget areas or has no widget support.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Login & Security (additional) ────────────────────────────────
+            'login_logo_link' => array(
+                'name'        => __('Login Logo Link to WordPress.org', 'wp-strip'),
+                'description' => __('Removes the WordPress.org link from the login page logo. Useful for white-label client sites.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'registration_password' => array(
+                'name'        => __('User-Set Password on Registration', 'wp-strip'),
+                'description' => __('Shows a password field on the registration form. Disable to force WordPress-generated passwords for tighter control.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'xmlrpc_pingback' => array(
+                'name'        => __('XML-RPC Pingback Methods', 'wp-strip'),
+                'description' => __('Specifically disables pingback XML-RPC methods while leaving other XML-RPC functionality intact. Reduces DDoS attack surface.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Granular Comment Controls (additional) ───────────────────────
+            'comment_avatars' => array(
+                'name'        => __('Comment Avatars', 'wp-strip'),
+                'description' => __('Disables avatars inside comments only, without affecting other get_avatar() calls across the site.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comment_html' => array(
+                'name'        => __('Allowed HTML in Comments', 'wp-strip'),
+                'description' => __('Strips all HTML tags from comment submissions. Makes comments text-only for improved security.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Admin Nags & Notifications ────────────────────────────────────
+            'browser_update_nag' => array(
+                'name'        => __('Browser Update Nag', 'wp-strip'),
+                'description' => __('Removes the browser update nag from the admin dashboard. Reduces noise in controlled environments.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'php_update_nag' => array(
+                'name'        => __('PHP Version Update Nag', 'wp-strip'),
+                'description' => __('Removes the PHP version update nag from the dashboard. Useful when the host manages PHP separately.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'core_auto_update_email' => array(
+                'name'        => __('Core Auto-Update Emails', 'wp-strip'),
+                'description' => __('Suppresses email notifications when WordPress core updates automatically. Disable to reduce admin inbox noise.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'plugin_auto_update_email' => array(
+                'name'        => __('Plugin Auto-Update Emails', 'wp-strip'),
+                'description' => __('Suppresses email notifications when plugins update automatically. Disable if you monitor updates via a dashboard or log.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'theme_auto_update_email' => array(
+                'name'        => __('Theme Auto-Update Emails', 'wp-strip'),
+                'description' => __('Suppresses email notifications when themes update automatically. Disable for quieter admin email.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Media Defaults ───────────────────────────────────────────────
+            'default_attachment_display' => array(
+                'name'        => __('Default Attachment Link Behaviour', 'wp-strip'),
+                'description' => __('Forces all new image insertions to link to "none" instead of the attachment page by default.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Block Editor (additional) ────────────────────────────────────
+            'pattern_directory' => array(
+                'name'        => __('Pattern Directory (Remote Patterns)', 'wp-strip'),
+                'description' => __('Prevents loading remote block patterns from WordPress.org inside the editor. Reduces external requests.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── WooCommerce (additional) ─────────────────────────────────────
+            'wc_order_attribution' => array(
+                'name'        => __('WooCommerce Order Attribution', 'wp-strip'),
+                'description' => __('Tracks how customers found your store (source, campaign, etc.). Disable if you do not use WooCommerce built-in analytics.', 'wp-strip'),
+                'category'    => 'woocommerce',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wc_new_product_editor' => array(
+                'name'        => __('WooCommerce New Product Editor (Beta)', 'wp-strip'),
+                'description' => __('Opts out of the new block-based product editor beta. Reverts to the classic product editing screen.', 'wp-strip'),
+                'category'    => 'woocommerce',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wc_analytics' => array(
+                'name'        => __('WooCommerce Analytics', 'wp-strip'),
+                'description' => __('Removes WooCommerce analytics scripts and reports. Reduces admin JS payload if you use a third-party analytics tool.', 'wp-strip'),
+                'category'    => 'woocommerce',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
         );
 
         // Add WooCommerce features if WooCommerce is active
@@ -1877,6 +2082,142 @@ class WP_Strip {
                     }
                     return $fields;
                 });
+                break;
+
+            // ── Theme / Customiser (Phase 2) ────────────────────────────────
+            case 'custom_header':
+                add_action('after_setup_theme', function() {
+                    remove_theme_support('custom-header');
+                }, 100);
+                break;
+
+            case 'custom_background':
+                add_action('after_setup_theme', function() {
+                    remove_theme_support('custom-background');
+                }, 100);
+                break;
+
+            case 'custom_logo':
+                add_action('after_setup_theme', function() {
+                    remove_theme_support('custom-logo');
+                }, 100);
+                break;
+
+            case 'site_icon':
+                add_action('admin_menu', function() {
+                    remove_submenu_page('themes.php', 'customize.php?autofocus[control]=site_icon');
+                }, 999);
+                break;
+
+            case 'menus':
+                add_action('after_setup_theme', function() {
+                    remove_theme_support('menus');
+                    remove_theme_support('nav-menus');
+                }, 100);
+                add_action('admin_menu', function() {
+                    remove_menu_page('nav-menus.php');
+                }, 999);
+                break;
+
+            case 'widgets':
+                add_action('widgets_init', function() {
+                    global $wp_registered_sidebars;
+                    $wp_registered_sidebars = array();
+                }, 100);
+                add_action('admin_menu', function() {
+                    remove_submenu_page('themes.php', 'widgets.php');
+                }, 999);
+                break;
+
+            // ── Login & Security (Phase 2) ───────────────────────────────────
+            case 'login_logo_link':
+                add_filter('login_headerurl', '__return_empty_string');
+                add_filter('login_headertext', '__return_empty_string');
+                break;
+
+            case 'registration_password':
+                add_action('register_form', function() {
+                    // Remove the password field from registration form
+                    ob_start(function($content) {
+                        return preg_replace('/<p[^>]*>.*?password.*?<\/p>/is', '', $content);
+                    });
+                });
+                break;
+
+            case 'xmlrpc_pingback':
+                add_filter('xmlrpc_methods', function($methods) {
+                    unset($methods['pingback.ping']);
+                    unset($methods['pingback.extensions.getPingbacks']);
+                    return $methods;
+                });
+                break;
+
+            // ── Granular Comment Controls (Phase 2) ──────────────────────────
+            case 'comment_avatars':
+                add_filter('get_comment_avatar_url', '__return_false');
+                add_filter('get_avatar_comment_types', '__return_empty_array');
+                break;
+
+            case 'comment_html':
+                add_filter('pre_comment_content', 'wp_filter_nohtml_kses');
+                add_filter('comment_allowed_tags', '__return_empty_array');
+                break;
+
+            // ── Admin Nags & Notifications (Phase 2) ─────────────────────────
+            case 'browser_update_nag':
+                add_filter('wp_check_browser_version', '__return_null');
+                remove_action('admin_notices', 'check_browser_version');
+                break;
+
+            case 'php_update_nag':
+                add_action('admin_menu', function() {
+                    remove_meta_box('dashboard_php_nag', 'dashboard', 'normal');
+                    remove_action('admin_notices', 'update_nag', 3);
+                });
+                break;
+
+            case 'core_auto_update_email':
+                add_filter('auto_core_update_send_email', '__return_false');
+                break;
+
+            case 'plugin_auto_update_email':
+                add_filter('auto_plugin_update_send_email', '__return_false');
+                break;
+
+            case 'theme_auto_update_email':
+                add_filter('auto_theme_update_send_email', '__return_false');
+                break;
+
+            // ── Media Defaults (Phase 2) ─────────────────────────────────────
+            case 'default_attachment_display':
+                add_action('admin_init', function() {
+                    update_option('image_default_link_type', 'none');
+                });
+                // Lock the option so it stays
+                add_filter('pre_update_option_image_default_link_type', function() {
+                    return 'none';
+                });
+                break;
+
+            // ── Block Editor (Phase 2) ───────────────────────────────────────
+            case 'pattern_directory':
+                add_filter('should_load_remote_block_patterns', '__return_false');
+                break;
+
+            // ── WooCommerce (Phase 2) ────────────────────────────────────────
+            case 'wc_order_attribution':
+                add_filter('woocommerce_order_attribution_enabled', '__return_false');
+                break;
+
+            case 'wc_new_product_editor':
+                add_filter('woocommerce_feature_new_product_editor_enabled', '__return_false');
+                break;
+
+            case 'wc_analytics':
+                add_action('admin_enqueue_scripts', function() {
+                    wp_dequeue_script('wc-admin-analytics');
+                    wp_dequeue_style('wc-admin-analytics');
+                }, 100);
                 break;
         }
     }
