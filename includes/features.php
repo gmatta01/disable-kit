@@ -255,7 +255,7 @@ trait WP_Strip_Features {
     public function disable_emoji() {
         // Remove emoji CDN hostname from DNS prefetching hints
         add_filter('wp_resource_hints', function($urls, $relation_type) {
-            if ('dns-prefetch' == $relation_type) {
+            if ('dns-prefetch' === $relation_type) {
                 $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/');
                 $urls = array_diff($urls, array($emoji_svg_url));
             }
@@ -317,8 +317,7 @@ trait WP_Strip_Features {
             global $wp_query;
             $wp_query->set_404();
             status_header(404);
-            get_template_part(404);
-            exit();
+            wp_die('', '', 404);
         }
     }
     
@@ -342,8 +341,7 @@ trait WP_Strip_Features {
             global $wp_query;
             $wp_query->set_404();
             status_header(404);
-            get_template_part(404);
-            exit();
+            wp_die('', '', 404);
         }
     }
     
