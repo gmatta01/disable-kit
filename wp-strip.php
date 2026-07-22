@@ -1,0 +1,1932 @@
+<?php
+/**
+ * Plugin Name: WP Strip
+ * Plugin URI: https://github.com/gmatta01/wp-strip
+ * Description: Strip unwanted WordPress features for a leaner, faster, more secure site.
+ * Version: 1.0.0
+ * Author: GM
+ * Author URI: https://github.com/gmatta01
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: wp-strip
+ * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.5
+ * Requires PHP: 7.4
+ * Network: false
+ * 
+ * @package WPFeatureManager
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Define plugin constants
+define('WP_STRIP_VERSION', '1.0.0');
+define('WP_STRIP_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('WP_STRIP_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('WP_STRIP_PLUGIN_FILE', __FILE__);
+
+// Safety kill switch - can be added to wp-config.php to bypass all functionality
+if (defined('DISABLE_WP_STRIP') && DISABLE_WP_STRIP) {
+    return;
+}
+
+// Include required files
+require_once WP_STRIP_PLUGIN_DIR . 'includes/admin.php';
+require_once WP_STRIP_PLUGIN_DIR . 'includes/features.php';
+
+// Include debug file only when the explicit debug tools constant is set
+if (defined('WP_STRIP_DEBUG_TOOLS') && WP_STRIP_DEBUG_TOOLS) {
+    require_once WP_STRIP_PLUGIN_DIR . 'includes/debug.php';
+}
+
+/**
+ * Main plugin class
+ */
+class WP_Strip {
+    
+    // Include trait files
+    use WP_Strip_Admin;
+    use WP_Strip_Features;
+    
+    /**
+     * Single instance of the plugin
+     */
+    private static $instance = null;
+    
+    /**
+     * Array of manageable features
+     */
+    private $features = array();
+    
+    /**
+     * Plugin options key
+     */
+    private $options_key = 'wp_strip_settings';
+    
+    /**
+     * Get single instance
+     */
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Constructor
+     */
+    private function __construct() {
+        $this->init_hooks();
+        $this->define_features();
+        $this->init_feature_controls();
+    }
+    
+    /**
+     * Initialize hooks
+     */
+    private function init_hooks() {
+        // Plugin lifecycle hooks
+        register_activation_hook(WP_STRIP_PLUGIN_FILE, array($this, 'activate'));
+        register_deactivation_hook(WP_STRIP_PLUGIN_FILE, array($this, 'deactivate'));
+        
+        // Admin hooks
+        add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_init', array($this, 'admin_init'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // AJAX hooks
+        add_action('wp_ajax_toggle_feature', array($this, 'ajax_toggle_feature'));
+        
+        // Load plugin textdomain
+        add_action('plugins_loaded', array($this, 'load_textdomain'));
+    }
+    
+    /**
+     * Define all manageable features
+     *
+     * Each feature supports:
+     *   name        — Display label (plain English)
+     *   description — What it does, what breaks if disabled, when to disable
+     *   category    — Groups the feature in the UI
+     *   risk        — 'low' | 'medium' | 'high'
+     *   scope       — 'frontend' | 'admin' | 'both'
+     *   default     — bool, whether enabled by default
+     *   priority    — int, load order
+     */
+    private function define_features() {
+        $this->features = array(
+
+            // ── Writing & Content ────────────────────────────────────────────
+            'gutenberg' => array(
+                'name'        => __('Block Editor (Gutenberg)', 'wp-strip'),
+                'description' => __('The modern drag-and-drop editor for posts and pages. Disabling it reverts to the Classic Editor. Most page builders like Elementor still work without it, but the native block editor will be gone.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'classic_editor' => array(
+                'name'        => __('Classic Editor (TinyMCE)', 'wp-strip'),
+                'description' => __('The legacy text editor toolbar. Disable this only if every user on your site is comfortable with the block editor and no plugins depend on the old TinyMCE interface.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'block_widgets' => array(
+                'name'        => __('Block Widgets Editor', 'wp-strip'),
+                'description' => __('Replaces the classic widget area with a block-based editor. Disable to restore the traditional drag-and-drop widget panel, which some plugins still rely on.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'site_editor' => array(
+                'name'        => __('Full Site Editor', 'wp-strip'),
+                'description' => __('Allows editing your entire site layout — header, footer, templates — using blocks. Only available with block themes. Disabling removes it from the admin menu but does not break the site.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'posts' => array(
+                'name'        => __('Blog Posts', 'wp-strip'),
+                'description' => __('The core blog post content type. Disabling removes the Posts menu and all post-related pages from the admin. Only safe for sites that do not publish blog content.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'pages' => array(
+                'name'        => __('Pages', 'wp-strip'),
+                'description' => __('Static pages (About, Contact, etc.). Disabling removes the Pages menu and all static pages from the admin. Only disable if your site is a pure single-page or application build.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'attachments' => array(
+                'name'        => __('Media Attachments', 'wp-strip'),
+                'description' => __('The media library and file uploads. Disabling removes the Media menu. Images already on your site remain, but you cannot add new ones through the admin.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'categories' => array(
+                'name'        => __('Post Categories', 'wp-strip'),
+                'description' => __('Organises posts into groups. Disabling removes category management and category archive pages. Safe only for sites that do not use post categories at all.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'tags' => array(
+                'name'        => __('Post Tags', 'wp-strip'),
+                'description' => __('Keyword labels attached to posts. Disabling removes tag management and tag archive pages. Safe if your site does not use tags for navigation or SEO.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comments' => array(
+                'name'        => __('Comments System', 'wp-strip'),
+                'description' => __('Visitor comments on posts and pages. Disabling removes comment forms, the admin comments menu, and all comment data from page loads. Cannot be reversed per-post once globally disabled.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'revisions' => array(
+                'name'        => __('Post Revision History', 'wp-strip'),
+                'description' => __('Saves a copy of your post every time you update it, allowing you to roll back changes. Disabling stops new revisions from being created. Existing revisions remain in the database.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'autosave' => array(
+                'name'        => __('Auto-Save While Editing', 'wp-strip'),
+                'description' => __('Automatically saves a draft copy of your post every 60 seconds while you type. Disabling may cause you to lose work if your browser crashes or connection drops.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Media & Embeds ───────────────────────────────────────────────
+            'embeds' => array(
+                'name'        => __('Automatic Link Previews (oEmbed)', 'wp-strip'),
+                'description' => __('Turns YouTube, Twitter, and other links into embedded previews automatically. Also lets your content be embedded on other sites. Disable if you prefer plain links and want to reduce external requests.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'emoji' => array(
+                'name'        => __('WordPress Emoji Support', 'wp-strip'),
+                'description' => __('Loads a JavaScript file to render emoji consistently across older browsers. Modern browsers display emoji natively, so this script is usually unnecessary and adds a small page load overhead.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'gravatars' => array(
+                'name'        => __('Gravatar Profile Images', 'wp-strip'),
+                'description' => __('Loads comment author avatars from Gravatar.com. Each avatar is an external HTTP request. Disable to remove these requests and show a default avatar instead.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'dns_prefetch' => array(
+                'name'        => __('Browser DNS Pre-loading', 'wp-strip'),
+                'description' => __('Adds a hidden tag that tells browsers to pre-resolve domain names for external services before they are needed, slightly speeding up those connections. Safe to disable if you manage your own performance hints.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'google_fonts' => array(
+                'name'        => __('Google Fonts Loading', 'wp-strip'),
+                'description' => __('Some themes and plugins automatically load fonts from Google Fonts servers. Disable to stop these requests — useful for GDPR compliance or if you host fonts locally.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_lazy_load' => array(
+                'name'        => __('Native Image Lazy Loading', 'wp-strip'),
+                'description' => __('WordPress automatically adds loading="lazy" to images and iframes so they only load when scrolled into view. Disable only if you are using a third-party lazy loading plugin that conflicts with it.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_auto_scaling_images' => array(
+                'name'        => __('Auto-Scale Oversized Images', 'wp-strip'),
+                'description' => __('WordPress resizes images larger than 2560px wide on upload to save storage. Disable if you need to preserve original full-resolution images exactly as uploaded.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Site Speed ───────────────────────────────────────────────────
+            'heartbeat' => array(
+                'name'        => __('Background Auto-Sync', 'wp-strip'),
+                'description' => __('Sends a request to the server every 60 seconds while you have an admin page open, keeping your login session alive and enabling auto-save. Disabling reduces server load on shared hosting but stops real-time lock warnings in the editor.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'cron' => array(
+                'name'        => __('Scheduled Tasks (WP-Cron)', 'wp-strip'),
+                'description' => __('Runs scheduled jobs — publishing future posts, sending email notifications, plugin maintenance — triggered by site visits. Disable only if your hosting provider runs a real server-side cron job instead. Without either, scheduled posts will never publish.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'jquery_migrate' => array(
+                'name'        => __('jQuery Migrate Script', 'wp-strip'),
+                'description' => __('A compatibility shim that allows old jQuery code written before 2012 to keep working. Safe to disable on modern sites. If anything breaks after disabling, re-enable it — an old plugin likely depends on it.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_embed_script' => array(
+                'name'        => __('WordPress Embed Script', 'wp-strip'),
+                'description' => __('Loads a script that lets other sites embed your content as a preview card. Disable if you do not need your content to be embeddable elsewhere — saves one HTTP request.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comment_reply_script' => array(
+                'name'        => __('Comment Reply Script', 'wp-strip'),
+                'description' => __('Loads a tiny script that moves the comment form below the reply you clicked. Only needed if comments are enabled. Safe to disable on sites without comments.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'admin_bar_script' => array(
+                'name'        => __('Admin Bar Frontend Script', 'wp-strip'),
+                'description' => __('Loads a small JavaScript file on the public site to support the admin toolbar shown to logged-in users. Safe to disable if you have disabled the admin bar or do not use it.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'backbone_underscore' => array(
+                'name'        => __('Legacy JavaScript Libraries', 'wp-strip'),
+                'description' => __('Loads Backbone.js and Underscore.js — older JavaScript libraries required by some classic WordPress features. Disable only if no plugins or themes on your site use them. If things break, re-enable.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_util_script' => array(
+                'name'        => __('WordPress Helper Scripts', 'wp-strip'),
+                'description' => __('Loads wp-util.js, a small helper used by some WordPress AJAX features and media handling. Safe to disable on simple sites, but may break upload flows or dynamic forms on complex setups.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'jquery_ui_scripts' => array(
+                'name'        => __('Interactive UI Scripts (jQuery UI)', 'wp-strip'),
+                'description' => __('Loads jQuery UI components like date pickers, sliders, and drag-and-drop. Many contact form and booking plugins depend on these. Disable only if you have confirmed nothing on your site uses jQuery UI.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'masonry_script' => array(
+                'name'        => __('Photo Grid Layout Scripts', 'wp-strip'),
+                'description' => __('Loads Masonry.js and ImagesLoaded.js, used for Pinterest-style waterfall image grids. Safe to disable if your theme or galleries do not use a masonry layout.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_mediaelement' => array(
+                'name'        => __('Audio/Video Player Scripts', 'wp-strip'),
+                'description' => __('Loads the MediaElement.js player used for audio and video blocks. Disable if you do not embed audio or video in your posts and use a third-party player instead.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_accessibility' => array(
+                'name'        => __('Accessibility Scripts', 'wp-strip'),
+                'description' => __('Loads wp-a11y.js which announces dynamic UI changes to screen readers. Disable only if you have confirmed no visitors use assistive technology and no plugins rely on it. Removing it may harm accessibility compliance.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'version_strings' => array(
+                'name'        => __('WordPress Version Number Exposure', 'wp-strip'),
+                'description' => __('Controls whether WordPress version metadata stays visible in page source and feeds. Disable this to hide version output and reduce version fingerprinting.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_wlwmanifest' => array(
+                'name'        => __('Windows Live Writer Link', 'wp-strip'),
+                'description' => __('Removes a legacy link tag added for Windows Live Writer, a blogging app discontinued in 2017. Nobody needs this anymore — safe to disable on all sites.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_wp_shortlink' => array(
+                'name'        => __('WordPress Shortlink Tag', 'wp-strip'),
+                'description' => __('Removes a short URL tag from your page source and HTTP headers. These shortlinks use the ?p=ID format and are rarely used. Safe to disable on all sites.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_rest_api_links' => array(
+                'name'        => __('REST API Discovery Tags', 'wp-strip'),
+                'description' => __('Removes hint tags from your page source that tell clients where your REST API lives. The API still works — this only removes the auto-discovery advertisement. Safe for all sites.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_rss_feed_links' => array(
+                'name'        => __('RSS Feed Discovery Tags', 'wp-strip'),
+                'description' => __('Removes the RSS and Atom link tags from your page source that tell feed readers where your feeds are. Your feeds still work — this only removes the auto-discovery hints.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'remove_query_strings' => array(
+                'name'        => __('Cache-Friendly Asset URLs', 'wp-strip'),
+                'description' => __('Removes the ?ver= version number from CSS and JavaScript file URLs. Some proxy servers and CDNs refuse to cache URLs that contain query strings, so removing them can improve cache hit rates.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_legacy_css' => array(
+                'name'        => __('Unused Legacy Styles', 'wp-strip'),
+                'description' => __('Stops loading old CSS for the classic Recent Comments widget and the classic gallery shortcode. Safe to disable on any site using a modern theme — these stylesheets are virtually never needed.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'remove_block_library_css' => array(
+                'name'        => __('Block Editor CSS', 'wp-strip'),
+                'description' => __('Removes three Gutenberg stylesheet files from your public pages. Only disable this if your site uses the Classic Editor and no blocks — it will break block layouts if blocks are in use.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_auto_trash_empty' => array(
+                'name'        => __('Scheduled Trash Cleanup', 'wp-strip'),
+                'description' => __('WordPress automatically deletes trashed posts after 30 days via a background task. Disable if you prefer to manage trash manually or if the task is adding unnecessary database load.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'dashicons_guests' => array(
+                'name'        => __('Dashicons for Logged-Out Visitors', 'wp-strip'),
+                'description' => __('WordPress can load the Dashicons icon font on the frontend even for visitors who are not logged in. Disable to save one frontend stylesheet request on most sites.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'jquery_core_frontend' => array(
+                'name'        => __('jQuery Core on Frontend', 'wp-strip'),
+                'description' => __('Many modern themes no longer need jQuery on public pages. Disable to prevent loading jQuery core on the frontend. Keep enabled if your theme/plugins depend on jQuery.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'high',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'jquery_migrate_admin' => array(
+                'name'        => __('jQuery Migrate in Admin', 'wp-strip'),
+                'description' => __('Removes jQuery Migrate from wp-admin. Useful for cleaner admin loads, but older admin plugins may rely on it.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'global_styles_inline_css' => array(
+                'name'        => __('Global Styles Inline CSS', 'wp-strip'),
+                'description' => __('Disables WordPress global styles CSS output used mainly by block themes and block-based styling. Can reduce frontend head bloat on classic themes.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'svg_duotone_filters' => array(
+                'name'        => __('SVG Duotone Filters Output', 'wp-strip'),
+                'description' => __('Stops WordPress from outputting hidden SVG filter markup used by some block image effects. Safe on sites not using duotone effects.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'adjacent_posts_links' => array(
+                'name'        => __('Adjacent Post Links in Head', 'wp-strip'),
+                'description' => __('Removes prev/next relational link tags from the HTML head. Most modern SEO setups do not require these tags.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'disable_rsd_link' => array(
+                'name'        => __('RSD Link Tag', 'wp-strip'),
+                'description' => __('Removes the legacy Really Simple Discovery (RSD) link tag from page head output. Rarely needed on modern sites.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comment_feeds' => array(
+                'name'        => __('Comment Feed Endpoints', 'wp-strip'),
+                'description' => __('Disables comment-specific feed endpoints (RSS2/Atom comments) while keeping normal post feeds configurable separately.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_sitemaps' => array(
+                'name'        => __('Built-In WordPress Sitemaps', 'wp-strip'),
+                'description' => __('Disables native WordPress XML sitemaps. Useful if your SEO plugin already generates sitemaps to avoid duplicate endpoints.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'remote_block_patterns' => array(
+                'name'        => __('Remote Block Pattern Loading', 'wp-strip'),
+                'description' => __('Prevents WordPress from fetching block patterns from remote sources in wp-admin, reducing background requests and editor clutter.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'core_block_patterns' => array(
+                'name'        => __('Core Block Patterns', 'wp-strip'),
+                'description' => __('Disables default WordPress block patterns. Helpful on streamlined sites using custom templates or classic editors.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'block_editor_assets_non_editors' => array(
+                'name'        => __('Block Editor Assets for Non-Editors', 'wp-strip'),
+                'description' => __('Prevents loading block editor scripts/styles in wp-admin for users who cannot edit posts, reducing backend payload for support/shop roles.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Security & Privacy ───────────────────────────────────────────
+            'rest_api' => array(
+                'name'        => __('Remote App Connections (REST API)', 'wp-strip'),
+                'description' => __('Controls public REST API access. When disabled, guest (not logged-in) users are blocked, while logged-in users and authenticated clients can still access the API. This helps reduce anonymous endpoint exposure without breaking most admin/plugin workflows.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'xmlrpc' => array(
+                'name'        => __('Legacy Remote Publishing (XML-RPC)', 'wp-strip'),
+                'description' => __('An older protocol used by mobile apps, Jetpack, and some desktop blogging tools to post content remotely. Frequently targeted by brute-force attacks. Safe to disable if you do not use mobile posting apps or Jetpack.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_org_requests' => array(
+                'name'        => __('WordPress.org Communication', 'wp-strip'),
+                'description' => __('Periodic background calls to WordPress.org that check for plugin/theme updates and fetch news for the admin dashboard. Disabling stops update notifications entirely — you will not know when security patches are available.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'update_checks' => array(
+                'name'        => __('Automatic Updates', 'wp-strip'),
+                'description' => __('Automatically installs WordPress core security releases, and optionally theme/plugin updates. Disabling means security patches will not be applied without manual action. Not recommended unless you manage updates through a deployment pipeline.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'high',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'user_registration' => array(
+                'name'        => __('Public User Registration', 'wp-strip'),
+                'description' => __('Allows visitors to create an account on your site. Disable to prevent new self-registrations — existing users are unaffected. Recommended for sites where only admins should add new users.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'user_enumeration' => array(
+                'name'        => __('Username Discovery', 'wp-strip'),
+                'description' => __('Controls public username discovery via ?author=1 URLs and REST user endpoints. Disable this feature to block username discovery and reduce information exposure to scanners.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Admin Interface ──────────────────────────────────────────────
+            'dashboard_widgets' => array(
+                'name'        => __('Dashboard Widgets', 'wp-strip'),
+                'description' => __('The default information boxes on the WordPress dashboard (Activity, Quick Draft, WordPress Events, etc.). Safe to disable — hides visual clutter for clients without affecting site functionality.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'admin_bar' => array(
+                'name'        => __('Admin Toolbar', 'wp-strip'),
+                'description' => __('The black bar shown at the top of the page for logged-in users, with links to the dashboard, post editing, and user profile. Disabling removes it site-wide for all users.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'customizer' => array(
+                'name'        => __('Theme Customizer', 'wp-strip'),
+                'description' => __('The live preview panel for adjusting site-wide colours, fonts, and layout. Disable to remove it from the Appearance menu. Not available on block themes anyway — safe to disable if you use a block theme.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'theme_editor' => array(
+                'name'        => __('Theme File Editor', 'wp-strip'),
+                'description' => __('The in-admin code editor for directly modifying theme PHP and CSS files. Disabling this is a security best practice — direct file edits via the browser are risky. Recommended to keep disabled after initial setup.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'plugin_editor' => array(
+                'name'        => __('Plugin File Editor', 'wp-strip'),
+                'description' => __('The in-admin code editor for directly modifying plugin PHP files. Disabling this is a security best practice — a single typo can crash your site. Recommended to keep disabled.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'welcome_panel' => array(
+                'name'        => __('Welcome Panel', 'wp-strip'),
+                'description' => __('The "Welcome to WordPress" box shown on the dashboard to new users. Safe to disable once your team is comfortable with the admin — reduces visual clutter.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Feeds & Connections ──────────────────────────────────────────
+            'rss_feeds' => array(
+                'name'        => __('RSS / Atom Feeds', 'wp-strip'),
+                'description' => __('Syndication feeds that let readers subscribe to your content via RSS readers or podcast apps. Disable only if you do not want your content syndicated and no services rely on your feeds.', 'wp-strip'),
+                'category'    => 'feeds',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'rdf_feed' => array(
+                'name'        => __('RDF Feed (Legacy Syndication)', 'wp-strip'),
+                'description' => __('An older feed format used before RSS was standardised. Virtually no modern feed reader uses RDF. Safe to disable on all sites.', 'wp-strip'),
+                'category'    => 'feeds',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'pingbacks' => array(
+                'name'        => __('Cross-Site Link Notifications', 'wp-strip'),
+                'description' => __('Sends and receives notifications when your posts link to other WordPress sites. Frequently abused for spam. Disable unless you specifically want to participate in the pingback/trackback network.', 'wp-strip'),
+                'category'    => 'feeds',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Search & Archives ────────────────────────────────────────────
+            'search' => array(
+                'name'        => __('Site Search', 'wp-strip'),
+                'description' => __('The built-in WordPress search that lets visitors find content on your site. Disabling redirects all search requests to the homepage. Only disable if you use an external search service like Algolia or Elasticsearch.', 'wp-strip'),
+                'category'    => 'archives',
+                'risk'        => 'high',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'archives' => array(
+                'name'        => __('Date Archive Pages', 'wp-strip'),
+                'description' => __('Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling redirects these URLs to the homepage and can help avoid duplicate content issues for SEO.', 'wp-strip'),
+                'category'    => 'archives',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'attachment_pages' => array(
+                'name'        => __('Media Attachment Pages', 'wp-strip'),
+                'description' => __('Individual pages generated for each uploaded image or file (e.g. /site.com/photo-of-something/). These thin pages are considered bad for SEO. Disabling them redirects the URL to the file itself.', 'wp-strip'),
+                'category'    => 'archives',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'author_archives' => array(
+                'name'        => __('Author Archive Pages', 'wp-strip'),
+                'description' => __('Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these duplicate your homepage. Disabling redirects author URLs to the homepage.', 'wp-strip'),
+                'category'    => 'archives',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Content & Text Processing ─────────────────────────────────────
+            'capital_p_dangit' => array(
+                'name'        => __('Auto-correct "WordPress" Spelling', 'wp-strip'),
+                'description' => __('A tiny filter that runs on every content output to correct "Wordpress" to "WordPress". Purely cosmetic — disable to remove one unnecessary string replacement on every page load.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wptexturize' => array(
+                'name'        => __('Smart Punctuation (wptexturize)', 'wp-strip'),
+                'description' => __('Converts straight quotes to curly quotes, em-dashes, and other typographic symbols. CPU-heavy on long content. Disable if your theme or a plugin handles typography.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'convert_smilies' => array(
+                'name'        => __('Text Smilies to Images', 'wp-strip'),
+                'description' => __('Converts text emoticons like :-) to image-based smileys. Legacy feature — most sites use native emoji. Safe to disable.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'post_formats' => array(
+                'name'        => __('Post Formats', 'wp-strip'),
+                'description' => __('Adds a meta box to choose a post format (aside, gallery, video, etc.). Unused on most modern themes. Disabling it removes UI clutter without affecting content display.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'link_manager' => array(
+                'name'        => __('Link Manager (Blogroll)', 'wp-strip'),
+                'description' => __('A deprecated link/blogroll manager from early WordPress. Still present as a hidden feature. Disable to remove this legacy code path.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Media & Images ────────────────────────────────────────────────
+            'responsive_images' => array(
+                'name'        => __('Responsive Images (srcset)', 'wp-strip'),
+                'description' => __('Adds srcset/sizes attributes to images for responsive loading. Useful if your CDN or lazy-load plugin handles responsive images instead. Disabling reduces HTML size.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'webp_uploads' => array(
+                'name'        => __('WebP Conversion on Upload', 'wp-strip'),
+                'description' => __('WordPress automatically generates WebP versions of uploaded images. Disable if using a separate image optimization plugin that handles format conversion.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'pdf_thumbnails' => array(
+                'name'        => __('PDF Thumbnail Generation', 'wp-strip'),
+                'description' => __('Generates thumbnail previews for uploaded PDF files. Saves server resources if PDF previews are not needed in the media library.', 'wp-strip'),
+                'category'    => 'media',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Frontend Head & Assets ────────────────────────────────────────
+            'canonical_links' => array(
+                'name'        => __('Canonical Link Tags', 'wp-strip'),
+                'description' => __('Adds rel=canonical link tags to page headers for SEO. Duplicate tags can confuse crawlers if an SEO plugin is also active. Disable if your SEO plugin handles canonicity.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'wp_resource_hints' => array(
+                'name'        => __('Resource Hints (dns-prefetch, preconnect)', 'wp-strip'),
+                'description' => __('Adds dns-prefetch and preconnect hints to page headers. Broad toggle for sites that manage resource hints via CDN or theme.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'generator_meta_rss' => array(
+                'name'        => __('Generator Tag in RSS Feeds', 'wp-strip'),
+                'description' => __('Adds a WordPress version generator tag to RSS feeds, separate from the HTML generator. Hiding it reduces version fingerprinting via feeds.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'interactivity_api' => array(
+                'name'        => __('Interactivity API Scripts', 'wp-strip'),
+                'description' => __('Loads the Interactivity API — new in WordPress 6.5 — on pages using interactive blocks. Safe to disable if your site does not use interactive blocks.', 'wp-strip'),
+                'category'    => 'speed',
+                'risk'        => 'medium',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Security & Access ─────────────────────────────────────────────
+            'application_passwords' => array(
+                'name'        => __('Application Passwords', 'wp-strip'),
+                'description' => __('Allows external apps to authenticate with WordPress via generated passwords. Reduces attack surface if your site does not use external integrations.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'medium',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'login_language_selector' => array(
+                'name'        => __('Login Page Language Selector', 'wp-strip'),
+                'description' => __('Shows a language dropdown on the login page. Single-language sites do not need this. Safe to disable.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'lost_password' => array(
+                'name'        => __('Lost Password Flow', 'wp-strip'),
+                'description' => __('The "Lost your password?" link on the login page. Useful for intranets where admins reset passwords manually. Disabling removes the password reset flow entirely.', 'wp-strip'),
+                'category'    => 'security',
+                'risk'        => 'high',
+                'scope'       => 'both',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Admin & Dashboard ─────────────────────────────────────────────
+            'wp_news_dashboard' => array(
+                'name'        => __('WordPress Events & News Widget', 'wp-strip'),
+                'description' => __('Removes the WordPress Events and News dashboard widget, which makes an external request to WordPress.org on every dashboard load.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'admin_email_verification' => array(
+                'name'        => __('Admin Email Verification Screen', 'wp-strip'),
+                'description' => __('Removes the periodic "Is this still the admin email?" interruption. Useful for controlled environments where the admin email is stable.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'command_palette' => array(
+                'name'        => __('Command Palette', 'wp-strip'),
+                'description' => __('The Ctrl+K / Cmd+K command palette in the admin. Reduces JavaScript payload for users who do not use keyboard shortcuts.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'privacy_policy_guide' => array(
+                'name'        => __('Privacy Policy Guide', 'wp-strip'),
+                'description' => __('The suggested privacy policy content guide in Tools. Remove if your site already has a bespoke legal policy.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'health_check' => array(
+                'name'        => __('Site Health', 'wp-strip'),
+                'description' => __('The Site Health tool in Tools menu. Disable to remove the menu item and async health checks on locked-down or staging sites.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'export_erase_personal_data' => array(
+                'name'        => __('Export / Erase Personal Data Tools', 'wp-strip'),
+                'description' => __('The Export Personal Data and Erase Personal Data tools under Tools. Disable for sites not subject to GDPR-style data requests.', 'wp-strip'),
+                'category'    => 'admin_ui',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Block Editor & Site Editor ────────────────────────────────────
+            'block_directory' => array(
+                'name'        => __('Block Directory', 'wp-strip'),
+                'description' => __('Allows installing blocks from WordPress.org inside the block editor. Disable to prevent one-click block installation from the editor.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'medium',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'font_library' => array(
+                'name'        => __('Font Library', 'wp-strip'),
+                'description' => __('The Font Library (WordPress 6.5+) for managing Google Fonts locally. Disable if your theme or CDN handles font loading.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'admin',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+            // ── Granular Comment Controls ─────────────────────────────────────
+            'comment_cookies' => array(
+                'name'        => __('Comment Author Cookies', 'wp-strip'),
+                'description' => __('Saves comment author name, email, and URL in a cookie for convenience. Disable for privacy-conscious setups.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comment_threading' => array(
+                'name'        => __('Threaded/Nested Comment Replies', 'wp-strip'),
+                'description' => __('Allows threaded replies to comments. Disable for a flat comment structure.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+            'comment_url_field' => array(
+                'name'        => __('Website Field in Comment Form', 'wp-strip'),
+                'description' => __('Shows a website/URL input field in the comment form. Disable to reduce spam signals and simplify the comment form.', 'wp-strip'),
+                'category'    => 'writing',
+                'risk'        => 'low',
+                'scope'       => 'frontend',
+                'default'     => true,
+                'priority'    => 1
+            ),
+
+        );
+
+        // Add WooCommerce features if WooCommerce is active
+        if (class_exists('WooCommerce')) {
+            $this->features = array_merge($this->features, array(
+
+                // ── WooCommerce ──────────────────────────────────────────────
+                'wc_marketing_hub' => array(
+                    'name'        => __('WooCommerce Marketing Hub', 'wp-strip'),
+                    'description' => __('The Marketing section in the WooCommerce admin menu, containing promotions and campaign tools built by WooCommerce. Remove to unclutter the admin menu for stores that do not use it.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_marketplace_suggestions' => array(
+                    'name'        => __('WooCommerce Extension Suggestions', 'wp-strip'),
+                    'description' => __('In-admin recommendations to install paid WooCommerce extensions. Disable to stop these upsell prompts from appearing throughout the WooCommerce admin.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_admin_notices' => array(
+                    'name'        => __('WooCommerce Promotional Notices', 'wp-strip'),
+                    'description' => __('Admin-area banners and notices from WooCommerce promoting features, sales, and surveys. Safe to disable for a cleaner admin experience.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_setup_wizard' => array(
+                    'name'        => __('WooCommerce Setup Wizard', 'wp-strip'),
+                    'description' => __('The step-by-step store setup flow shown after installing WooCommerce. Disable once your store is set up to prevent it from re-appearing.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_home_screen' => array(
+                    'name'        => __('WooCommerce Home Screen', 'wp-strip'),
+                    'description' => __('The WooCommerce analytics overview dashboard shown as the default screen. Disable to remove this screen and reduce admin page load — useful on stores that use a different dashboard plugin.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_store_alerts' => array(
+                    'name'        => __('WooCommerce Store Alert Banners', 'wp-strip'),
+                    'description' => __('Top-of-admin notification banners from WooCommerce about store issues and promotions. Safe to disable once you are comfortable managing your store without them.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'admin',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_usage_tracking' => array(
+                    'name'        => __('WooCommerce Usage Tracking', 'wp-strip'),
+                    'description' => __('Sends anonymous data about your store setup to WooCommerce / Automattic to help them improve the product. Disable for privacy or to reduce background HTTP requests.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'low',
+                    'scope'       => 'both',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_checkout_blocks' => array(
+                    'name'        => __('WooCommerce Checkout & Cart Blocks', 'wp-strip'),
+                    'description' => __('The new block-based Cart and Checkout experience. Disabling reverts to the classic shortcode-based checkout. Only disable if you have confirmed your payment gateway works with the classic checkout.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'high',
+                    'scope'       => 'both',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_block_styles' => array(
+                    'name'        => __('WooCommerce Block Styles', 'wp-strip'),
+                    'description' => __('CSS loaded for WooCommerce block components like the product grid and filter blocks. Disable only if your theme provides its own WooCommerce block styles.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'medium',
+                    'scope'       => 'frontend',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_cart_fragments' => array(
+                    'name'        => __('WooCommerce Cart Counter Update', 'wp-strip'),
+                    'description' => __('Makes an AJAX request on every page load to fetch the live cart item count, so the cart icon stays up to date without a full page reload. Disabling removes this request but the cart count may show stale data until the page refreshes.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'high',
+                    'scope'       => 'frontend',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_password_strength' => array(
+                    'name'        => __('Password Strength Meter', 'wp-strip'),
+                    'description' => __('Shows a strength indicator when customers set a password at checkout or account creation. Disable to remove this script if your theme provides its own strength checking or if you want to reduce page weight.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'medium',
+                    'scope'       => 'both',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_conditional_assets' => array(
+                    'name'        => __('WooCommerce Assets on Non-Store Pages', 'wp-strip'),
+                    'description' => __('Keeps WooCommerce scripts/styles loaded on non-store pages too. Disable this to unload WooCommerce assets outside shop, product, cart, checkout, and account pages for better performance.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'medium',
+                    'scope'       => 'frontend',
+                    'default'     => true,
+                    'priority'    => 1
+                ),
+                'wc_reviews' => array(
+                    'name'        => __('Product Reviews & Ratings', 'wp-strip'),
+                    'description' => __('Allows customers to leave star ratings and written reviews on product pages. Disabling removes the review form and hides existing reviews from product pages.', 'wp-strip'),
+                    'category'    => 'woocommerce',
+                    'risk'        => 'medium',
+                    'scope'       => 'both',
+                    'default'     => true,
+                    'priority'    => 1
+                )
+            ));
+        }
+
+        // Allow other plugins to modify the feature list
+        $this->features = apply_filters('wp_strip_features', $this->features);
+    }
+    
+    /**
+     * Initialize feature controls based on current settings
+     */
+    private function init_feature_controls() {
+        $settings = $this->get_settings();
+        
+        foreach ($this->features as $feature_key => $feature_data) {
+            $is_enabled = isset($settings[$feature_key]) ? $settings[$feature_key] : $feature_data['default'];
+            
+            if (!$is_enabled) {
+                $this->disable_feature($feature_key);
+            }
+        }
+    }
+    
+    /**
+     * Disable a specific feature
+     */
+    private function disable_feature($feature_key) {
+        switch ($feature_key) {
+            case 'gutenberg':
+                add_action('init', array($this, 'disable_gutenberg'));
+                break;
+                
+            case 'classic_editor':
+                add_action('init', array($this, 'disable_classic_editor'));
+                break;
+                
+            case 'block_widgets':
+                add_filter('use_widgets_block_editor', '__return_false');
+                break;
+                
+            case 'site_editor':
+                remove_theme_support('block-templates');
+                remove_theme_support('block-template-parts');
+                // Use menu removal instead of the risky wp_is_block_theme filter
+                add_action('admin_menu', function() {
+                    remove_submenu_page('themes.php', 'site-editor.php');
+                    remove_submenu_page('themes.php', 'gutenberg-edit-site');
+                }, 999);
+                break;
+                
+            case 'posts':
+                add_action('init', function() {
+                    unregister_post_type('post');
+                }, 99);
+                // Remove from admin menu
+                add_action('admin_menu', function() {
+                    remove_menu_page('edit.php');
+                });
+                // Remove from admin bar
+                add_action('admin_bar_menu', function($wp_admin_bar) {
+                    $wp_admin_bar->remove_node('new-post');
+                }, 999);
+                break;
+                
+            case 'pages':
+                add_action('init', function() {
+                    unregister_post_type('page');
+                }, 99);
+                // Remove from admin menu
+                add_action('admin_menu', function() {
+                    remove_menu_page('edit.php?post_type=page');
+                });
+                // Remove from admin bar
+                add_action('admin_bar_menu', function($wp_admin_bar) {
+                    $wp_admin_bar->remove_node('new-page');
+                }, 999);
+                break;
+                
+            case 'attachments':
+                add_action('init', function() {
+                    unregister_post_type('attachment');
+                }, 99);
+                // Remove from admin menu
+                add_action('admin_menu', function() {
+                    remove_menu_page('upload.php');
+                });
+                // Remove from admin bar
+                add_action('admin_bar_menu', function($wp_admin_bar) {
+                    $wp_admin_bar->remove_node('new-media');
+                }, 999);
+                break;
+                
+            case 'categories':
+                add_action('init', function() {
+                    unregister_taxonomy('category');
+                }, 99);
+                break;
+                
+            case 'tags':
+                add_action('init', function() {
+                    unregister_taxonomy('post_tag');
+                }, 99);
+                break;
+                
+            case 'comments':
+                add_action('init', array($this, 'disable_comments'));
+                break;
+                
+            case 'pingbacks':
+                add_action('init', array($this, 'disable_pingbacks'));
+                break;
+                
+            case 'rest_api':
+                add_filter('rest_authentication_errors', function($result) {
+                    // Respect any authentication error added earlier in the chain.
+                    if (!empty($result)) {
+                        return $result;
+                    }
+
+                    // Allow authenticated users (admins/editors/API clients with auth).
+                    if (is_user_logged_in()) {
+                        return $result;
+                    }
+
+                    // Block unauthenticated (guest) REST API access.
+                    return new WP_Error('rest_disabled_guests', __('REST API is disabled for guest users.', 'wp-strip'), array('status' => 401));
+                });
+                break;
+                
+            case 'xmlrpc':
+                add_filter('xmlrpc_enabled', '__return_false');
+                break;
+                
+            case 'rss_feeds':
+                add_action('do_feed', array($this, 'disable_feeds'), 1);
+                add_action('do_feed_rdf', array($this, 'disable_feeds'), 1);
+                add_action('do_feed_rss', array($this, 'disable_feeds'), 1);
+                add_action('do_feed_rss2', array($this, 'disable_feeds'), 1);
+                add_action('do_feed_atom', array($this, 'disable_feeds'), 1);
+                break;
+                
+            case 'rdf_feed':
+                add_action('do_feed_rdf', array($this, 'disable_feeds'), 1);
+                break;
+                
+            case 'embeds':
+                add_action('init', array($this, 'disable_embeds'));
+                break;
+                
+            case 'emoji':
+                add_action('init', array($this, 'disable_emoji'));
+                break;
+                
+            case 'heartbeat':
+                add_action('init', array($this, 'disable_heartbeat'));
+                break;
+                
+            case 'cron':
+                // Disable the cron spawn by defining DISABLE_WP_CRON.
+                // Warning: this requires a server-side cron job to trigger wp-cron.php periodically.
+                // Without the constant, we disable the scheduled event loop as safely as possible.
+                if (!defined('DISABLE_WP_CRON')) {
+                    add_filter('pre_option_cron', '__return_null');
+                }
+                // Remove the cron admin panel
+                add_action('admin_menu', function() {
+                    remove_submenu_page('tools.php', 'tools.php?page=cron');
+                }, 999);
+                break;
+                
+            case 'user_registration':
+                add_filter('option_users_can_register', '__return_false');
+                break;
+                
+            case 'author_archives':
+                add_action('template_redirect', array($this, 'disable_author_archives'));
+                break;
+                
+            case 'search':
+                add_action('parse_query', array($this, 'disable_search'));
+                break;
+                
+            case 'archives':
+                add_action('template_redirect', array($this, 'disable_date_archives'));
+                break;
+                
+            case 'attachment_pages':
+                add_action('template_redirect', function() {
+                    if (is_attachment()) {
+                        global $wp_query;
+                        $wp_query->set_404();
+                        status_header(404);
+                    }
+                });
+                break;
+                
+            case 'revisions':
+                add_filter('wp_revisions_to_keep', '__return_zero');
+                remove_action('pre_post_update', 'wp_save_post_revision');
+                break;
+                
+            case 'autosave':
+                add_action('wp_print_scripts', function() {
+                    wp_deregister_script('autosave');
+                });
+                break;
+                
+            case 'dashboard_widgets':
+                add_action('wp_dashboard_setup', array($this, 'remove_dashboard_widgets'));
+                break;
+                
+            case 'admin_bar':
+                add_filter('show_admin_bar', '__return_false');
+                break;
+                
+            case 'customizer':
+                add_action('admin_menu', function() {
+                    global $submenu;
+                    if (isset($submenu['themes.php'])) {
+                        foreach ($submenu['themes.php'] as $index => $menu_item) {
+                            if (strpos($menu_item[0], 'Customize') !== false) {
+                                unset($submenu['themes.php'][$index]);
+                                break;
+                            }
+                        }
+                    }
+                });
+                break;
+                
+            case 'theme_editor':
+                add_action('admin_init', function() {
+                    if (!defined('DISALLOW_FILE_EDIT')) {
+                        define('DISALLOW_FILE_EDIT', true);
+                    }
+                    // Also block theme installation/update
+                    if (!defined('DISALLOW_FILE_MODS')) {
+                        define('DISALLOW_FILE_MODS', true);
+                    }
+                });
+                break;
+                
+            case 'plugin_editor':
+                add_action('admin_init', function() {
+                    // Use DISALLOW_FILE_MODS for plugin-level blocking
+                    // (allows theme editing while preventing plugin changes)
+                    if (!defined('DISALLOW_FILE_MODS')) {
+                        define('DISALLOW_FILE_MODS', true);
+                    }
+                });
+                break;
+                
+            case 'welcome_panel':
+                add_action('wp_dashboard_setup', function() {
+                    remove_action('welcome_panel', 'wp_welcome_panel');
+                });
+                break;
+                
+            case 'gravatars':
+                add_filter('pre_get_avatar', '__return_false');
+                add_filter('get_avatar', '__return_false');
+                break;
+                
+            case 'wp_org_requests':
+                add_filter('pre_http_request', array($this, 'block_wp_org_requests'), 10, 3);
+                break;
+                
+            case 'update_checks':
+                add_filter('pre_site_transient_update_core', '__return_null');
+                add_filter('pre_site_transient_update_plugins', '__return_null');
+                add_filter('pre_site_transient_update_themes', '__return_null');
+                break;
+                
+            case 'dns_prefetch':
+                remove_action('wp_head', 'wp_resource_hints', 2);
+                break;
+                
+            case 'google_fonts':
+                add_action('wp_enqueue_scripts', array($this, 'remove_google_fonts'), 999);
+                break;
+
+            case 'dashicons_guests':
+                add_action('wp_enqueue_scripts', function() {
+                    if (!is_user_logged_in()) {
+                        wp_deregister_style('dashicons');
+                    }
+                }, 100);
+                break;
+
+            case 'jquery_core_frontend':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('jquery');
+                    wp_deregister_script('jquery-core');
+                }, 100);
+                break;
+
+            case 'jquery_migrate_admin':
+                add_action('admin_enqueue_scripts', function() {
+                    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+                    if (is_object($screen) && isset($screen->id) && 'settings_page_wp-strip' === $screen->id) {
+                        return;
+                    }
+
+                    wp_deregister_script('jquery-migrate');
+                }, 100);
+                break;
+                
+            case 'jquery_migrate':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('jquery-migrate');
+                });
+                break;
+                
+            case 'wp_embed_script':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('wp-embed');
+                }, 100);
+                // Also remove the embed script from wp_footer
+                remove_action('wp_footer', 'wp_oembed_add_discovery_links');
+                remove_action('wp_head', 'wp_oembed_add_discovery_links');
+                break;
+                
+            case 'comment_reply_script':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('comment-reply');
+                }, 100);
+                break;
+                
+            case 'admin_bar_script':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('admin-bar');
+                }, 100);
+                break;
+                
+            case 'backbone_underscore':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('backbone');
+                    wp_deregister_script('underscore');
+                }, 100);
+                break;
+                
+            case 'wp_util_script':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('wp-util');
+                    wp_deregister_script('wp-a11y');
+                    wp_deregister_script('wp-sanitize');
+                }, 100);
+                break;
+                
+            case 'jquery_ui_scripts':
+                add_action('wp_enqueue_scripts', function() {
+                    $jquery_ui_scripts = array(
+                        'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse',
+                        'jquery-ui-accordion', 'jquery-ui-autocomplete', 'jquery-ui-button',
+                        'jquery-ui-datepicker', 'jquery-ui-dialog', 'jquery-ui-draggable',
+                        'jquery-ui-droppable', 'jquery-ui-menu', 'jquery-ui-position',
+                        'jquery-ui-progressbar', 'jquery-ui-resizable', 'jquery-ui-selectable',
+                        'jquery-ui-selectmenu', 'jquery-ui-slider', 'jquery-ui-sortable',
+                        'jquery-ui-spinner', 'jquery-ui-tabs', 'jquery-ui-tooltip',
+                        'jquery-ui-effects-core', 'jquery-ui-effects-blind', 'jquery-ui-effects-bounce',
+                        'jquery-ui-effects-clip', 'jquery-ui-effects-drop', 'jquery-ui-effects-explode',
+                        'jquery-ui-effects-fade', 'jquery-ui-effects-fold', 'jquery-ui-effects-highlight',
+                        'jquery-ui-effects-puff', 'jquery-ui-effects-pulsate', 'jquery-ui-effects-scale',
+                        'jquery-ui-effects-shake', 'jquery-ui-effects-size', 'jquery-ui-effects-slide',
+                        'jquery-ui-effects-transfer'
+                    );
+                    foreach ($jquery_ui_scripts as $script) {
+                        wp_deregister_script($script);
+                    }
+                }, 100);
+                break;
+                
+            case 'masonry_script':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('masonry');
+                    wp_deregister_script('imagesloaded');
+                    wp_deregister_script('jquery-masonry');
+                }, 100);
+                break;
+                
+            case 'wp_mediaelement':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('wp-mediaelement');
+                    wp_deregister_script('mediaelement');
+                    wp_deregister_script('mediaelement-core');
+                    wp_deregister_script('mediaelement-migrate');
+                    wp_deregister_style('wp-mediaelement');
+                    wp_deregister_style('mediaelement');
+                }, 100);
+                break;
+                
+            case 'wp_accessibility':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('wp-a11y');
+                }, 100);
+                break;
+                
+            case 'version_strings':
+                remove_action('wp_head', 'wp_generator');
+                add_filter('the_generator', '__return_empty_string');
+                break;
+                
+            case 'user_enumeration':
+                add_action('init', array($this, 'disable_user_enumeration'));
+                break;
+                
+            // WooCommerce features
+            case 'wc_marketing_hub':
+                add_action('admin_menu', function() {
+                    remove_menu_page('wc-admin&path=/marketing');
+                }, 999);
+                break;
+                
+            case 'wc_marketplace_suggestions':
+                add_filter('woocommerce_allow_marketplace_suggestions', '__return_false');
+                break;
+                
+            case 'wc_admin_notices':
+                // Target only WooCommerce-specific promotional notices.
+                // Avoids the dangerous remove_all_actions('admin_notices') pattern.
+                add_action('admin_head', function() {
+                    // Hide WooCommerce promotional banner and survey notices
+                    remove_action('admin_notices', 'woocommerce_show_admin_notice_marketplace_suggestions');
+                    remove_action('admin_notices', 'woocommerce_show_admin_notice_recommended_extensions');
+                    remove_action('admin_notices', 'woocommerce_show_admin_notice_survey');
+                }, 1);
+                add_filter('woocommerce_allow_marketplace_suggestions', '__return_false');
+                break;
+                
+            case 'wc_setup_wizard':
+                add_filter('woocommerce_enable_setup_wizard', '__return_false');
+                add_filter('woocommerce_show_admin_notice', '__return_false');
+                break;
+                
+            case 'wc_home_screen':
+                add_filter('woocommerce_admin_disabled', '__return_true');
+                break;
+                
+            case 'wc_store_alerts':
+                add_filter('woocommerce_admin_disabled', '__return_true');
+                break;
+                
+            case 'wc_usage_tracking':
+                add_filter('woocommerce_tracker_last_send_time', '__return_zero');
+                add_filter('woocommerce_allow_tracking', '__return_false');
+                break;
+                
+            case 'wc_checkout_blocks':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_style('wc-blocks-style');
+                    wp_dequeue_script('wc-blocks');
+                });
+                break;
+                
+            case 'wc_block_styles':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_style('wc-blocks-style');
+                    wp_dequeue_style('wc-blocks-vendors-style');
+                });
+                break;
+                
+            case 'wc_cart_fragments':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_script('wc-cart-fragments');
+                });
+                break;
+                
+            case 'wc_password_strength':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_script('wc-password-strength-meter');
+                });
+                break;
+
+            case 'wc_conditional_assets':
+                add_action('wp_enqueue_scripts', array($this, 'conditionally_disable_woocommerce_assets'), 99);
+                break;
+                
+            case 'wc_reviews':
+                add_filter('woocommerce_product_reviews_enabled', '__return_false');
+                break;
+
+            // Performance — Head Bloat
+            case 'disable_wlwmanifest':
+                remove_action('wp_head', 'wlwmanifest_link');
+                break;
+
+            case 'disable_wp_shortlink':
+                remove_action('wp_head', 'wp_shortlink_wp_head');
+                remove_action('template_redirect', 'wp_shortlink_header', 11);
+                break;
+
+            case 'disable_rest_api_links':
+                remove_action('wp_head', 'rest_output_link_wp_head');
+                remove_action('template_redirect', 'rest_output_link_header', 11);
+                break;
+
+            case 'disable_rss_feed_links':
+                remove_action('wp_head', 'feed_links', 2);
+                remove_action('wp_head', 'feed_links_extra', 3);
+                break;
+
+            case 'adjacent_posts_links':
+                remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0);
+                break;
+
+            case 'disable_rsd_link':
+                remove_action('wp_head', 'rsd_link');
+                break;
+
+            case 'comment_feeds':
+                add_action('do_feed_rss2_comments', array($this, 'disable_feeds'), 1);
+                add_action('do_feed_atom_comments', array($this, 'disable_feeds'), 1);
+                break;
+
+            case 'wp_sitemaps':
+                add_filter('wp_sitemaps_enabled', '__return_false');
+                break;
+
+            // Performance — Scripts & Styles
+            case 'remove_query_strings':
+                add_filter('script_loader_src', array($this, 'remove_query_strings_from_src'), 15, 1);
+                add_filter('style_loader_src', array($this, 'remove_query_strings_from_src'), 15, 1);
+                break;
+
+            case 'disable_legacy_css':
+                add_filter('show_recent_comments_widget_style', '__return_false');
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_style('classic-theme-styles');
+                    wp_dequeue_style('wp-block-library-theme');
+                }, 20);
+                break;
+
+            case 'remove_block_library_css':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_dequeue_style('wp-block-library');
+                    wp_dequeue_style('wp-block-library-theme');
+                    wp_dequeue_style('global-styles');
+                }, 100);
+                break;
+
+            case 'global_styles_inline_css':
+                remove_action('wp_enqueue_scripts', 'wp_enqueue_global_styles');
+                remove_action('wp_footer', 'wp_enqueue_global_styles', 1);
+                break;
+
+            case 'svg_duotone_filters':
+                remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
+                remove_action('admin_body_open', 'wp_global_styles_render_svg_filters');
+                break;
+
+            case 'remote_block_patterns':
+                add_filter('should_load_remote_block_patterns', '__return_false');
+                break;
+
+            case 'core_block_patterns':
+                remove_theme_support('core-block-patterns');
+                break;
+
+            case 'block_editor_assets_non_editors':
+                add_action('admin_enqueue_scripts', function() {
+                    if (!current_user_can('edit_posts')) {
+                        wp_dequeue_script('wp-edit-post');
+                        wp_dequeue_script('wp-editor');
+                        wp_dequeue_style('wp-block-library');
+                    }
+                }, 100);
+                break;
+
+            // Performance — Images
+            case 'disable_lazy_load':
+                add_filter('wp_lazy_loading_enabled', '__return_false');
+                break;
+
+            case 'disable_auto_scaling_images':
+                add_filter('big_image_size_threshold', '__return_false');
+                break;
+
+            // Performance — Database / Background Tasks
+            case 'disable_auto_trash_empty':
+                remove_action('wp_scheduled_delete', 'wp_scheduled_delete');
+                break;
+
+            // ── Content & Text Processing (Phase 2) ──────────────────────────
+            case 'capital_p_dangit':
+                add_action('init', function() {
+                    remove_filter('the_content', 'capital_P_dangit', 11);
+                    remove_filter('the_title', 'capital_P_dangit', 11);
+                    remove_filter('comment_text', 'capital_P_dangit', 31);
+                    remove_filter('the_excerpt', 'capital_P_dangit', 11);
+                });
+                break;
+
+            case 'wptexturize':
+                add_filter('run_wptexturize', '__return_false');
+                break;
+
+            case 'convert_smilies':
+                add_action('init', function() {
+                    remove_filter('the_content', 'convert_smilies', 20);
+                    remove_filter('the_excerpt', 'convert_smilies', 20);
+                    remove_filter('comment_text', 'convert_smilies', 20);
+                });
+                break;
+
+            case 'post_formats':
+                add_action('after_setup_theme', function() {
+                    remove_theme_support('post-formats');
+                }, 100);
+                break;
+
+            case 'link_manager':
+                add_filter('pre_option_link_manager_enabled', '__return_false');
+                break;
+
+            // ── Media & Images (Phase 2) ─────────────────────────────────────
+            case 'responsive_images':
+                add_filter('wp_calculate_image_srcset', '__return_false');
+                add_filter('wp_calculate_image_sizes', '__return_false');
+                break;
+
+            case 'webp_uploads':
+                add_filter('wp_upload_image_mime_transforms', '__return_empty_array');
+                break;
+
+            case 'pdf_thumbnails':
+                add_filter('fallback_intermediate_image_sizes', '__return_empty_array');
+                break;
+
+            // ── Frontend Head & Assets (Phase 2) ─────────────────────────────
+            case 'canonical_links':
+                remove_action('wp_head', 'rel_canonical');
+                break;
+
+            case 'wp_resource_hints':
+                remove_action('wp_head', 'wp_resource_hints', 2);
+                break;
+
+            case 'generator_meta_rss':
+                add_filter('the_generator', '__return_empty_string');
+                break;
+
+            case 'interactivity_api':
+                add_action('wp_enqueue_scripts', function() {
+                    wp_deregister_script('wp-interactivity');
+                }, 100);
+                break;
+
+            // ── Security & Access (Phase 2) ──────────────────────────────────
+            case 'application_passwords':
+                add_filter('wp_is_application_passwords_available', '__return_false');
+                break;
+
+            case 'login_language_selector':
+                add_filter('login_display_language_dropdown', '__return_false');
+                break;
+
+            case 'lost_password':
+                add_action('login_init', function() {
+                    if (isset($_GET['action']) && 'lostpassword' === $_GET['action']) {
+                        wp_redirect(home_url());
+                        exit;
+                    }
+                });
+                break;
+
+            // ── Admin & Dashboard (Phase 2) ──────────────────────────────────
+            case 'wp_news_dashboard':
+                add_action('wp_dashboard_setup', function() {
+                    remove_meta_box('dashboard_primary', 'dashboard', 'side');
+                });
+                break;
+
+            case 'admin_email_verification':
+                add_filter('admin_email_check_interval', '__return_zero');
+                break;
+
+            case 'command_palette':
+                add_action('admin_enqueue_scripts', function() {
+                    wp_deregister_script('wp-commands');
+                }, 100);
+                break;
+
+            case 'privacy_policy_guide':
+                add_action('admin_menu', function() {
+                    remove_submenu_page('tools.php', 'privacy.php');
+                }, 999);
+                break;
+
+            case 'health_check':
+                add_action('admin_menu', function() {
+                    remove_submenu_page('tools.php', 'site-health.php');
+                    remove_submenu_page('tools.php', 'health-check.php');
+                }, 999);
+                break;
+
+            case 'export_erase_personal_data':
+                add_action('admin_menu', function() {
+                    remove_submenu_page('tools.php', 'export-personal-data.php');
+                    remove_submenu_page('tools.php', 'erase-personal-data.php');
+                }, 999);
+                break;
+
+            // ── Block Editor (Phase 2) ───────────────────────────────────────
+            case 'block_directory':
+                add_action('enqueue_block_editor_assets', function() {
+                    wp_deregister_script('wp-block-directory');
+                }, 100);
+                break;
+
+            case 'font_library':
+                add_action('init', function() {
+                    remove_theme_support('font-library');
+                }, 100);
+                break;
+
+            // ── Granular Comment Controls (Phase 2) ──────────────────────────
+            case 'comment_cookies':
+                add_action('init', function() {
+                    remove_action('set_comment_cookies', 'wp_set_comment_cookies');
+                });
+                break;
+
+            case 'comment_threading':
+                add_filter('option_thread_comments', '__return_zero');
+                break;
+
+            case 'comment_url_field':
+                add_filter('comment_form_default_fields', function($fields) {
+                    if (isset($fields['url'])) {
+                        unset($fields['url']);
+                    }
+                    return $fields;
+                });
+                break;
+        }
+    }
+    
+    /**
+     * Get plugin settings
+     */
+    public function get_settings() {
+        return get_option($this->options_key, array());
+    }
+    
+    /**
+     * Update plugin settings
+     */
+    public function update_settings($settings) {
+        return update_option($this->options_key, $settings);
+    }
+    
+    /**
+     * Plugin activation
+     */
+    public function activate() {
+        // Set default settings if none exist
+        if (!get_option($this->options_key)) {
+            $default_settings = array();
+            foreach ($this->features as $key => $feature) {
+                $default_settings[$key] = $feature['default'];
+            }
+            $this->update_settings($default_settings);
+        }
+        
+        // Flush rewrite rules
+        flush_rewrite_rules();
+    }
+    
+    /**
+     * Plugin deactivation
+     */
+    public function deactivate() {
+        // Flush rewrite rules
+        flush_rewrite_rules();
+    }
+    
+    /**
+     * Load plugin textdomain
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain('wp-strip', false, dirname(plugin_basename(WP_STRIP_PLUGIN_FILE)) . '/languages/');
+    }
+}
+
+// Initialize the plugin
+WP_Strip::get_instance();

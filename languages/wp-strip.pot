@@ -1,0 +1,228 @@
+# WP Strip Translation Template
+# Copyright (C) 2024 WP Strip
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Strip 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-09-02 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: \n"
+
+#: wp-strip.php
+msgid "Blog Posts"
+msgstr ""
+
+msgid "Enable/disable the default \"post\" post type and all related functionality."
+msgstr ""
+
+msgid "Pages"
+msgstr ""
+
+msgid "Enable/disable the \"page\" post type."
+msgstr ""
+
+msgid "Media Attachments"
+msgstr ""
+
+msgid "Enable/disable media attachment post type."
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid "Enable/disable the category taxonomy."
+msgstr ""
+
+msgid "Tags"
+msgstr ""
+
+msgid "Enable/disable the post_tag taxonomy."
+msgstr ""
+
+msgid "Comments System"
+msgstr ""
+
+msgid "Enable/disable the entire comments system."
+msgstr ""
+
+msgid "Pingbacks & Trackbacks"
+msgstr ""
+
+msgid "Enable/disable pingback and trackback functionality."
+msgstr ""
+
+msgid "REST API"
+msgstr ""
+
+msgid "Enable/disable the WordPress REST API completely."
+msgstr ""
+
+msgid "XML-RPC"
+msgstr ""
+
+msgid "Enable/disable XML-RPC functionality."
+msgstr ""
+
+msgid "RSS/Atom Feeds"
+msgstr ""
+
+msgid "Enable/disable all RSS and Atom feed functionality."
+msgstr ""
+
+msgid "RDF Feed"
+msgstr ""
+
+msgid "Enable/disable RDF feed functionality."
+msgstr ""
+
+msgid "oEmbed Support"
+msgstr ""
+
+msgid "Enable/disable WordPress oEmbed functionality."
+msgstr ""
+
+msgid "Emoji Support"
+msgstr ""
+
+msgid "Enable/disable WordPress emoji conversion and scripts."
+msgstr ""
+
+msgid "Heartbeat API"
+msgstr ""
+
+msgid "Enable/disable the WordPress Heartbeat API."
+msgstr ""
+
+msgid "WP Cron"
+msgstr ""
+
+msgid "Enable/disable WordPress cron functionality."
+msgstr ""
+
+msgid "User Registration"
+msgstr ""
+
+msgid "Enable/disable new user registration."
+msgstr ""
+
+msgid "Author Archives"
+msgstr ""
+
+msgid "Enable/disable author archive pages."
+msgstr ""
+
+msgid "Search Functionality"
+msgstr ""
+
+msgid "Enable/disable WordPress search functionality."
+msgstr ""
+
+msgid "Date Archives"
+msgstr ""
+
+msgid "Enable/disable date-based archive pages."
+msgstr ""
+
+msgid "WP Strip"
+msgstr ""
+
+msgid "Content & Post Types"
+msgstr ""
+
+msgid "Taxonomies"
+msgstr ""
+
+msgid "Comments & Social"
+msgstr ""
+
+msgid "APIs"
+msgstr ""
+
+msgid "Feeds & Syndication"
+msgstr ""
+
+msgid "External Content"
+msgstr ""
+
+msgid "Performance & Background"
+msgstr ""
+
+msgid "User Features"
+msgstr ""
+
+msgid "Search & Navigation"
+msgstr ""
+
+msgid "REST API has been disabled."
+msgstr ""
+
+msgid "Feeds have been disabled."
+msgstr ""
+
+msgid "Feeds Disabled"
+msgstr ""
+
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+msgid "Control core WordPress features at the load level. Disabled features are completely removed from WordPress, not just hidden."
+msgstr ""
+
+msgid "Safety Information"
+msgstr ""
+
+msgid "If you accidentally disable critical features and cannot access this admin panel, add this line to your wp-config.php file:"
+msgstr ""
+
+msgid "Enable this feature"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Plugin Information"
+msgstr ""
+
+msgid "WP Strip v%s"
+msgstr ""
+
+msgid "This plugin works at the WordPress load level using hooks and priorities to completely disable features, not just hide them."
+msgstr ""
+
+msgid "Security check failed."
+msgstr ""
+
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+msgid "Invalid feature."
+msgstr ""
+
+msgid "Feature enabled."
+msgstr ""
+
+msgid "Feature disabled."
+msgstr ""
+
+msgid "Are you sure you want to disable this feature? This may affect your site functionality."
+msgstr ""
+
+msgid "Are you sure you want to enable this feature?"
+msgstr ""
+
+msgid "Saving changes..."
+msgstr ""
+
+msgid "Changes saved successfully!"
+msgstr ""
+
+msgid "An error occurred. Please try again."
+msgstr ""

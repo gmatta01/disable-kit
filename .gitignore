@@ -1,0 +1,26 @@
+# Ignore the doc/ directory (architecture analysis docs)
+doc/
+
+# Ignore analysis artifacts (not needed in the plugin repo)
+FEATURES_LIST.md
+IMPLEMENTATION_STATUS.md
+SECURITY_AUDIT_REPORT.md
+
+# WordPress standard ignores
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
