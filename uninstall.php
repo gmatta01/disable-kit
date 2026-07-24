@@ -1,8 +1,8 @@
 <?php
 /**
- * Uninstall script for WP Strip
+ * Uninstall script for Disable Kit
  * 
- * @package WPStrip
+ * @package DisableKit
  */
 
 // If uninstall not called from WordPress, then exit
@@ -11,27 +11,28 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 // Define plugin constants if not already defined
-if (!defined('WP_STRIP_VERSION')) {
-    define('WP_STRIP_VERSION', '1.0.0');
+if (!defined('DISABLE_KIT_VERSION')) {
+    define('DISABLE_KIT_VERSION', '1.0.0');
 }
 
 /**
  * Clean up plugin data on uninstall
  */
-class WP_Strip_Uninstall {
+class Disable_Kit_Uninstall {
     
     /**
      * Run uninstall process
      */
     public static function uninstall() {
         // Remove plugin options
-        delete_option('wp_strip_settings');
+        delete_option('disable_kit_settings');
+        delete_option('wp_strip_settings'); // legacy key from earlier branding
         
         // Remove any transients
-        delete_transient('wp_strip_cache');
+        delete_transient('disable_kit_cache');
         
         // Remove user meta if any
-        delete_metadata('user', 0, 'wp_strip_dismissed_notices', '', true);
+        delete_metadata('user', 0, 'disable_kit_dismissed_notices', '', true);
         
         // Flush rewrite rules to clean up any custom rules
         flush_rewrite_rules();
@@ -40,14 +41,12 @@ class WP_Strip_Uninstall {
         wp_cache_flush();
         
         // Remove any scheduled events if any were created
-        wp_clear_scheduled_hook('wp_strip_cleanup');
+        wp_clear_scheduled_hook('disable_kit_cleanup');
         
         // Log uninstall if WP_DEBUG is enabled
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('WP Strip: Plugin uninstalled and data cleaned up.');
-        }
+        // (intentionally silent in production)
     }
 }
 
 // Run the uninstall process
-WP_Strip_Uninstall::uninstall();
+Disable_Kit_Uninstall::uninstall();

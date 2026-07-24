@@ -1,8 +1,8 @@
 <?php
 /**
- * Feature disabling methods for WP Strip
+ * Feature disabling methods for Disable Kit
  * 
- *  WPStrip
+ *  DisableKit
  */
 
 // Prevent direct access
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 /**
  * Feature disabling methods (to be added to main class)
  */
-trait WP_Strip_Features {
+trait Disable_Kit_Features {
     
     /**
      * Disable Gutenberg completely
@@ -191,7 +191,11 @@ trait WP_Strip_Features {
      * Disable feeds
      */
     public function disable_feeds() {
-        wp_die(__('Feeds have been disabled.', 'wp-strip'), __('Feeds Disabled', 'wp-strip'), array('response' => 403));
+        wp_die(
+            esc_html__('Feeds have been disabled.', 'disable-kit'),
+            esc_html__('Feeds Disabled', 'disable-kit'),
+            array('response' => 403)
+        );
     }
     
     /**
@@ -446,9 +450,28 @@ trait WP_Strip_Features {
      */
     public function block_wp_org_requests($response, $parsed_args, $url) {
         if (strpos($url, 'api.wordpress.org') !== false || strpos($url, 'downloads.wordpress.org') !== false) {
-            return new WP_Error('http_request_failed', 'WordPress.org requests disabled by WP Strip');
+            return new WP_Error('http_request_failed', 'WordPress.org requests disabled by Disable Kit');
         }
         return $response;
+    }
+
+    /**
+     * Stop Core from running or scheduling background update checks.
+     *
+     * Used instead of update-transient filters so Plugin Check does not
+     * treat this plugin as a custom updater.
+     */
+    public function strip_background_update_checks() {
+        remove_action('admin_init', '_maybe_update_core');
+        remove_action('admin_init', '_maybe_update_plugins');
+        remove_action('admin_init', '_maybe_update_themes');
+        remove_action('wp_version_check', 'wp_version_check');
+        remove_action('wp_update_plugins', 'wp_update_plugins');
+        remove_action('wp_update_themes', 'wp_update_themes');
+
+        wp_clear_scheduled_hook('wp_version_check');
+        wp_clear_scheduled_hook('wp_update_plugins');
+        wp_clear_scheduled_hook('wp_update_themes');
     }
     
     /**
@@ -522,7 +545,15 @@ trait WP_Strip_Features {
     public function disable_user_enumeration() {
         // Block author parameter in URLs
         add_action('init', function() {
-            if (isset($_GET['author']) && !is_admin()) {
+            // Public ?author= query var — redirect only; no nonce on front-end requests.
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (!isset($_GET['author']) || is_admin()) {
+                return;
+            }
+
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $author = sanitize_text_field(wp_unslash($_GET['author']));
+            if ('' !== $author) {
                 wp_safe_redirect(home_url('/'), 301);
                 exit;
             }

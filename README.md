@@ -1,8 +1,8 @@
-# WP Strip
+# Disable Kit
 
-Strip unwanted WordPress features for a leaner, faster, more secure site.
+Disable unwanted WordPress features for a leaner, faster, more secure site.
 
-**WP Strip** gives administrators control over **132 core WordPress (and WooCommerce) features** at the load level—hooks, not menu hiding. Every toggle includes plain-English guidance, a risk label, and a scope tag.
+**Disable Kit** gives administrators control over **132 core WordPress (and WooCommerce) features** at the load level—hooks, not menu hiding. Every toggle includes plain-English guidance, a risk label, and a scope tag.
 
 No bloat. No page builders. No subscriptions.
 
@@ -10,9 +10,9 @@ No bloat. No page builders. No subscriptions.
 
 ## Installation
 
-1. Upload the `wp-strip` folder to `/wp-content/plugins/`
+1. Upload the `disable-kit` folder to `/wp-content/plugins/`
 2. Activate the plugin through the Plugins screen
-3. Open **Settings → WP Strip** to configure features
+3. Open **Settings → Disable Kit** to configure features
 
 ## Safety
 
@@ -21,22 +21,16 @@ No bloat. No page builders. No subscriptions.
 If a toggle locks you out of admin, add this to `wp-config.php`:
 
 ```php
-define( 'DISABLE_WP_STRIP', true );
+define( 'DISABLE_KIT_BYPASS', true );
 ```
 
 ### Other safeguards
 
 - Confirmation dialogs on critical disables
-- Persistent warnings when update checks, WordPress.org communication, or WP-Cron spawning are stripped
+- Persistent warnings when update checks, WordPress.org communication, or WP-Cron spawning are turned off
 - Risk labels: **high** / **medium** / **low**
 - Scope tags: **admin** / **frontend** / **both**
 - Parent → child cascade with locked children when a parent is off
-
-### Debug tools (optional)
-
-```php
-define( 'WP_STRIP_DEBUG_TOOLS', true );
-```
 
 ---
 
@@ -55,7 +49,7 @@ The full machine-readable list (keys, risk, scope, children) lives in [`doc/feat
 | Search & Archives | Search, date/author archives, attachment pages |
 | WooCommerce | Notices, cart fragments, checkout blocks (when WC active) |
 
-Semantics: setting **`true` = keep WordPress behavior**; **`false` = strip/disable** at runtime.
+Semantics: setting **`true` = keep WordPress behavior**; **`false` = disable** at runtime.
 
 ---
 
@@ -66,8 +60,8 @@ See [`examples/extend-plugin.php`](examples/extend-plugin.php) for copy-paste pa
 ### Helpers
 
 ```php
-wp_strip_is_feature_enabled( 'comments' ); // true|false|null
-WP_Strip::is_enabled( 'rest_api' );        // true|false|null
+disable_kit_is_feature_enabled( 'comments' ); // true|false|null
+Disable_Kit::is_enabled( 'rest_api' );        // true|false|null
 ```
 
 Unknown keys return `null` (they are not silently treated as enabled).
@@ -76,16 +70,16 @@ Unknown keys return `null` (they are not silently treated as enabled).
 
 | Hook | Purpose |
 |------|---------|
-| `wp_strip_features` | Add/modify the feature registry |
-| `wp_strip_categories` | Add/modify admin category tabs |
-| `wp_strip_validate_setting` | Filter a value before save (`$value, $key, $input`) |
+| `disable_kit_features` | Add/modify the feature registry |
+| `disable_kit_categories` | Add/modify admin category tabs |
+| `disable_kit_validate_setting` | Filter a value before save (`$value, $key, $input`) |
 
 ### Actions
 
 | Hook | Purpose |
 |------|---------|
-| `wp_strip_disable_{$feature_key}` | Run when a feature is being stripped (required for custom features) |
-| `wp_strip_feature_toggled` | After save when a value changes (`$key, $new, $old`) |
+| `disable_kit_disable_{$feature_key}` | Run when a feature is being disabled (required for custom features) |
+| `disable_kit_feature_toggled` | After save when a value changes (`$key, $new, $old`) |
 
 ### Custom feature contract
 
@@ -93,7 +87,7 @@ Unknown keys return `null` (they are not silently treated as enabled).
 $features['portfolio'] = array(
     'name'        => 'Portfolio Post Type',
     'description' => '…',
-    'category'    => 'custom', // must exist via wp_strip_categories
+    'category'    => 'custom', // must exist via disable_kit_categories
     'risk'        => 'medium', // low|medium|high
     'scope'       => 'both',   // frontend|admin|both
     'default'     => true,
@@ -102,34 +96,35 @@ $features['portfolio'] = array(
 );
 ```
 
-Register a matching `wp_strip_disable_portfolio` action or the toggle will save with no runtime effect.
+Register a matching `disable_kit_disable_portfolio` action or the toggle will save with no runtime effect.
 
 ### Settings storage
 
-Single option: `wp_strip_settings` (associative array of feature key => bool).
+Single option: `disable_kit_settings` (associative array of feature key => bool).
+
+Legacy installs may still have `wp_strip_settings`; Disable Kit migrates that option automatically on first load.
 
 ---
 
 ## Requirements
 
-- WordPress 5.0+
+- WordPress 5.9+
 - PHP 7.4+
 - `manage_options` capability
 
 ## Privacy
 
-WP Strip stores settings in the WordPress options table only. It does not phone home, create accounts, or collect personal data.
+Disable Kit stores settings in the WordPress options table only. It does not phone home, create accounts, or collect personal data.
 
 ## Changelog
 
 ### 1.0.0
 
-- Initial public release as WP Strip
+- Initial public release as Disable Kit
 - 132 toggleable WordPress / WooCommerce features
 - Parent–child hierarchy with cascade and locks
-- Developer hooks: `wp_strip_features`, `wp_strip_categories`, `wp_strip_disable_*`, `wp_strip_feature_toggled`, `wp_strip_validate_setting`
+- Developer hooks: `disable_kit_features`, `disable_kit_categories`, `disable_kit_disable_*`, `disable_kit_feature_toggled`, `disable_kit_validate_setting`
 - Kill switch, risk/scope labels, security warnings
-- Debug tools gated behind `WP_STRIP_DEBUG_TOOLS`
 
 ## License
 

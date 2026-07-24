@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin interface methods for WP Strip
+ * Admin interface methods for Disable Kit
  * 
- * @package WPStrip
+ * @package DisableKit
  */
 
 // Prevent direct access
@@ -13,17 +13,17 @@ if (!defined('ABSPATH')) {
 /**
  * Admin interface methods (to be added to main class)
  */
-trait WP_Strip_Admin {
+trait Disable_Kit_Admin {
     
     /**
      * Add admin menu
      */
     public function add_admin_menu() {
         add_options_page(
-            __('WP Strip', 'wp-strip'),
-            __('WP Strip', 'wp-strip'),
+            __('Disable Kit', 'disable-kit'),
+            __('Disable Kit', 'disable-kit'),
             'manage_options',
-            'wp-strip',
+            'disable-kit',
             array($this, 'admin_page')
         );
     }
@@ -34,7 +34,7 @@ trait WP_Strip_Admin {
     public function admin_init() {
         // Register settings
         register_setting(
-            'wp_strip_settings',
+            'disable_kit_settings',
             $this->options_key,
             array($this, 'sanitize_settings')
         );
@@ -44,21 +44,21 @@ trait WP_Strip_Admin {
         
         foreach ($categories as $category_key => $category_name) {
             add_settings_section(
-                'wp_strip_' . $category_key,
+                'disable_kit_' . $category_key,
                 $category_name,
                 array($this, 'section_callback'),
-                'wp_strip'
+                'disable_kit'
             );
         }
         
         // Add settings fields
         foreach ($this->features as $feature_key => $feature_data) {
             add_settings_field(
-                'wp_strip_' . $feature_key,
+                'disable_kit_' . $feature_key,
                 $feature_data['name'],
                 array($this, 'field_callback'),
-                'wp_strip',
-                'wp_strip_' . $feature_data['category'],
+                'disable_kit',
+                'disable_kit_' . $feature_data['category'],
                 array(
                     'feature_key' => $feature_key,
                     'feature_data' => $feature_data
@@ -71,36 +71,36 @@ trait WP_Strip_Admin {
      * Enqueue admin scripts and styles
      */
     public function enqueue_admin_scripts($hook) {
-        if ('settings_page_wp-strip' !== $hook) {
+        if ('settings_page_disable-kit' !== $hook) {
             return;
         }
         
         wp_enqueue_script(
-            'wp-strip-admin',
-            WP_STRIP_PLUGIN_URL . 'assets/js/admin.js',
+            'disable-kit-admin',
+            DISABLE_KIT_PLUGIN_URL . 'assets/js/admin.js',
             array('jquery'),
-            WP_STRIP_VERSION,
+            DISABLE_KIT_VERSION,
             true
         );
         
         wp_enqueue_style(
-            'wp-strip-admin',
-            WP_STRIP_PLUGIN_URL . 'assets/css/admin.css',
+            'disable-kit-admin',
+            DISABLE_KIT_PLUGIN_URL . 'assets/css/admin.css',
             array(),
-            WP_STRIP_VERSION
+            DISABLE_KIT_VERSION
         );
         
         // Localize script
-        wp_localize_script('wp-strip-admin', 'wpStrip', array(
+        wp_localize_script('disable-kit-admin', 'disableKit', array(
             'strings' => array(
-                'confirmDisable' => __('Are you sure you want to disable this feature? This may affect your site functionality.', 'wp-strip'),
-                'savingChanges' => __('Saving changes...', 'wp-strip'),
-                'changesSaved' => __('Changes saved successfully!', 'wp-strip'),
-                'unsavedChanges' => __('You have unsaved changes. Are you sure you want to leave?', 'wp-strip'),
-                'enabled' => __('Enabled', 'wp-strip'),
-                'disabled' => __('Disabled', 'wp-strip'),
-                'saveChanges' => __('Save Changes', 'wp-strip'),
-                'dismissNotice' => __('Dismiss this notice.', 'wp-strip')
+                'confirmDisable' => __('Are you sure you want to disable this feature? This may affect your site functionality.', 'disable-kit'),
+                'savingChanges' => __('Saving changes...', 'disable-kit'),
+                'changesSaved' => __('Changes saved successfully!', 'disable-kit'),
+                'unsavedChanges' => __('You have unsaved changes. Are you sure you want to leave?', 'disable-kit'),
+                'enabled' => __('Enabled', 'disable-kit'),
+                'disabled' => __('Disabled', 'disable-kit'),
+                'saveChanges' => __('Save Changes', 'disable-kit'),
+                'dismissNotice' => __('Dismiss this notice.', 'disable-kit')
             )
         ));
     }
@@ -110,53 +110,60 @@ trait WP_Strip_Admin {
      */
     public function admin_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'wp-strip'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'disable-kit'));
         }
 
         $settings = $this->get_settings();
         $categories = $this->get_feature_categories();
         ?>
         <div class="wrap">
-            <div class="wp-strip-shell">
-                <header class="wp-strip-topbar">
-                    <div class="wp-strip-brand">
-                        <span class="wp-strip-logo" aria-hidden="true">FM</span>
-                        <div>
+            <div class="disable-kit-shell">
+                <header class="disable-kit-topbar">
+                    <div class="disable-kit-topbar-row">
+                        <div class="disable-kit-brand">
+                            <img
+                                class="disable-kit-logo"
+                                src="<?php echo esc_url(DISABLE_KIT_PLUGIN_URL . 'assets/images/icon-128x128.png'); ?>"
+                                alt=""
+                                width="50"
+                                height="50"
+                                decoding="async"
+                            >
                             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-                            <p class="description">
-                                <?php _e('Turn WordPress features on or off with plain-English guidance, risk labels, and scope tags. Changes affect WordPress at the load level, not just menu visibility.', 'wp-strip'); ?>
-                            </p>
                         </div>
-                    </div>
-
-                    <div class="wp-strip-summary">
-                        <span class="wp-feature-summary-pill"><?php echo esc_html(sprintf(__('Features: %d', 'wp-strip'), count($this->features))); ?></span>
-                        <span class="wp-feature-summary-pill wp-feature-summary-pill-risk"><?php _e('Red = high impact', 'wp-strip'); ?></span>
+                        <a
+                            class="button disable-kit-review-button"
+                            href="<?php echo esc_url('https://wordpress.org/support/plugin/disable-kit/reviews/#new-post'); ?>"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <?php esc_html_e('Leave a review', 'disable-kit'); ?>
+                        </a>
                     </div>
                 </header>
             </div>
 
             <?php $this->show_security_warnings(); ?>
 
-            <form method="post" action="options.php" id="wp-strip-form">
-                <?php settings_fields('wp_strip_settings'); ?>
+            <form method="post" action="options.php" id="disable-kit-form">
+                <?php settings_fields('disable_kit_settings'); ?>
 
-                <div class="wp-strip-layout">
-                    <aside class="wp-strip-sidebar" aria-label="<?php echo esc_attr__('Feature categories', 'wp-strip'); ?>">
-                        <div class="wp-strip-toolbar">
-                            <label class="screen-reader-text" for="wp-feature-search"><?php _e('Search features', 'wp-strip'); ?></label>
+                <div class="disable-kit-layout">
+                    <aside class="disable-kit-sidebar" aria-label="<?php echo esc_attr__('Feature categories', 'disable-kit'); ?>">
+                        <div class="disable-kit-toolbar">
+                            <label class="screen-reader-text" for="wp-feature-search"><?php esc_html_e('Search features', 'disable-kit'); ?></label>
                             <input
                                 type="search"
                                 id="wp-feature-search"
                                 class="wp-feature-search"
-                                placeholder="<?php echo esc_attr__('Search features, descriptions, risks, or scope...', 'wp-strip'); ?>"
+                                placeholder="<?php echo esc_attr__('Search features, descriptions, risks, or scope...', 'disable-kit'); ?>"
                             >
                             <p class="wp-feature-search-empty" id="wp-feature-search-empty" hidden>
-                                <?php _e('No features match your search.', 'wp-strip'); ?>
+                                <?php esc_html_e('No features match your search.', 'disable-kit'); ?>
                             </p>
                         </div>
 
-                        <div class="wp-strip-tabs" role="tablist" aria-label="<?php echo esc_attr__('Feature categories', 'wp-strip'); ?>">
+                        <div class="disable-kit-tabs" role="tablist" aria-label="<?php echo esc_attr__('Feature categories', 'disable-kit'); ?>">
                             <?php $tab_index = 0; ?>
                             <?php foreach ($categories as $category_key => $category_name) : ?>
                                 <?php
@@ -188,34 +195,38 @@ trait WP_Strip_Admin {
                             <?php endforeach; ?>
                         </div>
 
-                        <div class="wp-strip-support-card">
-                            <h3><?php _e('Need a safe rollback?', 'wp-strip'); ?></h3>
-                            <p><?php _e('Use Git commits before large changes so you can quickly restore known-good settings and code.', 'wp-strip'); ?></p>
+                        <div class="disable-kit-safety-notice">
+                            <h3><?php esc_html_e('Safety Information', 'disable-kit'); ?></h3>
+                            <p>
+                                <?php esc_html_e('High-impact features can affect editing, scheduled posts, checkout, feeds, or plugin compatibility. If a feature is already disabled by your theme, another plugin, or WordPress config, its toggle is locked and marked “Already disabled”.', 'disable-kit'); ?>
+                            </p>
+                            <p>
+                                <?php esc_html_e('Emergency fallback: if you ever need to bypass this plugin completely, add this line to wp-config.php:', 'disable-kit'); ?>
+                                <code>define('DISABLE_KIT_BYPASS', true);</code>
+                            </p>
                         </div>
                     </aside>
 
-                    <main class="wp-strip-content">
-                        <div class="wp-strip-actions-bar">
-                            <span class="wp-feature-unsaved-indicator" id="wp-feature-unsaved-indicator" hidden>
-                                <?php _e('Unsaved changes', 'wp-strip'); ?>
-                            </span>
-                            <button type="submit" id="wp-strip-submit-top" class="button button-primary">
-                                <?php _e('Save Changes', 'wp-strip'); ?>
-                            </button>
+                    <main class="disable-kit-content">
+                        <div class="disable-kit-actions-bar">
+                            <div class="disable-kit-summary">
+                                <span class="wp-feature-summary-pill"><?php
+                                /* translators: %d: number of features available in the plugin. */
+                                echo esc_html(sprintf(__('Features: %d', 'disable-kit'), count($this->features)));
+                                ?></span>
+                                <span class="wp-feature-summary-pill wp-feature-summary-pill-risk"><?php esc_html_e('Red = high impact', 'disable-kit'); ?></span>
+                            </div>
+                            <div class="disable-kit-actions-bar-end">
+                                <span class="wp-feature-unsaved-indicator" id="wp-feature-unsaved-indicator" hidden>
+                                    <?php esc_html_e('Unsaved changes', 'disable-kit'); ?>
+                                </span>
+                                <button type="submit" id="disable-kit-submit-top" class="button button-primary">
+                                    <?php esc_html_e('Save Changes', 'disable-kit'); ?>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="wp-strip-safety-notice">
-                            <h3><?php _e('Safety Information', 'wp-strip'); ?></h3>
-                            <p>
-                                <?php _e('High-impact features can affect editing, scheduled posts, checkout, feeds, or plugin compatibility. If a feature is already disabled by your theme, another plugin, or WordPress config, its toggle is locked and marked “Already disabled”.', 'wp-strip'); ?>
-                            </p>
-                            <p>
-                                <?php _e('Emergency fallback: if you ever need to bypass this plugin completely, add this line to wp-config.php:', 'wp-strip'); ?>
-                                <code>define('DISABLE_WP_STRIP', true);</code>
-                            </p>
-                        </div>
-
-                                <div class="wp-strip-sections">
+                                <div class="disable-kit-sections">
                     <?php
                     // Build global child-key set so children never appear as top-level features
                     $global_child_keys = array();
@@ -240,6 +251,14 @@ trait WP_Strip_Admin {
                         if (empty($section_features)) {
                             continue;
                         }
+
+                        // Alphabetical order by display name for top-level rows in this section.
+                        uasort(
+                            $section_features,
+                            static function ($a, $b) {
+                                return strcasecmp($a['name'], $b['name']);
+                            }
+                        );
 
                         // Use the global child-key set built above
                         $all_child_keys = $global_child_keys;
@@ -281,7 +300,10 @@ trait WP_Strip_Admin {
                                     <p><?php echo esc_html($this->get_category_description($category_key)); ?></p>
                                 </div>
                                 <div class="wp-feature-section-controls">
-                                    <span class="wp-feature-section-count"><?php echo esc_html(sprintf(_n('%d feature', '%d features', $section_display_count, 'wp-strip'), $section_display_count)); ?></span>
+                                    <span class="wp-feature-section-count"><?php
+                                    /* translators: %d: number of features in the current category section. */
+                                    echo esc_html(sprintf(_n('%d feature', '%d features', $section_display_count, 'disable-kit'), $section_display_count));
+                                    ?></span>
                                     <label class="wp-feature-switch wp-feature-switch-section">
                                         <input
                                             type="checkbox"
@@ -290,7 +312,7 @@ trait WP_Strip_Admin {
                                             <?php checked($section_all_enabled); ?>
                                         >
                                         <span class="wp-feature-switch-ui" aria-hidden="true"></span>
-                                        <span class="wp-feature-switch-label"><?php _e('Section', 'wp-strip'); ?></span>
+                                        <span class="wp-feature-switch-label"><?php esc_html_e('Section', 'disable-kit'); ?></span>
                                     </label>
                                 </div>
                             </div>
@@ -329,7 +351,7 @@ trait WP_Strip_Admin {
                                                     </span>
                                                     <?php if ($runtime_state['locked']) : ?>
                                                         <span class="wp-feature-badge wp-feature-badge-locked">
-                                                            <?php _e('Already disabled', 'wp-strip'); ?>
+                                                            <?php esc_html_e('Already disabled', 'disable-kit'); ?>
                                                         </span>
                                                     <?php endif; ?>
                                                 </div>
@@ -368,15 +390,24 @@ trait WP_Strip_Admin {
                                                 <span class="screen-reader-text"><?php echo esc_html($feature_data['name']); ?></span>
                                             </label>
                                             <span class="wp-feature-toggle-status">
-                                                <?php echo $runtime_state['locked'] ? esc_html__('Already disabled', 'wp-strip') : ($is_enabled ? esc_html__('Enabled', 'wp-strip') : esc_html__('Disabled', 'wp-strip')); ?>
+                                                <?php echo $runtime_state['locked'] ? esc_html__('Already disabled', 'disable-kit') : ($is_enabled ? esc_html__('Enabled', 'disable-kit') : esc_html__('Disabled', 'disable-kit')); ?>
                                             </span>
                                         </div>
                                     </article>
 
                                     <?php
-                                    // Render children immediately after parent, with child styling
+                                    // Render children immediately after parent, alphabetical by name.
                                     if ($has_children) :
-                                        foreach ($feature_data['children'] as $child_key) :
+                                        $sorted_children = $feature_data['children'];
+                                        usort(
+                                            $sorted_children,
+                                            function ($a, $b) {
+                                                $name_a = isset($this->features[ $a ]['name']) ? $this->features[ $a ]['name'] : $a;
+                                                $name_b = isset($this->features[ $b ]['name']) ? $this->features[ $b ]['name'] : $b;
+                                                return strcasecmp($name_a, $name_b);
+                                            }
+                                        );
+                                        foreach ($sorted_children as $child_key) :
                                             if (!isset($this->features[$child_key])) {
                                                 continue;
                                             }
@@ -407,7 +438,7 @@ trait WP_Strip_Admin {
                                                     </span>
                                                     <?php if ($child_state['locked']) : ?>
                                                         <span class="wp-feature-badge wp-feature-badge-locked">
-                                                            <?php _e('Already disabled', 'wp-strip'); ?>
+                                                            <?php esc_html_e('Already disabled', 'disable-kit'); ?>
                                                         </span>
                                                     <?php endif; ?>
                                                 </div>
@@ -446,7 +477,7 @@ trait WP_Strip_Admin {
                                                 <span class="screen-reader-text"><?php echo esc_html($child_data['name']); ?></span>
                                             </label>
                                             <span class="wp-feature-toggle-status">
-                                                <?php echo $child_state['locked'] ? esc_html__('Already disabled', 'wp-strip') : ($child_enabled ? esc_html__('Enabled', 'wp-strip') : esc_html__('Disabled', 'wp-strip')); ?>
+                                                <?php echo $child_state['locked'] ? esc_html__('Already disabled', 'disable-kit') : ($child_enabled ? esc_html__('Enabled', 'disable-kit') : esc_html__('Disabled', 'disable-kit')); ?>
                                             </span>
                                         </div>
                                     </article>
@@ -462,7 +493,7 @@ trait WP_Strip_Admin {
                     </main>
                 </div>
 
-                <?php submit_button(__('Save Changes', 'wp-strip'), 'primary', 'submit', true, array('id' => 'wp-strip-submit', 'style' => 'display:none;')); ?>
+                <?php submit_button(esc_html__('Save Changes', 'disable-kit'), 'primary', 'submit', true, array('id' => 'disable-kit-submit', 'style' => 'display:none;')); ?>
             </form>
         </div>
         <?php
@@ -476,14 +507,14 @@ trait WP_Strip_Admin {
      */
     private function get_category_description($category_key) {
         $descriptions = array(
-            'writing'     => __('Editors, content types, comments, and the tools your team uses to create and manage content.', 'wp-strip'),
-            'media'       => __('Embeds, avatars, fonts, images, and browser-facing media behaviour.', 'wp-strip'),
-            'speed'       => __('Frontend scripts, CSS, head tags, scheduled tasks, and server-load related features.', 'wp-strip'),
-            'security'    => __('Remote access, updates, public registration, and privacy hardening.', 'wp-strip'),
-            'admin_ui'    => __('Dashboard cleanup and admin-only screens that can simplify the backend for clients.', 'wp-strip'),
-            'feeds'       => __('Syndication formats and cross-site communication features such as RSS and pingbacks.', 'wp-strip'),
-            'archives'    => __('Search, date archives, author pages, and attachment pages used for public navigation.', 'wp-strip'),
-            'woocommerce' => __('WooCommerce-specific onboarding, admin clutter, checkout behaviour, and storefront scripts.', 'wp-strip'),
+            'writing'     => __('Editors, content types, comments, and the tools your team uses to create and manage content.', 'disable-kit'),
+            'media'       => __('Embeds, avatars, fonts, images, and browser-facing media behaviour.', 'disable-kit'),
+            'speed'       => __('Frontend scripts, CSS, head tags, scheduled tasks, and server-load related features.', 'disable-kit'),
+            'security'    => __('Remote access, updates, public registration, and privacy hardening.', 'disable-kit'),
+            'admin_ui'    => __('Dashboard cleanup and admin-only screens that can simplify the backend for clients.', 'disable-kit'),
+            'feeds'       => __('Syndication formats and cross-site communication features such as RSS and pingbacks.', 'disable-kit'),
+            'archives'    => __('Search, date archives, author pages, and attachment pages used for public navigation.', 'disable-kit'),
+            'woocommerce' => __('WooCommerce-specific onboarding, admin clutter, checkout behaviour, and storefront scripts.', 'disable-kit'),
         );
 
         return isset($descriptions[ $category_key ]) ? $descriptions[ $category_key ] : '';
@@ -497,12 +528,12 @@ trait WP_Strip_Admin {
      */
     private function get_risk_label($risk) {
         $labels = array(
-            'low'    => __('Safe', 'wp-strip'),
-            'medium' => __('Caution', 'wp-strip'),
-            'high'   => __('High impact', 'wp-strip'),
+            'low'    => __('Safe', 'disable-kit'),
+            'medium' => __('Caution', 'disable-kit'),
+            'high'   => __('High impact', 'disable-kit'),
         );
 
-        return isset($labels[ $risk ]) ? $labels[ $risk ] : __('Unknown', 'wp-strip');
+        return isset($labels[ $risk ]) ? $labels[ $risk ] : __('Unknown', 'disable-kit');
     }
 
     /**
@@ -513,12 +544,12 @@ trait WP_Strip_Admin {
      */
     private function get_scope_label($scope) {
         $labels = array(
-            'frontend' => __('Frontend', 'wp-strip'),
-            'admin'    => __('Admin', 'wp-strip'),
-            'both'     => __('Frontend + Admin', 'wp-strip'),
+            'frontend' => __('Frontend', 'disable-kit'),
+            'admin'    => __('Admin', 'disable-kit'),
+            'both'     => __('Frontend + Admin', 'disable-kit'),
         );
 
-        return isset($labels[ $scope ]) ? $labels[ $scope ] : __('Mixed', 'wp-strip');
+        return isset($labels[ $scope ]) ? $labels[ $scope ] : __('Mixed', 'disable-kit');
     }
 
     /**
@@ -543,69 +574,70 @@ trait WP_Strip_Admin {
             case 'posts':
                 if (!post_type_exists('post')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('The Posts content type has already been removed by another plugin or theme.', 'wp-strip');
+                    $state['reason'] = __('The Posts content type has already been removed by another plugin or theme.', 'disable-kit');
                 }
                 break;
 
             case 'pages':
                 if (!post_type_exists('page')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('The Pages content type has already been removed by another plugin or theme.', 'wp-strip');
+                    $state['reason'] = __('The Pages content type has already been removed by another plugin or theme.', 'disable-kit');
                 }
                 break;
 
             case 'attachments':
                 if (!post_type_exists('attachment')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Media attachments are already disabled elsewhere.', 'wp-strip');
+                    $state['reason'] = __('Media attachments are already disabled elsewhere.', 'disable-kit');
                 }
                 break;
 
             case 'categories':
                 if (!taxonomy_exists('category')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Post categories are already disabled elsewhere.', 'wp-strip');
+                    $state['reason'] = __('Post categories are already disabled elsewhere.', 'disable-kit');
                 }
                 break;
 
             case 'tags':
                 if (!taxonomy_exists('post_tag')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Post tags are already disabled elsewhere.', 'wp-strip');
+                    $state['reason'] = __('Post tags are already disabled elsewhere.', 'disable-kit');
                 }
                 break;
 
             case 'user_registration':
                 if (!get_option('users_can_register')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('User registration is already turned off in Settings > General.', 'wp-strip');
+                    $state['reason'] = __('User registration is already turned off in Settings > General.', 'disable-kit');
                 }
                 break;
 
             case 'xmlrpc':
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core WordPress filter.
                 if (false === apply_filters('xmlrpc_enabled', true)) {
                     $state['locked'] = true;
-                    $state['reason'] = __('XML-RPC is already disabled by WordPress config or another plugin.', 'wp-strip');
+                    $state['reason'] = __('XML-RPC is already disabled by WordPress config or another plugin.', 'disable-kit');
                 }
                 break;
 
             case 'site_editor':
                 if (!$this->is_feature_enabled('design_system')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Locked because Design System is disabled. Enable Design System to manage the Full Site Editor separately.', 'wp-strip');
+                    $state['reason'] = __('Locked because Design System is disabled. Enable Design System to manage the Full Site Editor separately.', 'disable-kit');
                 } elseif (!post_type_exists('wp_template')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Block template support has already been removed by another plugin or theme.', 'wp-strip');
+                    $state['reason'] = __('Block template support has already been removed by another plugin or theme.', 'disable-kit');
                 } elseif (function_exists('wp_is_block_theme') && !wp_is_block_theme()) {
                     $state['locked'] = true;
-                    $state['reason'] = __('The Full Site Editor is not available because the active theme is not a block theme.', 'wp-strip');
+                    $state['reason'] = __('The Full Site Editor is not available because the active theme is not a block theme.', 'disable-kit');
                 }
                 break;
 
             case 'customizer':
                 if (function_exists('wp_is_block_theme') && wp_is_block_theme()) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Block themes use the Site Editor instead of the Theme Customizer.', 'wp-strip');
+                    $state['reason'] = __('Block themes use the Site Editor instead of the Theme Customizer.', 'disable-kit');
                 }
                 break;
 
@@ -613,21 +645,21 @@ trait WP_Strip_Admin {
             case 'plugin_editor':
                 if ((defined('DISALLOW_FILE_EDIT') && DISALLOW_FILE_EDIT) || (defined('DISALLOW_FILE_MODS') && DISALLOW_FILE_MODS)) {
                     $state['locked'] = true;
-                    $state['reason'] = __('File editing is already blocked in WordPress config.', 'wp-strip');
+                    $state['reason'] = __('File editing is already blocked in WordPress config.', 'disable-kit');
                 }
                 break;
 
             case 'revisions':
                 if (defined('WP_POST_REVISIONS') && false === WP_POST_REVISIONS) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Post revisions are already disabled in wp-config.php.', 'wp-strip');
+                    $state['reason'] = __('Post revisions are already disabled in wp-config.php.', 'disable-kit');
                 }
                 break;
 
             case 'comments':
                 if (!post_type_supports('post', 'comments') && !post_type_supports('page', 'comments')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('Comments are already disabled for the main content types.', 'wp-strip');
+                    $state['reason'] = __('Comments are already disabled for the main content types.', 'disable-kit');
                 }
                 break;
         }
@@ -670,7 +702,7 @@ trait WP_Strip_Admin {
              * @param string $feature_key Feature slug.
              * @param array  $input       Full submitted settings array.
              */
-            $value = (bool) apply_filters('wp_strip_validate_setting', $value, $feature_key, $input);
+            $value = (bool) apply_filters('disable_kit_validate_setting', $value, $feature_key, $input);
             $sanitized[$feature_key] = $value;
 
             $old_value = isset($old_settings[$feature_key])
@@ -685,7 +717,7 @@ trait WP_Strip_Admin {
                  * @param bool   $value       New enabled state.
                  * @param bool   $old_value   Previous enabled state.
                  */
-                do_action('wp_strip_feature_toggled', $feature_key, $value, $old_value);
+                do_action('disable_kit_feature_toggled', $feature_key, $value, $old_value);
             }
         }
 
@@ -702,21 +734,21 @@ trait WP_Strip_Admin {
         if (empty($settings['update_checks'])) {
             $warnings[] = array(
                 'type' => 'warning',
-                'message' => __('<strong>Update checks are disabled.</strong> Your site will not check for WordPress, plugin, or theme updates. This is a security risk — you may miss critical security patches. Consider enabling this or setting up a manual update monitoring process.', 'wp-strip')
+                'message' => __('<strong>Automatic updates and background update checks are disabled.</strong> Security patches will not install themselves, and WordPress will not schedule core/plugin/theme update checks. Consider re-enabling this or monitoring updates another way.', 'disable-kit')
             );
         }
         
         if (empty($settings['wp_org_requests'])) {
             $warnings[] = array(
                 'type' => 'warning',
-                'message' => __('<strong>WordPress.org communication is blocked.</strong> Your site cannot reach WordPress.org for updates, translations, or plugin/theme information. Security patches may not be detected. Consider enabling this or using an alternative update monitoring solution.', 'wp-strip')
+                'message' => __('<strong>WordPress.org communication is blocked.</strong> Your site cannot reach WordPress.org for updates, translations, or plugin/theme information. Security patches may not be detected. Consider enabling this or using an alternative update monitoring solution.', 'disable-kit')
             );
         }
 
         if (isset($settings['cron']) && empty($settings['cron'])) {
             $warnings[] = array(
                 'type' => 'warning',
-                'message' => __('<strong>WP-Cron spawning is disabled.</strong> Scheduled posts and plugin jobs will not run unless your host triggers <code>wp-cron.php</code> via a real system cron. Re-enable this toggle or configure system cron before leaving it off.', 'wp-strip')
+                'message' => __('<strong>WP-Cron spawning is disabled.</strong> Scheduled posts and plugin jobs will not run unless your host triggers <code>wp-cron.php</code> via a real system cron. Re-enable this toggle or configure system cron before leaving it off.', 'disable-kit')
             );
         }
         
@@ -733,14 +765,14 @@ trait WP_Strip_Admin {
      */
     private function get_feature_categories() {
         $categories = array(
-            'writing'     => __('Writing & Content', 'wp-strip'),
-            'media'       => __('Media & Embeds', 'wp-strip'),
-            'speed'       => __('Site Speed', 'wp-strip'),
-            'security'    => __('Security & Privacy', 'wp-strip'),
-            'admin_ui'    => __('Admin Interface', 'wp-strip'),
-            'feeds'       => __('Feeds & Connections', 'wp-strip'),
-            'archives'    => __('Search & Archives', 'wp-strip'),
-            'woocommerce' => __('WooCommerce', 'wp-strip')
+            'writing'     => __('Writing & Content', 'disable-kit'),
+            'media'       => __('Media & Embeds', 'disable-kit'),
+            'speed'       => __('Site Speed', 'disable-kit'),
+            'security'    => __('Security & Privacy', 'disable-kit'),
+            'admin_ui'    => __('Admin Interface', 'disable-kit'),
+            'feeds'       => __('Feeds & Connections', 'disable-kit'),
+            'archives'    => __('Search & Archives', 'disable-kit'),
+            'woocommerce' => __('WooCommerce', 'disable-kit')
         );
 
         // Drop categories that currently have no registered features (e.g. Woo when inactive).
@@ -757,6 +789,6 @@ trait WP_Strip_Admin {
          *
          * @param array<string, string> $categories Category slug => label.
          */
-        return apply_filters('wp_strip_categories', $categories);
+        return apply_filters('disable_kit_categories', $categories);
     }
 }

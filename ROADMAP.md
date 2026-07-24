@@ -1,4 +1,4 @@
-# WP Strip — Post-1.0 Roadmap
+# Disable Kit — Post-1.0 Roadmap
 
 Items intentionally deferred past the WordPress.org 1.0 submission. Track here so they do not block packaging.
 

@@ -1,13 +1,13 @@
 /**
- * WP Strip Admin JavaScript
+ * Disable Kit Admin JavaScript
  *
- * @package WPStrip
+ * @package DisableKit
  */
 
 (function ($) {
     'use strict';
 
-    var WPStripAdmin = {
+    var DisableKitAdmin = {
 
         init: function () {
             this.cacheElements();
@@ -22,28 +22,30 @@
             this.initBeforeUnload();
             this.refreshAllSectionToggles();
             this.refreshAllParentToggles();
+            this.$unsavedIndicator.prop('hidden', true);
+            this.$form.removeClass('form-changed');
         },
 
         cacheElements: function () {
-            this.$form = $('#wp-strip-form');
-            this.$submitButton = $('#wp-strip-submit');
+            this.$form = $('#disable-kit-form');
+            this.$submitButton = $('#disable-kit-submit');
             this.$search = $('#wp-feature-search');
             this.$emptyState = $('#wp-feature-search-empty');
             this.$featureItems = $('[data-feature-item]');
             this.$sectionToggles = $('.wp-feature-section-toggle');
             this.$tabs = $('.wp-feature-tab');
             this.$panels = $('.wp-feature-section[role="tabpanel"]');
-            this.$topSaveButton = $('#wp-strip-submit-top');
+            this.$topSaveButton = $('#disable-kit-submit-top');
             this.$unsavedIndicator = $('#wp-feature-unsaved-indicator');
         },
 
         strings: function () {
-            return (window.wpStrip && window.wpStrip.strings) ? window.wpStrip.strings : {};
+            return (window.disableKit && window.disableKit.strings) ? window.disableKit.strings : {};
         },
 
         initTabs: function () {
             var self = this;
-            var storedTab = window.sessionStorage.getItem('wp_strip_active_tab');
+            var storedTab = window.sessionStorage.getItem('disable_kit_active_tab');
             var firstTabKey = this.$tabs.first().data('tab');
             var initialTab = storedTab && this.$tabs.filter('[data-tab="' + storedTab + '"]').length ? storedTab : firstTabKey;
 
@@ -97,7 +99,7 @@
             this.$panels.removeClass('is-active').attr('aria-hidden', 'true');
             $('#panel-' + tabKey).addClass('is-active').attr('aria-hidden', 'false');
 
-            window.sessionStorage.setItem('wp_strip_active_tab', tabKey);
+            window.sessionStorage.setItem('disable_kit_active_tab', tabKey);
 
             if (shouldFocus) {
                 $targetTab.trigger('focus');
@@ -308,21 +310,21 @@
                     .text(strings.savingChanges || 'Saving changes...')
                     .prop('disabled', true);
 
-                self.$form.addClass('wp-strip-loading');
-                sessionStorage.setItem('wp_strip_show_success', 'true');
+                self.$form.addClass('disable-kit-loading');
+                sessionStorage.setItem('disable_kit_show_success', 'true');
                 $(window).off('beforeunload');
             });
 
-            if (sessionStorage.getItem('wp_strip_show_success')) {
-                sessionStorage.removeItem('wp_strip_show_success');
+            if (sessionStorage.getItem('disable_kit_show_success')) {
+                sessionStorage.removeItem('disable_kit_show_success');
                 this.showNotification(this.strings().changesSaved || 'Changes saved successfully!', 'success');
             }
         },
 
         initNotifications: function () {
-            $(document).on('click', '.wp-strip-notification .notice-dismiss', function (event) {
+            $(document).on('click', '.disable-kit-notification .notice-dismiss', function (event) {
                 event.preventDefault();
-                $(this).closest('.wp-strip-notification').fadeOut(function () {
+                $(this).closest('.disable-kit-notification').fadeOut(function () {
                     $(this).remove();
                 });
             });
@@ -361,7 +363,7 @@
                 }
 
                 if (event.which === 27) {
-                    $('.wp-strip-notification').fadeOut(function () {
+                    $('.disable-kit-notification').fadeOut(function () {
                         $(this).remove();
                     });
                 }
@@ -384,7 +386,7 @@
             var strings = this.strings();
             var notificationType = type === 'error' ? 'error' : 'success';
             var $notification = $('<div>', {
-                'class': 'wp-strip-notification ' + notificationType
+                'class': 'disable-kit-notification ' + notificationType
             });
             var $message = $('<p>').text(String(message || ''));
             var $dismissButton = $('<button>', {
@@ -419,8 +421,8 @@
     };
 
     $(document).ready(function () {
-        WPStripAdmin.init();
-        window.WPStripAdmin = WPStripAdmin;
+        DisableKitAdmin.init();
+        window.DisableKitAdmin = DisableKitAdmin;
     });
 
 })(jQuery);
