@@ -11,11 +11,11 @@
  * Text Domain: wp-strip
  * Domain Path: /languages
  * Requires at least: 5.0
- * Tested up to: 6.5
+ * Tested up to: 6.8
  * Requires PHP: 7.4
  * Network: false
- * 
- * @package WPFeatureManager
+ *
+ * @package WPStrip
  */
 
 // Prevent direct access
@@ -98,9 +98,6 @@ class WP_Strip {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
-        
-        // AJAX hooks
-        add_action('wp_ajax_toggle_feature', array($this, 'ajax_toggle_feature'));
         
         // Load plugin textdomain
         add_action('plugins_loaded', array($this, 'load_textdomain'));
@@ -313,7 +310,7 @@ class WP_Strip {
             ),
             'cron' => array(
                 'name'        => __('Scheduled Tasks (WP-Cron)', 'wp-strip'),
-                'description' => __('Runs scheduled jobs — publishing future posts, sending email notifications, plugin maintenance — triggered by site visits. Disable only if your hosting provider runs a real server-side cron job instead. Without either, scheduled posts will never publish.', 'wp-strip'),
+                'description' => __('Stops WordPress from spawning WP-Cron on page loads (sets DISABLE_WP_CRON). Scheduled events remain in the database but will not run unless your host triggers wp-cron.php via a real system cron. Disable only if that system cron is already configured — otherwise scheduled posts and plugin jobs will stall.', 'wp-strip'),
                 'category'    => 'speed',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -603,8 +600,8 @@ class WP_Strip {
 
             // ── Security & Privacy ───────────────────────────────────────────
             'rest_api' => array(
-                'name'        => __('Remote App Connections (REST API)', 'wp-strip'),
-                'description' => __('Controls public REST API access. When disabled, guest (not logged-in) users are blocked, while logged-in users and authenticated clients can still access the API. This helps reduce anonymous endpoint exposure without breaking most admin/plugin workflows.', 'wp-strip'),
+                'name'        => __('Unauthenticated REST API Access', 'wp-strip'),
+                'description' => __('Blocks guest (not logged-in) REST API requests. Logged-in users and authenticated API clients can still use the REST API. This reduces anonymous endpoint exposure without shutting down the API entirely.', 'wp-strip'),
                 'category'    => 'security',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -753,7 +750,7 @@ class WP_Strip {
             // ── Search & Archives ────────────────────────────────────────────
             'search' => array(
                 'name'        => __('Site Search', 'wp-strip'),
-                'description' => __('The built-in WordPress search that lets visitors find content on your site. Disabling redirects all search requests to the homepage. Only disable if you use an external search service like Algolia or Elasticsearch.', 'wp-strip'),
+                'description' => __('The built-in WordPress search that lets visitors find content on your site. Disabling returns a 404 for search requests. Only disable if you use an external search service like Algolia or Elasticsearch.', 'wp-strip'),
                 'category'    => 'archives',
                 'risk'        => 'high',
                 'scope'       => 'frontend',
@@ -762,7 +759,7 @@ class WP_Strip {
             ),
             'archives' => array(
                 'name'        => __('Date Archive Pages', 'wp-strip'),
-                'description' => __('Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling redirects these URLs to the homepage and can help avoid duplicate content issues for SEO.', 'wp-strip'),
+                'description' => __('Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling returns a 404 for these URLs and can help avoid duplicate content issues for SEO.', 'wp-strip'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -771,7 +768,7 @@ class WP_Strip {
             ),
             'attachment_pages' => array(
                 'name'        => __('Media Attachment Pages', 'wp-strip'),
-                'description' => __('Individual pages generated for each uploaded image or file (e.g. /site.com/photo-of-something/). These thin pages are considered bad for SEO. Disabling them redirects the URL to the file itself.', 'wp-strip'),
+                'description' => __('Individual pages generated for each uploaded image or file (e.g. /photo-of-something/). These thin pages are often weak for SEO. Disabling returns a 404 for attachment URLs; direct file URLs still work.', 'wp-strip'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -780,7 +777,7 @@ class WP_Strip {
             ),
             'author_archives' => array(
                 'name'        => __('Author Archive Pages', 'wp-strip'),
-                'description' => __('Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these duplicate your homepage. Disabling redirects author URLs to the homepage.', 'wp-strip'),
+                'description' => __('Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these can duplicate your homepage. Disabling returns a 404 for author archive URLs.', 'wp-strip'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1595,16 +1592,12 @@ class WP_Strip {
                 break;
                 
             case 'cron':
-                // Disable the cron spawn by defining DISABLE_WP_CRON.
-                // Warning: this requires a server-side cron job to trigger wp-cron.php periodically.
-                // Without the constant, we disable the scheduled event loop as safely as possible.
+                // Stop WP from spawning cron on frontend/admin page loads.
+                // Requires a real system cron hitting wp-cron.php, or jobs will stall.
+                // Do not empty the cron option — that breaks plugins that read schedules.
                 if (!defined('DISABLE_WP_CRON')) {
-                    add_filter('pre_option_cron', '__return_empty_array');
+                    define('DISABLE_WP_CRON', true);
                 }
-                // Remove the cron admin panel
-                add_action('admin_menu', function() {
-                    remove_submenu_page('tools.php', 'tools.php?page=cron');
-                }, 999);
                 break;
                 
             case 'user_registration':
@@ -1624,13 +1617,7 @@ class WP_Strip {
                 break;
                 
             case 'attachment_pages':
-                add_action('template_redirect', function() {
-                    if (is_attachment()) {
-                        global $wp_query;
-                        $wp_query->set_404();
-                        status_header(404);
-                    }
-                });
+                add_action('template_redirect', array($this, 'disable_attachment_pages'));
                 break;
                 
             case 'revisions':
@@ -1660,20 +1647,26 @@ class WP_Strip {
                 
             case 'theme_editor':
                 add_filter('map_meta_cap', function($caps, $cap) {
-                    if (in_array($cap, array('edit_themes', 'edit_plugins', 'install_themes', 'update_themes', 'delete_themes', 'install_plugins', 'update_plugins', 'delete_plugins'), true)) {
+                    if ('edit_themes' === $cap) {
                         $caps[] = 'do_not_allow';
                     }
                     return $caps;
                 }, 10, 2);
+                add_action('admin_menu', function() {
+                    remove_submenu_page('themes.php', 'theme-editor.php');
+                }, 999);
                 break;
                 
             case 'plugin_editor':
                 add_filter('map_meta_cap', function($caps, $cap) {
-                    if (in_array($cap, array('edit_plugins', 'install_plugins', 'update_plugins', 'delete_plugins'), true)) {
+                    if ('edit_plugins' === $cap) {
                         $caps[] = 'do_not_allow';
                     }
                     return $caps;
                 }, 10, 2);
+                add_action('admin_menu', function() {
+                    remove_submenu_page('plugins.php', 'plugin-editor.php');
+                }, 999);
                 break;
                 
             case 'welcome_panel':
@@ -1859,11 +1852,15 @@ class WP_Strip {
                 break;
                 
             case 'wc_home_screen':
-                add_filter('woocommerce_admin_disabled', '__return_true');
+                add_filter('woocommerce_admin_features', function($features) {
+                    return array_values(array_diff((array) $features, array('homescreen')));
+                });
                 break;
                 
             case 'wc_store_alerts':
-                add_filter('woocommerce_admin_disabled', '__return_true');
+                add_filter('woocommerce_admin_features', function($features) {
+                    return array_values(array_diff((array) $features, array('store-alerts')));
+                });
                 break;
                 
             case 'wc_usage_tracking':
@@ -2290,6 +2287,16 @@ class WP_Strip {
                 }, 100);
                 break;
         }
+
+        /**
+         * Fires when a feature is being stripped.
+         *
+         * Custom features registered via `wp_strip_features` should hook here:
+         * `add_action( 'wp_strip_disable_{$feature_key}', 'callback' );`
+         *
+         * @param string $feature_key Feature slug being disabled.
+         */
+        do_action("wp_strip_disable_{$feature_key}");
     }
     
     /**
@@ -2304,6 +2311,17 @@ class WP_Strip {
      */
     public function update_settings($settings) {
         return update_option($this->options_key, $settings);
+    }
+
+    /**
+     * Public helper: whether a registered feature is currently enabled.
+     *
+     * @param string $feature_key Feature slug.
+     * @return bool|null True/false for registered features; null if unknown.
+     */
+    public static function is_enabled($feature_key) {
+        $instance = self::get_instance();
+        return $instance->is_feature_enabled($feature_key);
     }
     
     /**
@@ -2337,6 +2355,19 @@ class WP_Strip {
     public function load_textdomain() {
         load_plugin_textdomain('wp-strip', false, dirname(plugin_basename(WP_STRIP_PLUGIN_FILE)) . '/languages/');
     }
+}
+
+/**
+ * Procedural helper for integrators.
+ *
+ * @param string $feature_key Feature slug.
+ * @return bool|null True/false for registered features; null if plugin inactive or key unknown.
+ */
+function wp_strip_is_feature_enabled($feature_key) {
+    if (!class_exists('WP_Strip')) {
+        return null;
+    }
+    return WP_Strip::is_enabled($feature_key);
 }
 
 // Initialize the plugin

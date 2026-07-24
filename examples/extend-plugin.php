@@ -1,76 +1,71 @@
 <?php
 /**
  * Example: Extending WP Strip
- * 
- * This file demonstrates how to extend the WP Strip
- * with custom features and functionality.
- * 
+ *
+ * Demonstration only — do not load this file in production.
+ * Copy the patterns you need into your own theme or plugin.
+ *
+ * Feature metadata shape:
+ * - name (string, required)
+ * - description (string, required)
+ * - category (string, required — must exist in wp_strip_categories)
+ * - risk (string: low|medium|high)
+ * - scope (string: frontend|admin|both)
+ * - default (bool)
+ * - priority (int)
+ * - children (array of feature keys, optional)
+ *
+ * Custom features appear in the UI and settings. To actually strip them,
+ * hook `wp_strip_disable_{$feature_key}` (see Example 3).
+ *
  * @package WPStrip
  */
 
-// This file is for demonstration only - do not include in production
+// This file is for demonstration only - do not include in production.
 
 /**
  * Example 1: Adding custom features
  */
-add_filter('wp_strip_features', 'add_custom_features');
+add_filter('wp_strip_features', 'wp_strip_example_add_custom_features');
 
-function add_custom_features($features) {
-    // Add WooCommerce features if WooCommerce is installed
-    if (class_exists('WooCommerce')) {
-        $features['woocommerce_cart'] = array(
-            'name' => __('WooCommerce Cart', 'wp-strip'),
-            'description' => __('Enable/disable WooCommerce cart functionality.', 'wp-strip'),
-            'category' => 'ecommerce',
-            'default' => true,
-            'priority' => 1
-        );
-        
-        $features['woocommerce_checkout'] = array(
-            'name' => __('WooCommerce Checkout', 'wp-strip'),
-            'description' => __('Enable/disable WooCommerce checkout process.', 'wp-strip'),
-            'category' => 'ecommerce',
-            'default' => true,
-            'priority' => 1
-        );
-    }
-    
-    // Add custom post type feature
+function wp_strip_example_add_custom_features($features) {
     $features['portfolio'] = array(
-        'name' => __('Portfolio Post Type', 'wp-strip'),
-        'description' => __('Enable/disable custom portfolio post type.', 'wp-strip'),
-        'category' => 'custom',
-        'default' => false,
-        'priority' => 1
+        'name'        => __('Portfolio Post Type', 'wp-strip'),
+        'description' => __('Enable/disable a custom portfolio post type.', 'wp-strip'),
+        'category'    => 'custom',
+        'risk'        => 'medium',
+        'scope'       => 'both',
+        'default'     => true,
+        'priority'    => 1,
     );
-    
+
     return $features;
 }
 
 /**
  * Example 2: Adding custom categories
  */
-add_filter('wp_strip_categories', 'add_custom_categories');
+add_filter('wp_strip_categories', 'wp_strip_example_add_custom_categories');
 
-function add_custom_categories($categories) {
-    $categories['ecommerce'] = __('E-commerce', 'wp-strip');
+function wp_strip_example_add_custom_categories($categories) {
     $categories['custom'] = __('Custom Features', 'wp-strip');
     return $categories;
 }
 
 /**
- * Example 3: Custom feature implementation
+ * Example 3: Custom feature disable implementation
+ *
+ * Required for any custom feature key. Without this action, the toggle
+ * saves but does not change runtime behavior.
  */
-add_action('wp_strip_disable_portfolio', 'disable_portfolio_feature');
+add_action('wp_strip_disable_portfolio', 'wp_strip_example_disable_portfolio');
 
-function disable_portfolio_feature() {
-    // Remove portfolio post type
-    add_action('init', function() {
+function wp_strip_example_disable_portfolio() {
+    add_action('init', function () {
         unregister_post_type('portfolio');
     }, 20);
-    
-    // Remove portfolio from admin menu
-    add_action('admin_menu', function() {
+
+    add_action('admin_menu', function () {
         remove_menu_page('edit.php?post_type=portfolio');
     });
 }
@@ -78,129 +73,49 @@ function disable_portfolio_feature() {
 /**
  * Example 4: Programmatic feature checking
  */
-function check_feature_status_example() {
-    if (class_exists('WP_Strip')) {
-        $feature_manager = WP_Strip::get_instance();
-        
-        // Check if comments are enabled
-        if ($feature_manager->is_feature_enabled('comments')) {
-            // Comments are enabled, do something
-            add_action('wp_head', 'add_comment_styles');
-        }
-        
-        // Check if REST API is enabled
-        if (!$feature_manager->is_feature_enabled('rest_api')) {
-            // REST API is disabled, maybe show a notice
-            add_action('admin_notices', function() {
-                echo '<div class="notice notice-warning"><p>REST API is disabled by WP Strip.</p></div>';
-            });
-        }
-        
-        // Get all disabled features
-        $disabled = $feature_manager->get_disabled_features();
-        if (!empty($disabled)) {
-            // Log disabled features for debugging
-            error_log('Disabled features: ' . implode(', ', $disabled));
-        }
+function wp_strip_example_check_feature_status() {
+    // Preferred helper
+    if (true === wp_strip_is_feature_enabled('comments')) {
+        // Comments are enabled.
+    }
+
+    // Or via the class
+    if (class_exists('WP_Strip') && true === WP_Strip::is_enabled('rest_api')) {
+        // Unauthenticated REST access is still allowed.
     }
 }
-add_action('init', 'check_feature_status_example');
+add_action('init', 'wp_strip_example_check_feature_status');
 
 /**
- * Example 5: Custom admin notice based on feature status
+ * Example 5: React when a setting changes
+ *
+ * Args: $feature_key, $new_value, $old_value
  */
-add_action('admin_notices', 'feature_manager_custom_notices');
+add_action('wp_strip_feature_toggled', 'wp_strip_example_handle_feature_toggle', 10, 3);
 
-function feature_manager_custom_notices() {
-    if (!class_exists('WP_Strip')) {
-        return;
-    }
-    
-    $feature_manager = WP_Strip::get_instance();
-    
-    // Warn if critical features are disabled
-    $critical_features = array('posts', 'pages', 'rest_api');
-    $disabled_critical = array();
-    
-    foreach ($critical_features as $feature) {
-        if (!$feature_manager->is_feature_enabled($feature)) {
-            $disabled_critical[] = $feature;
-        }
-    }
-    
-    if (!empty($disabled_critical)) {
-        echo '<div class="notice notice-warning is-dismissible">';
-        echo '<p><strong>WP Strip Warning:</strong> Critical features are disabled: ' . implode(', ', $disabled_critical) . '</p>';
-        echo '</div>';
-    }
-}
-
-/**
- * Example 6: Custom feature toggle hook
- */
-add_action('wp_strip_feature_toggled', 'handle_feature_toggle', 10, 3);
-
-function handle_feature_toggle($feature_key, $old_value, $new_value) {
-    // Log feature changes
-    error_log(sprintf(
-        'Feature "%s" changed from %s to %s',
-        $feature_key,
-        $old_value ? 'enabled' : 'disabled',
-        $new_value ? 'enabled' : 'disabled'
-    ));
-    
-    // Flush rewrite rules when certain features change
+function wp_strip_example_handle_feature_toggle($feature_key, $new_value, $old_value) {
     $flush_features = array('posts', 'pages', 'archives');
-    if (in_array($feature_key, $flush_features)) {
+    if (in_array($feature_key, $flush_features, true)) {
         flush_rewrite_rules();
     }
-    
-    // Clear cache when REST API status changes
-    if ($feature_key === 'rest_api') {
+
+    if ('rest_api' === $feature_key) {
         wp_cache_flush();
     }
 }
 
 /**
- * Example 7: Custom bulk actions
+ * Example 6: Validate / force a setting value before save
+ *
+ * Return the (bool) value that should be stored.
  */
-add_action('wp_strip_bulk_actions', 'add_custom_bulk_actions');
+add_filter('wp_strip_validate_setting', 'wp_strip_example_validate_feature_dependencies', 10, 3);
 
-function add_custom_bulk_actions() {
-    ?>
-    <button type="button" onclick="enableContentFeatures()" class="button">
-        <?php _e('Enable All Content Features', 'wp-strip'); ?>
-    </button>
-    <button type="button" onclick="disableApiFeatures()" class="button">
-        <?php _e('Disable All API Features', 'wp-strip'); ?>
-    </button>
-    
-    <script>
-    function enableContentFeatures() {
-        if (confirm('Enable all content-related features?')) {
-            jQuery('input[data-category="content"]').prop('checked', true).trigger('change');
-        }
-    }
-    
-    function disableApiFeatures() {
-        if (confirm('Disable all API features? This may affect integrations.')) {
-            jQuery('input[data-category="apis"]').prop('checked', false).trigger('change');
-        }
-    }
-    </script>
-    <?php
-}
-
-/**
- * Example 8: Feature dependencies
- */
-add_filter('wp_strip_validate_setting', 'validate_feature_dependencies', 10, 3);
-
-function validate_feature_dependencies($is_valid, $feature_key, $new_value) {
-    // If trying to enable tags but posts are disabled
-    if ($feature_key === 'tags' && $new_value) {
-        $feature_manager = WP_Strip::get_instance();
-        if (!$feature_manager->is_feature_enabled('posts')) {
+function wp_strip_example_validate_feature_dependencies($value, $feature_key, $settings) {
+    // Keep tags disabled when posts are being disabled in the same save.
+    if ('tags' === $feature_key && $value) {
+        $posts_enabled = isset($settings['posts']) ? (bool) $settings['posts'] : true;
+        if (!$posts_enabled) {
             add_settings_error(
                 'wp_strip_settings',
                 'dependency_error',
@@ -210,6 +125,6 @@ function validate_feature_dependencies($is_valid, $feature_key, $new_value) {
             return false;
         }
     }
-    
-    return $is_valid;
+
+    return (bool) $value;
 }

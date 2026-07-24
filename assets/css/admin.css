@@ -1,7 +1,7 @@
 /**
  * WP Strip Admin Styles
  *
- * @package WPFeatureManager
+ * @package WPStrip
  */
 
 :root {
@@ -541,18 +541,6 @@
   margin-top: 22px;
   min-height: 42px;
   padding: 0 22px;
-}
-
-.wp-strip-floating-save {
-  display: none;
-}
-
-.wp-strip-floating-save:hover {
-  background: var(--wp-strip-primary-dark);
-}
-
-.wp-strip-floating-save.show {
-  display: none;
 }
 
 .wp-strip-loading {

@@ -91,28 +91,14 @@ trait WP_Strip_Admin {
         );
         
         // Localize script
-        wp_localize_script('wp-strip-admin', 'wpFeatureManager', array(
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wp_strip_nonce'),
+        wp_localize_script('wp-strip-admin', 'wpStrip', array(
             'strings' => array(
                 'confirmDisable' => __('Are you sure you want to disable this feature? This may affect your site functionality.', 'wp-strip'),
-                'confirmEnable' => __('Are you sure you want to enable this feature?', 'wp-strip'),
                 'savingChanges' => __('Saving changes...', 'wp-strip'),
                 'changesSaved' => __('Changes saved successfully!', 'wp-strip'),
-                'errorOccurred' => __('An error occurred. Please try again.', 'wp-strip'),
-                'confirmEnableAll' => __('Are you sure you want to enable all features?', 'wp-strip'),
-                'confirmDisableAll' => __('Are you sure you want to disable all features? This may break your site functionality.', 'wp-strip'),
-                'confirmResetDefaults' => __('Are you sure you want to reset all features to their default state?', 'wp-strip'),
                 'unsavedChanges' => __('You have unsaved changes. Are you sure you want to leave?', 'wp-strip'),
                 'enabled' => __('Enabled', 'wp-strip'),
                 'disabled' => __('Disabled', 'wp-strip'),
-                'alreadyDisabled' => __('Already disabled', 'wp-strip'),
-                'searchPlaceholder' => __('Search features, descriptions, risks, or scope...', 'wp-strip'),
-                'noResults' => __('No features match your search.', 'wp-strip'),
-                'sectionEnabled' => __('Section enabled', 'wp-strip'),
-                'sectionDisabled' => __('Section disabled', 'wp-strip'),
-                'tabListLabel' => __('Feature categories', 'wp-strip'),
-                'unsavedIndicator' => __('Unsaved changes', 'wp-strip'),
                 'saveChanges' => __('Save Changes', 'wp-strip'),
                 'dismissNotice' => __('Dismiss this notice.', 'wp-strip')
             )
@@ -606,7 +592,7 @@ trait WP_Strip_Admin {
             case 'site_editor':
                 if (!$this->is_feature_enabled('design_system')) {
                     $state['locked'] = true;
-                    $state['reason'] = __('The Design System feature is already handling this. Disable that instead.', 'wp-strip');
+                    $state['reason'] = __('Locked because Design System is disabled. Enable Design System to manage the Full Site Editor separately.', 'wp-strip');
                 } elseif (!post_type_exists('wp_template')) {
                     $state['locked'] = true;
                     $state['reason'] = __('Block template support has already been removed by another plugin or theme.', 'wp-strip');
@@ -665,48 +651,45 @@ trait WP_Strip_Admin {
     
     /**
      * Sanitize settings
+     *
+     * @param array $input Raw submitted settings.
+     * @return array
      */
     public function sanitize_settings($input) {
+        $old_settings = $this->get_settings();
         $sanitized = array();
-        
+        $input = is_array($input) ? $input : array();
+
         foreach ($this->features as $feature_key => $feature_data) {
-            $sanitized[$feature_key] = isset($input[$feature_key]) ? (bool) $input[$feature_key] : false;
+            $value = isset($input[$feature_key]) ? (bool) $input[$feature_key] : false;
+
+            /**
+             * Filter a feature setting before it is saved.
+             *
+             * @param bool   $value       Proposed enabled state.
+             * @param string $feature_key Feature slug.
+             * @param array  $input       Full submitted settings array.
+             */
+            $value = (bool) apply_filters('wp_strip_validate_setting', $value, $feature_key, $input);
+            $sanitized[$feature_key] = $value;
+
+            $old_value = isset($old_settings[$feature_key])
+                ? (bool) $old_settings[$feature_key]
+                : (bool) $feature_data['default'];
+
+            if ($old_value !== $value) {
+                /**
+                 * Fires when a feature toggle value changes on save.
+                 *
+                 * @param string $feature_key Feature slug.
+                 * @param bool   $value       New enabled state.
+                 * @param bool   $old_value   Previous enabled state.
+                 */
+                do_action('wp_strip_feature_toggled', $feature_key, $value, $old_value);
+            }
         }
-        
+
         return $sanitized;
-    }
-    
-    /**
-     * AJAX handler for toggling features
-     */
-    public function ajax_toggle_feature() {
-        // Verify nonce and check POST keys
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wp_strip_nonce')) {
-            wp_die(__('Security check failed.', 'wp-strip'));
-        }
-        // Check permissions
-        if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have permission to perform this action.', 'wp-strip'));
-        }
-        // Validate and sanitize input
-        if (!isset($_POST['feature'], $_POST['enabled'])) {
-            wp_send_json_error(__('Missing required data.', 'wp-strip'));
-        }
-        $feature_key = sanitize_key(wp_unslash($_POST['feature']));
-        $enabled = (bool) intval(wp_unslash($_POST['enabled']));
-        // Validate feature key
-        if (!isset($this->features[$feature_key])) {
-            wp_send_json_error(__('Invalid feature.', 'wp-strip'));
-        }
-        // Update settings
-        $settings = $this->get_settings();
-        $settings[$feature_key] = $enabled;
-        $this->update_settings($settings);
-        wp_send_json_success(array(
-            'message' => $enabled ? __('Feature enabled.', 'wp-strip') : __('Feature disabled.', 'wp-strip'),
-            'feature' => $feature_key,
-            'enabled' => $enabled
-        ));
     }
     
     /**
@@ -729,6 +712,13 @@ trait WP_Strip_Admin {
                 'message' => __('<strong>WordPress.org communication is blocked.</strong> Your site cannot reach WordPress.org for updates, translations, or plugin/theme information. Security patches may not be detected. Consider enabling this or using an alternative update monitoring solution.', 'wp-strip')
             );
         }
+
+        if (isset($settings['cron']) && empty($settings['cron'])) {
+            $warnings[] = array(
+                'type' => 'warning',
+                'message' => __('<strong>WP-Cron spawning is disabled.</strong> Scheduled posts and plugin jobs will not run unless your host triggers <code>wp-cron.php</code> via a real system cron. Re-enable this toggle or configure system cron before leaving it off.', 'wp-strip')
+            );
+        }
         
         foreach ($warnings as $warning) {
             $class = 'notice notice-' . esc_attr($warning['type']) . ' is-dismissible';
@@ -738,9 +728,11 @@ trait WP_Strip_Admin {
 
     /**
      * Get feature categories
+     *
+     * @return array<string, string>
      */
     private function get_feature_categories() {
-        return array(
+        $categories = array(
             'writing'     => __('Writing & Content', 'wp-strip'),
             'media'       => __('Media & Embeds', 'wp-strip'),
             'speed'       => __('Site Speed', 'wp-strip'),
@@ -750,5 +742,21 @@ trait WP_Strip_Admin {
             'archives'    => __('Search & Archives', 'wp-strip'),
             'woocommerce' => __('WooCommerce', 'wp-strip')
         );
+
+        // Drop categories that currently have no registered features (e.g. Woo when inactive).
+        $used = array();
+        foreach ($this->features as $feature_data) {
+            if (!empty($feature_data['category'])) {
+                $used[$feature_data['category']] = true;
+            }
+        }
+        $categories = array_intersect_key($categories, $used);
+
+        /**
+         * Filter the feature category labels shown in the admin UI.
+         *
+         * @param array<string, string> $categories Category slug => label.
+         */
+        return apply_filters('wp_strip_categories', $categories);
     }
 }

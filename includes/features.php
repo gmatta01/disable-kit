@@ -256,7 +256,7 @@ trait WP_Strip_Features {
         // Remove emoji CDN hostname from DNS prefetching hints
         add_filter('wp_resource_hints', function($urls, $relation_type) {
             if ('dns-prefetch' === $relation_type) {
-                $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/2/svg/');
+                $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/15.0.3/svg/');
                 $urls = array_diff($urls, array($emoji_svg_url));
             }
             return $urls;
@@ -317,7 +317,8 @@ trait WP_Strip_Features {
             global $wp_query;
             $wp_query->set_404();
             status_header(404);
-            wp_die('', '', 404);
+            nocache_headers();
+            wp_die('', 404);
         }
     }
     
@@ -341,7 +342,21 @@ trait WP_Strip_Features {
             global $wp_query;
             $wp_query->set_404();
             status_header(404);
-            wp_die('', '', 404);
+            nocache_headers();
+            wp_die('', 404);
+        }
+    }
+
+    /**
+     * Disable media attachment pages
+     */
+    public function disable_attachment_pages() {
+        if (is_attachment()) {
+            global $wp_query;
+            $wp_query->set_404();
+            status_header(404);
+            nocache_headers();
+            wp_die('', 404);
         }
     }
     
@@ -368,16 +383,19 @@ trait WP_Strip_Features {
     
     /**
      * Check if a specific feature is enabled
+     *
+     * @param string $feature_key Feature slug.
+     * @return bool|null True/false for registered features; null if the key is unknown.
      */
     public function is_feature_enabled($feature_key) {
-        $settings = $this->get_settings();
-        $feature_data = isset($this->features[$feature_key]) ? $this->features[$feature_key] : null;
-        
-        if (!$feature_data) {
-            return true; // Default to enabled for unknown features
+        if (!isset($this->features[$feature_key])) {
+            return null;
         }
-        
-        return isset($settings[$feature_key]) ? $settings[$feature_key] : $feature_data['default'];
+
+        $settings = $this->get_settings();
+        $feature_data = $this->features[$feature_key];
+
+        return isset($settings[$feature_key]) ? (bool) $settings[$feature_key] : (bool) $feature_data['default'];
     }
     
     /**
@@ -412,18 +430,15 @@ trait WP_Strip_Features {
      * Remove dashboard widgets
      */
     public function remove_dashboard_widgets() {
-        global $wp_meta_boxes;
-        
-        // Remove default dashboard widgets
-        unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
-        unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_activity']);
-        unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-        unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
-        unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-        unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-        unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
-        unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-        unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
+        remove_meta_box('dashboard_right_now', 'dashboard', 'normal');
+        remove_meta_box('dashboard_activity', 'dashboard', 'normal');
+        remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
+        remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
+        remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
+        remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
+        remove_meta_box('dashboard_recent_drafts', 'dashboard', 'side');
+        remove_meta_box('dashboard_primary', 'dashboard', 'side');
+        remove_meta_box('dashboard_secondary', 'dashboard', 'side');
     }
     
     /**
@@ -508,7 +523,7 @@ trait WP_Strip_Features {
         // Block author parameter in URLs
         add_action('init', function() {
             if (isset($_GET['author']) && !is_admin()) {
-                wp_redirect(home_url(), 301);
+                wp_safe_redirect(home_url('/'), 301);
                 exit;
             }
         });
@@ -524,7 +539,7 @@ trait WP_Strip_Features {
         // Disable author archives
         add_action('template_redirect', function() {
             if (is_author()) {
-                wp_redirect(home_url(), 301);
+                wp_safe_redirect(home_url('/'), 301);
                 exit;
             }
         });

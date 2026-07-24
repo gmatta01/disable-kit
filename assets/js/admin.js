@@ -1,13 +1,13 @@
 /**
  * WP Strip Admin JavaScript
  *
- * @package WPFeatureManager
+ * @package WPStrip
  */
 
 (function ($) {
     'use strict';
 
-    var WPFeatureManagerAdmin = {
+    var WPStripAdmin = {
 
         init: function () {
             this.cacheElements();
@@ -27,7 +27,6 @@
         cacheElements: function () {
             this.$form = $('#wp-strip-form');
             this.$submitButton = $('#wp-strip-submit');
-            this.$floatingButton = $('#floating-save-btn');
             this.$search = $('#wp-feature-search');
             this.$emptyState = $('#wp-feature-search-empty');
             this.$featureItems = $('[data-feature-item]');
@@ -36,6 +35,10 @@
             this.$panels = $('.wp-feature-section[role="tabpanel"]');
             this.$topSaveButton = $('#wp-strip-submit-top');
             this.$unsavedIndicator = $('#wp-feature-unsaved-indicator');
+        },
+
+        strings: function () {
+            return (window.wpStrip && window.wpStrip.strings) ? window.wpStrip.strings : {};
         },
 
         initTabs: function () {
@@ -108,9 +111,10 @@
                 var $toggle = $(this);
                 var feature = $toggle.data('feature');
                 var isEnabled = $toggle.is(':checked');
+                var strings = self.strings();
 
                 if (!isEnabled && self.isCriticalFeature(feature)) {
-                    if (!window.confirm(wpFeatureManager.strings.confirmDisable)) {
+                    if (!window.confirm(strings.confirmDisable || 'Are you sure you want to disable this feature?')) {
                         $toggle.prop('checked', true);
                         return;
                     }
@@ -120,7 +124,6 @@
                 self.markFormAsChanged();
                 self.refreshSectionToggle($toggle.data('category'));
 
-                // Cascade parent toggle to children — only for parent features
                 var $article = $toggle.closest('[data-feature-item]');
                 if ($article.length && !$article.is('.wp-feature-item-child')) {
                     var $children = $article.nextUntil(':not(.wp-feature-item-child)');
@@ -135,7 +138,6 @@
                     }
                     self.refreshParentToggle($article);
                 } else {
-                    // Child toggle changed — refresh parent toggle state
                     self.refreshParentToggle($article);
                 }
             });
@@ -216,9 +218,10 @@
             var $item = $toggle.closest('[data-feature-item]');
             var $hidden = $item.find('.wp-feature-hidden-value');
             var $status = $item.find('.wp-feature-toggle-status');
+            var strings = this.strings();
 
             $hidden.val(isEnabled ? '1' : '0');
-            $status.text(isEnabled ? wpFeatureManager.strings.enabled : wpFeatureManager.strings.disabled);
+            $status.text(isEnabled ? (strings.enabled || 'Enabled') : (strings.disabled || 'Disabled'));
         },
 
         refreshAllSectionToggles: function () {
@@ -254,11 +257,9 @@
             var $children;
 
             if ($article.is('.wp-feature-item-child')) {
-                // This is a child — find the parent article before it
                 $parent = $article.prevAll(':not(.wp-feature-item-child)').first();
                 $children = $parent.nextUntil(':not(.wp-feature-item-child)');
             } else {
-                // This is a parent — find its children
                 $parent = $article;
                 $children = $article.nextUntil(':not(.wp-feature-item-child)');
             }
@@ -272,7 +273,6 @@
 
             if ($parentToggle.is(':checked') !== anyChildEnabled) {
                 $parentToggle.prop('checked', anyChildEnabled);
-                // Sync the parent's hidden value and status label too
                 var parentFeature = $parentToggle.data('feature');
                 if (parentFeature) {
                     this.syncFeatureValue($parentToggle, anyChildEnabled);
@@ -286,10 +286,11 @@
         },
 
         markFormAsChanged: function () {
+            var strings = this.strings();
             this.$form.addClass('form-changed');
-            this.$submitButton.val(wpFeatureManager.strings.saveChanges || 'Save Changes');
+            this.$submitButton.val(strings.saveChanges || 'Save Changes');
             this.$submitButton.addClass('button-primary-changed');
-            this.$topSaveButton.text(wpFeatureManager.strings.saveChanges || 'Save Changes');
+            this.$topSaveButton.text(strings.saveChanges || 'Save Changes');
             this.$unsavedIndicator.prop('hidden', false);
         },
 
@@ -297,12 +298,14 @@
             var self = this;
 
             this.$form.on('submit', function () {
+                var strings = self.strings();
+
                 self.$submitButton
-                    .val(wpFeatureManager.strings.savingChanges || 'Saving changes...')
+                    .val(strings.savingChanges || 'Saving changes...')
                     .prop('disabled', true);
 
                 self.$topSaveButton
-                    .text(wpFeatureManager.strings.savingChanges || 'Saving changes...')
+                    .text(strings.savingChanges || 'Saving changes...')
                     .prop('disabled', true);
 
                 self.$form.addClass('wp-strip-loading');
@@ -312,7 +315,7 @@
 
             if (sessionStorage.getItem('wp_strip_show_success')) {
                 sessionStorage.removeItem('wp_strip_show_success');
-                this.showNotification(wpFeatureManager.strings.changesSaved || 'Changes saved successfully!', 'success');
+                this.showNotification(this.strings().changesSaved || 'Changes saved successfully!', 'success');
             }
         },
 
@@ -370,7 +373,7 @@
 
             $(window).on('beforeunload', function () {
                 if (self.$form.hasClass('form-changed')) {
-                    return wpFeatureManager.strings.unsavedChanges || 'You have unsaved changes. Are you sure you want to leave?';
+                    return self.strings().unsavedChanges || 'You have unsaved changes. Are you sure you want to leave?';
                 }
 
                 return undefined;
@@ -378,6 +381,7 @@
         },
 
         showNotification: function (message, type) {
+            var strings = this.strings();
             var notificationType = type === 'error' ? 'error' : 'success';
             var $notification = $('<div>', {
                 'class': 'wp-strip-notification ' + notificationType
@@ -391,7 +395,7 @@
             $dismissButton.append(
                 $('<span>', {
                     'class': 'screen-reader-text',
-                    text: wpFeatureManager.strings.dismissNotice || 'Dismiss this notice.'
+                    text: strings.dismissNotice || 'Dismiss this notice.'
                 })
             );
 
@@ -408,15 +412,15 @@
             if (type !== 'error') {
                 this.$unsavedIndicator.prop('hidden', true);
                 this.$topSaveButton
-                    .text(wpFeatureManager.strings.saveChanges || 'Save Changes')
+                    .text(strings.saveChanges || 'Save Changes')
                     .prop('disabled', false);
             }
         }
     };
 
     $(document).ready(function () {
-        WPFeatureManagerAdmin.init();
-        window.WPFeatureManagerAdmin = WPFeatureManagerAdmin;
+        WPStripAdmin.init();
+        window.WPStripAdmin = WPStripAdmin;
     });
 
 })(jQuery);
