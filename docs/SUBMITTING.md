@@ -1,10 +1,10 @@
-# Submitting Disable Kit to WordPress.org
+# Submitting StripBoard to WordPress.org
 
 Prepared artifacts for directory submission.
 
 ## Before you submit
 
-1. Confirm the plugin slug `disable-kit` is available: search https://wordpress.org/plugins/
+1. Confirm the plugin slug `stripboard` is available: search https://wordpress.org/plugins/
 2. Create / log in to a WordPress.org account (contributor slug should match `readme.txt` → `Contributors: gmatta01` or update that field)
 3. Whitelist `plugins@wordpress.org` in email
 
@@ -12,7 +12,7 @@ Prepared artifacts for directory submission.
 
 Built package:
 
-`dist/disable-kit-1.0.0.zip`
+`dist/stripboard-1.0.0.zip`
 
 Excluded from the zip:
 
@@ -26,7 +26,7 @@ Included:
 
 - Plugin PHP/JS/CSS, `readme.txt`, `license.txt`, `README.md`, `ROADMAP.md`
 - `examples/extend-plugin.php`
-- `languages/disable-kit.pot`
+- `languages/stripboard.pot`
 - `doc/features.json`
 
 Directory graphics live in `.wordpress-org/` (banners, icons, screenshots) for SVN `assets/` after approval.
@@ -34,14 +34,14 @@ Directory graphics live in `.wordpress-org/` (banners, icons, screenshots) for S
 ## Submit
 
 1. Open https://wordpress.org/plugins/developers/add/
-2. Upload `dist/disable-kit-1.0.0.zip`
+2. Upload `dist/stripboard-1.0.0.zip`
 3. Add a short overview (lean feature governor; 132 toggles; kill switch; no remote calls)
 4. Wait for plugin review (often 1–10 days)
 
 ## After approval (SVN)
 
 ```bash
-svn co https://plugins.svn.wordpress.org/disable-kit disable-kit-svn
+svn co https://plugins.svn.wordpress.org/stripboard stripboard-svn
 # Copy plugin files into trunk/
 # Copy .wordpress-org/* into svn assets/ (sibling of trunk)
 svn add trunk/* assets/*
@@ -56,9 +56,9 @@ Validate readme anytime: https://wordpress.org/plugins/developers/readme-validat
 ## Smoke test checklist
 
 - [ ] Activate on clean WP 6.8+
-- [ ] Settings → Disable Kit loads; save toggles
+- [ ] Settings → StripBoard loads; save toggles
 - [ ] Disable emoji / generator; confirm frontend change
 - [ ] Disable cron; confirm admin warning
 - [ ] With WooCommerce active, Woo tab appears
-- [ ] `define('DISABLE_KIT_BYPASS', true);` restores defaults behavior
+- [ ] `define('STRIPBOARD_BYPASS', true);` restores defaults behavior
 - [ ] Custom feature via `examples/extend-plugin.php` patterns works

@@ -281,15 +281,6 @@
             "description": "",
             "category": ""
         },
-        "cron": {
-            "name": "Scheduled Tasks (WP-Cron)",
-            "risk": "",
-            "scope": "",
-            "default": true,
-            "children": [],
-            "description": "",
-            "category": ""
-        },
         "custom_background": {
             "name": "Custom Background",
             "risk": "",
@@ -884,15 +875,6 @@
             "description": "",
             "category": ""
         },
-        "update_checks": {
-            "name": "Automatic Updates",
-            "risk": "",
-            "scope": "",
-            "default": true,
-            "children": [],
-            "description": "",
-            "category": ""
-        },
         "user_enumeration": {
             "name": "Username Discovery",
             "risk": "",
@@ -1120,15 +1102,6 @@
         },
         "wp_news_dashboard": {
             "name": "WordPress Events & News Widget",
-            "risk": "",
-            "scope": "",
-            "default": true,
-            "children": [],
-            "description": "",
-            "category": ""
-        },
-        "wp_org_requests": {
-            "name": "WordPress.org Communication",
             "risk": "",
             "scope": "",
             "default": true,

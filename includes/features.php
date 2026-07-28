@@ -1,8 +1,8 @@
 <?php
 /**
- * Feature disabling methods for Disable Kit
+ * Feature disabling methods for StripBoard
  * 
- *  DisableKit
+ *  Stripboard
  */
 
 // Prevent direct access
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 /**
  * Feature disabling methods (to be added to main class)
  */
-trait Disable_Kit_Features {
+trait Stripboard_Features {
     
     /**
      * Disable Gutenberg completely
@@ -192,8 +192,8 @@ trait Disable_Kit_Features {
      */
     public function disable_feeds() {
         wp_die(
-            esc_html__('Feeds have been disabled.', 'disable-kit'),
-            esc_html__('Feeds Disabled', 'disable-kit'),
+            esc_html__('Feeds have been disabled.', 'stripboard'),
+            esc_html__('Feeds Disabled', 'stripboard'),
             array('response' => 403)
         );
     }
@@ -445,34 +445,7 @@ trait Disable_Kit_Features {
         remove_meta_box('dashboard_secondary', 'dashboard', 'side');
     }
     
-    /**
-     * Block WordPress.org requests
-     */
-    public function block_wp_org_requests($response, $parsed_args, $url) {
-        if (strpos($url, 'api.wordpress.org') !== false || strpos($url, 'downloads.wordpress.org') !== false) {
-            return new WP_Error('http_request_failed', 'WordPress.org requests disabled by Disable Kit');
-        }
-        return $response;
-    }
 
-    /**
-     * Stop Core from running or scheduling background update checks.
-     *
-     * Used instead of update-transient filters so Plugin Check does not
-     * treat this plugin as a custom updater.
-     */
-    public function strip_background_update_checks() {
-        remove_action('admin_init', '_maybe_update_core');
-        remove_action('admin_init', '_maybe_update_plugins');
-        remove_action('admin_init', '_maybe_update_themes');
-        remove_action('wp_version_check', 'wp_version_check');
-        remove_action('wp_update_plugins', 'wp_update_plugins');
-        remove_action('wp_update_themes', 'wp_update_themes');
-
-        wp_clear_scheduled_hook('wp_version_check');
-        wp_clear_scheduled_hook('wp_update_plugins');
-        wp_clear_scheduled_hook('wp_update_themes');
-    }
     
     /**
      * Remove Google Fonts from enqueued styles where possible.

@@ -1,13 +1,13 @@
 /**
- * Disable Kit Admin JavaScript
+ * StripBoard Admin JavaScript
  *
- * @package DisableKit
+ * @package Stripboard
  */
 
 (function ($) {
     'use strict';
 
-    var DisableKitAdmin = {
+    var StripboardAdmin = {
 
         init: function () {
             this.cacheElements();
@@ -27,25 +27,25 @@
         },
 
         cacheElements: function () {
-            this.$form = $('#disable-kit-form');
-            this.$submitButton = $('#disable-kit-submit');
+            this.$form = $('#stripboard-form');
+            this.$submitButton = $('#stripboard-submit');
             this.$search = $('#wp-feature-search');
             this.$emptyState = $('#wp-feature-search-empty');
             this.$featureItems = $('[data-feature-item]');
             this.$sectionToggles = $('.wp-feature-section-toggle');
             this.$tabs = $('.wp-feature-tab');
             this.$panels = $('.wp-feature-section[role="tabpanel"]');
-            this.$topSaveButton = $('#disable-kit-submit-top');
+            this.$topSaveButton = $('#stripboard-submit-top');
             this.$unsavedIndicator = $('#wp-feature-unsaved-indicator');
         },
 
         strings: function () {
-            return (window.disableKit && window.disableKit.strings) ? window.disableKit.strings : {};
+            return (window.stripboard && window.stripboard.strings) ? window.stripboard.strings : {};
         },
 
         initTabs: function () {
             var self = this;
-            var storedTab = window.sessionStorage.getItem('disable_kit_active_tab');
+            var storedTab = window.sessionStorage.getItem('stripboard_active_tab');
             var firstTabKey = this.$tabs.first().data('tab');
             var initialTab = storedTab && this.$tabs.filter('[data-tab="' + storedTab + '"]').length ? storedTab : firstTabKey;
 
@@ -99,7 +99,7 @@
             this.$panels.removeClass('is-active').attr('aria-hidden', 'true');
             $('#panel-' + tabKey).addClass('is-active').attr('aria-hidden', 'false');
 
-            window.sessionStorage.setItem('disable_kit_active_tab', tabKey);
+            window.sessionStorage.setItem('stripboard_active_tab', tabKey);
 
             if (shouldFocus) {
                 $targetTab.trigger('focus');
@@ -283,7 +283,7 @@
         },
 
         isCriticalFeature: function (feature) {
-            var criticalFeatures = ['posts', 'pages', 'comments', 'rest_api', 'cron', 'search', 'wc_checkout_blocks', 'wc_cart_fragments', 'design_system', 'site_editor'];
+            var criticalFeatures = ['posts', 'pages', 'comments', 'rest_api', 'search', 'wc_checkout_blocks', 'wc_cart_fragments', 'design_system', 'site_editor'];
             return criticalFeatures.indexOf(feature) !== -1;
         },
 
@@ -310,21 +310,21 @@
                     .text(strings.savingChanges || 'Saving changes...')
                     .prop('disabled', true);
 
-                self.$form.addClass('disable-kit-loading');
-                sessionStorage.setItem('disable_kit_show_success', 'true');
+                self.$form.addClass('stripboard-loading');
+                sessionStorage.setItem('stripboard_show_success', 'true');
                 $(window).off('beforeunload');
             });
 
-            if (sessionStorage.getItem('disable_kit_show_success')) {
-                sessionStorage.removeItem('disable_kit_show_success');
+            if (sessionStorage.getItem('stripboard_show_success')) {
+                sessionStorage.removeItem('stripboard_show_success');
                 this.showNotification(this.strings().changesSaved || 'Changes saved successfully!', 'success');
             }
         },
 
         initNotifications: function () {
-            $(document).on('click', '.disable-kit-notification .notice-dismiss', function (event) {
+            $(document).on('click', '.stripboard-notification .notice-dismiss', function (event) {
                 event.preventDefault();
-                $(this).closest('.disable-kit-notification').fadeOut(function () {
+                $(this).closest('.stripboard-notification').fadeOut(function () {
                     $(this).remove();
                 });
             });
@@ -363,7 +363,7 @@
                 }
 
                 if (event.which === 27) {
-                    $('.disable-kit-notification').fadeOut(function () {
+                    $('.stripboard-notification').fadeOut(function () {
                         $(this).remove();
                     });
                 }
@@ -386,7 +386,7 @@
             var strings = this.strings();
             var notificationType = type === 'error' ? 'error' : 'success';
             var $notification = $('<div>', {
-                'class': 'disable-kit-notification ' + notificationType
+                'class': 'stripboard-notification ' + notificationType
             });
             var $message = $('<p>').text(String(message || ''));
             var $dismissButton = $('<button>', {
@@ -421,8 +421,8 @@
     };
 
     $(document).ready(function () {
-        DisableKitAdmin.init();
-        window.DisableKitAdmin = DisableKitAdmin;
+        StripboardAdmin.init();
+        window.StripboardAdmin = StripboardAdmin;
     });
 
 })(jQuery);

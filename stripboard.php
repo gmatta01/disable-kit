@@ -1,20 +1,20 @@
 <?php
 /**
- * Plugin Name: Disable Kit
+ * Plugin Name: StripBoard
  * Plugin URI: https://github.com/gmatta01/disable-kit
- * Description: Disable unwanted WordPress features for a leaner, faster, more secure site.
- * Version: 1.0.0
+ * Description: Disable unwanted features.
+ * Version: 1.0.1
  * Author: GM
  * Author URI: https://github.com/gmatta01
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: disable-kit
+ * Text Domain: stripboard
  * Domain Path: /languages
  * Requires at least: 5.9
  * Tested up to: 7.0
  * Requires PHP: 7.4
  *
- * @package DisableKit
+ * @package Stripboard
  */
 
 // Prevent direct access
@@ -23,28 +23,28 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('DISABLE_KIT_VERSION', '1.0.0');
-define('DISABLE_KIT_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('DISABLE_KIT_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('DISABLE_KIT_PLUGIN_FILE', __FILE__);
+define('STRIPBOARD_VERSION', '1.0.1');
+define('STRIPBOARD_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('STRIPBOARD_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('STRIPBOARD_PLUGIN_FILE', __FILE__);
 
 // Safety kill switch - can be added to wp-config.php to bypass all functionality
-if (defined('DISABLE_KIT_BYPASS') && DISABLE_KIT_BYPASS) {
+if (defined('STRIPBOARD_BYPASS') && STRIPBOARD_BYPASS) {
     return;
 }
 
 // Include required files
-require_once DISABLE_KIT_PLUGIN_DIR . 'includes/admin.php';
-require_once DISABLE_KIT_PLUGIN_DIR . 'includes/features.php';
+require_once STRIPBOARD_PLUGIN_DIR . 'includes/admin.php';
+require_once STRIPBOARD_PLUGIN_DIR . 'includes/features.php';
 
 /**
  * Main plugin class
  */
-class Disable_Kit {
+class Stripboard {
     
     // Include trait files
-    use Disable_Kit_Admin;
-    use Disable_Kit_Features;
+    use Stripboard_Admin;
+    use Stripboard_Features;
     
     /**
      * Single instance of the plugin
@@ -59,7 +59,7 @@ class Disable_Kit {
     /**
      * Plugin options key
      */
-    private $options_key = 'disable_kit_settings';
+    private $options_key = 'stripboard_settings';
     
     /**
      * Get single instance
@@ -86,8 +86,8 @@ class Disable_Kit {
      */
     private function init_hooks() {
         // Plugin lifecycle hooks
-        register_activation_hook(DISABLE_KIT_PLUGIN_FILE, array($this, 'activate'));
-        register_deactivation_hook(DISABLE_KIT_PLUGIN_FILE, array($this, 'deactivate'));
+        register_activation_hook(STRIPBOARD_PLUGIN_FILE, array($this, 'activate'));
+        register_deactivation_hook(STRIPBOARD_PLUGIN_FILE, array($this, 'deactivate'));
         
         // Admin hooks
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -112,8 +112,8 @@ class Disable_Kit {
 
             // ── Writing & Content ────────────────────────────────────────────
             'gutenberg' => array(
-                'name'        => __('Block Editor (Gutenberg)', 'disable-kit'),
-                'description' => __('The modern drag-and-drop editor for posts and pages. Disabling it reverts to the Classic Editor. Most page builders like Elementor still work without it, but the native block editor will be gone.', 'disable-kit'),
+                'name'        => __('Block Editor (Gutenberg)', 'stripboard'),
+                'description' => __('The modern drag-and-drop editor for posts and pages. Disabling it reverts to the Classic Editor. Most page builders like Elementor still work without it, but the native block editor will be gone.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'admin',
@@ -122,8 +122,8 @@ class Disable_Kit {
                 'children'    => array('block_widgets', 'block_directory', 'font_library', 'block_editor_assets_non_editors', 'remove_block_library_css', 'interactivity_api')
             ),
             'classic_editor' => array(
-                'name'        => __('Classic Editor (TinyMCE)', 'disable-kit'),
-                'description' => __('The legacy text editor toolbar. Disable this only if every user on your site is comfortable with the block editor and no plugins depend on the old TinyMCE interface.', 'disable-kit'),
+                'name'        => __('Classic Editor (TinyMCE)', 'stripboard'),
+                'description' => __('The legacy text editor toolbar. Disable this only if every user on your site is comfortable with the block editor and no plugins depend on the old TinyMCE interface.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -131,8 +131,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'block_widgets' => array(
-                'name'        => __('Block Widgets Editor', 'disable-kit'),
-                'description' => __('Replaces the classic widget area with a block-based editor. Disable to restore the traditional drag-and-drop widget panel, which some plugins still rely on.', 'disable-kit'),
+                'name'        => __('Block Widgets Editor', 'stripboard'),
+                'description' => __('Replaces the classic widget area with a block-based editor. Disable to restore the traditional drag-and-drop widget panel, which some plugins still rely on.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -140,8 +140,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'site_editor' => array(
-                'name'        => __('Full Site Editor', 'disable-kit'),
-                'description' => __('Allows editing your entire site layout — header, footer, templates — using blocks. Only available with block themes. Disabling removes it from the admin menu but does not break the site.', 'disable-kit'),
+                'name'        => __('Full Site Editor', 'stripboard'),
+                'description' => __('Allows editing your entire site layout — header, footer, templates — using blocks. Only available with block themes. Disabling removes it from the admin menu but does not break the site.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'admin',
@@ -149,8 +149,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'posts' => array(
-                'name'        => __('Blog Posts', 'disable-kit'),
-                'description' => __('The core blog post content type. Disabling removes the Posts menu and all post-related pages from the admin. Only safe for sites that do not publish blog content.', 'disable-kit'),
+                'name'        => __('Blog Posts', 'stripboard'),
+                'description' => __('The core blog post content type. Disabling removes the Posts menu and all post-related pages from the admin. Only safe for sites that do not publish blog content.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -159,8 +159,8 @@ class Disable_Kit {
                 'children'    => array('categories', 'tags', 'revisions', 'autosave', 'adjacent_posts_links', 'post_formats', 'capital_p_dangit', 'wptexturize', 'convert_smilies')
             ),
             'pages' => array(
-                'name'        => __('Pages', 'disable-kit'),
-                'description' => __('Static pages (About, Contact, etc.). Disabling removes the Pages menu and all static pages from the admin. Only disable if your site is a pure single-page or application build.', 'disable-kit'),
+                'name'        => __('Pages', 'stripboard'),
+                'description' => __('Static pages (About, Contact, etc.). Disabling removes the Pages menu and all static pages from the admin. Only disable if your site is a pure single-page or application build.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -168,8 +168,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'attachments' => array(
-                'name'        => __('Media Attachments', 'disable-kit'),
-                'description' => __('The media library and file uploads. Disabling removes the Media menu. Images already on your site remain, but you cannot add new ones through the admin.', 'disable-kit'),
+                'name'        => __('Media Attachments', 'stripboard'),
+                'description' => __('The media library and file uploads. Disabling removes the Media menu. Images already on your site remain, but you cannot add new ones through the admin.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -186,8 +186,8 @@ class Disable_Kit {
                 )
             ),
             'categories' => array(
-                'name'        => __('Post Categories', 'disable-kit'),
-                'description' => __('Organises posts into groups. Disabling removes category management and category archive pages. Safe only for sites that do not use post categories at all.', 'disable-kit'),
+                'name'        => __('Post Categories', 'stripboard'),
+                'description' => __('Organises posts into groups. Disabling removes category management and category archive pages. Safe only for sites that do not use post categories at all.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -195,8 +195,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'tags' => array(
-                'name'        => __('Post Tags', 'disable-kit'),
-                'description' => __('Keyword labels attached to posts. Disabling removes tag management and tag archive pages. Safe if your site does not use tags for navigation or SEO.', 'disable-kit'),
+                'name'        => __('Post Tags', 'stripboard'),
+                'description' => __('Keyword labels attached to posts. Disabling removes tag management and tag archive pages. Safe if your site does not use tags for navigation or SEO.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -204,8 +204,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comments' => array(
-                'name'        => __('Comments System', 'disable-kit'),
-                'description' => __('Visitor comments on posts and pages. Disabling removes comment forms, the admin comments menu, and all comment data from page loads. Cannot be reversed per-post once globally disabled.', 'disable-kit'),
+                'name'        => __('Comments System', 'stripboard'),
+                'description' => __('Visitor comments on posts and pages. Disabling removes comment forms, the admin comments menu, and all comment data from page loads. Cannot be reversed per-post once globally disabled.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -214,8 +214,8 @@ class Disable_Kit {
                 'children'    => array('comment_reply_script', 'comment_feeds', 'comment_cookies', 'comment_threading', 'comment_url_field', 'pingbacks', 'comment_avatars', 'comment_html')
             ),
             'revisions' => array(
-                'name'        => __('Post Revision History', 'disable-kit'),
-                'description' => __('Saves a copy of your post every time you update it, allowing you to roll back changes. Disabling stops new revisions from being created. Existing revisions remain in the database.', 'disable-kit'),
+                'name'        => __('Post Revision History', 'stripboard'),
+                'description' => __('Saves a copy of your post every time you update it, allowing you to roll back changes. Disabling stops new revisions from being created. Existing revisions remain in the database.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -223,8 +223,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'autosave' => array(
-                'name'        => __('Auto-Save While Editing', 'disable-kit'),
-                'description' => __('Automatically saves a draft copy of your post every 60 seconds while you type. Disabling may cause you to lose work if your browser crashes or connection drops.', 'disable-kit'),
+                'name'        => __('Auto-Save While Editing', 'stripboard'),
+                'description' => __('Automatically saves a draft copy of your post every 60 seconds while you type. Disabling may cause you to lose work if your browser crashes or connection drops.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -234,8 +234,8 @@ class Disable_Kit {
 
             // ── Media & Embeds ───────────────────────────────────────────────
             'embeds' => array(
-                'name'        => __('Automatic Link Previews (oEmbed)', 'disable-kit'),
-                'description' => __('Turns YouTube, Twitter, and other links into embedded previews automatically. Also lets your content be embedded on other sites. Disable if you prefer plain links and want to reduce external requests.', 'disable-kit'),
+                'name'        => __('Automatic Link Previews (oEmbed)', 'stripboard'),
+                'description' => __('Turns YouTube, Twitter, and other links into embedded previews automatically. Also lets your content be embedded on other sites. Disable if you prefer plain links and want to reduce external requests.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -244,8 +244,8 @@ class Disable_Kit {
                 'children'    => array('wp_embed_script', 'wp_mediaelement')
             ),
             'emoji' => array(
-                'name'        => __('WordPress Emoji Support', 'disable-kit'),
-                'description' => __('Loads a JavaScript file to render emoji consistently across older browsers. Modern browsers display emoji natively, so this script is usually unnecessary and adds a small page load overhead.', 'disable-kit'),
+                'name'        => __('WordPress Emoji Support', 'stripboard'),
+                'description' => __('Loads a JavaScript file to render emoji consistently across older browsers. Modern browsers display emoji natively, so this script is usually unnecessary and adds a small page load overhead.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -253,8 +253,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'gravatars' => array(
-                'name'        => __('Gravatar Profile Images', 'disable-kit'),
-                'description' => __('Loads comment author avatars from Gravatar.com. Each avatar is an external HTTP request. Disable to remove these requests and show a default avatar instead.', 'disable-kit'),
+                'name'        => __('Gravatar Profile Images', 'stripboard'),
+                'description' => __('Loads comment author avatars from Gravatar.com. Each avatar is an external HTTP request. Disable to remove these requests and show a default avatar instead.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -262,8 +262,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'dns_prefetch' => array(
-                'name'        => __('Browser DNS Pre-loading', 'disable-kit'),
-                'description' => __('Adds a hidden tag that tells browsers to pre-resolve domain names for external services before they are needed, slightly speeding up those connections. Safe to disable if you manage your own performance hints.', 'disable-kit'),
+                'name'        => __('Browser DNS Pre-loading', 'stripboard'),
+                'description' => __('Adds a hidden tag that tells browsers to pre-resolve domain names for external services before they are needed, slightly speeding up those connections. Safe to disable if you manage your own performance hints.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -271,8 +271,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'google_fonts' => array(
-                'name'        => __('Google Fonts Loading', 'disable-kit'),
-                'description' => __('Some themes and plugins automatically load fonts from Google Fonts servers. Disable to stop these requests — useful for GDPR compliance or if you host fonts locally.', 'disable-kit'),
+                'name'        => __('Google Fonts Loading', 'stripboard'),
+                'description' => __('Some themes and plugins automatically load fonts from Google Fonts servers. Disable to stop these requests — useful for GDPR compliance or if you host fonts locally.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -280,8 +280,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_lazy_load' => array(
-                'name'        => __('Native Image Lazy Loading', 'disable-kit'),
-                'description' => __('WordPress automatically adds loading="lazy" to images and iframes so they only load when scrolled into view. Disable only if you are using a third-party lazy loading plugin that conflicts with it.', 'disable-kit'),
+                'name'        => __('Native Image Lazy Loading', 'stripboard'),
+                'description' => __('WordPress automatically adds loading="lazy" to images and iframes so they only load when scrolled into view. Disable only if you are using a third-party lazy loading plugin that conflicts with it.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -289,8 +289,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_auto_scaling_images' => array(
-                'name'        => __('Auto-Scale Oversized Images', 'disable-kit'),
-                'description' => __('WordPress resizes images larger than 2560px wide on upload to save storage. Disable if you need to preserve original full-resolution images exactly as uploaded.', 'disable-kit'),
+                'name'        => __('Auto-Scale Oversized Images', 'stripboard'),
+                'description' => __('WordPress resizes images larger than 2560px wide on upload to save storage. Disable if you need to preserve original full-resolution images exactly as uploaded.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -300,26 +300,17 @@ class Disable_Kit {
 
             // ── Site Speed ───────────────────────────────────────────────────
             'heartbeat' => array(
-                'name'        => __('Background Auto-Sync', 'disable-kit'),
-                'description' => __('Sends a request to the server every 60 seconds while you have an admin page open, keeping your login session alive and enabling auto-save. Disabling reduces server load on shared hosting but stops real-time lock warnings in the editor.', 'disable-kit'),
+                'name'        => __('Background Auto-Sync', 'stripboard'),
+                'description' => __('Sends a request to the server every 60 seconds while you have an admin page open, keeping your login session alive and enabling auto-save. Disabling reduces server load on shared hosting but stops real-time lock warnings in the editor.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'both',
                 'default'     => true,
                 'priority'    => 1
             ),
-            'cron' => array(
-                'name'        => __('Scheduled Tasks (WP-Cron)', 'disable-kit'),
-                'description' => __('Stops WordPress from spawning WP-Cron on page loads (sets DISABLE_WP_CRON). Scheduled events remain in the database but will not run unless your host triggers wp-cron.php via a real system cron. Disable only if that system cron is already configured — otherwise scheduled posts and plugin jobs will stall.', 'disable-kit'),
-                'category'    => 'speed',
-                'risk'        => 'high',
-                'scope'       => 'both',
-                'default'     => true,
-                'priority'    => 1
-            ),
             'jquery_migrate' => array(
-                'name'        => __('jQuery Migrate Script', 'disable-kit'),
-                'description' => __('A compatibility shim that allows old jQuery code written before 2012 to keep working. Safe to disable on modern sites. If anything breaks after disabling, re-enable it — an old plugin likely depends on it.', 'disable-kit'),
+                'name'        => __('jQuery Migrate Script', 'stripboard'),
+                'description' => __('A compatibility shim that allows old jQuery code written before 2012 to keep working. Safe to disable on modern sites. If anything breaks after disabling, re-enable it — an old plugin likely depends on it.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -328,8 +319,8 @@ class Disable_Kit {
                 'children'    => array('jquery_migrate_admin')
             ),
             'wp_embed_script' => array(
-                'name'        => __('WordPress Embed Script', 'disable-kit'),
-                'description' => __('Loads a script that lets other sites embed your content as a preview card. Disable if you do not need your content to be embeddable elsewhere — saves one HTTP request.', 'disable-kit'),
+                'name'        => __('WordPress Embed Script', 'stripboard'),
+                'description' => __('Loads a script that lets other sites embed your content as a preview card. Disable if you do not need your content to be embeddable elsewhere — saves one HTTP request.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -337,8 +328,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comment_reply_script' => array(
-                'name'        => __('Comment Reply Script', 'disable-kit'),
-                'description' => __('Loads a tiny script that moves the comment form below the reply you clicked. Only needed if comments are enabled. Safe to disable on sites without comments.', 'disable-kit'),
+                'name'        => __('Comment Reply Script', 'stripboard'),
+                'description' => __('Loads a tiny script that moves the comment form below the reply you clicked. Only needed if comments are enabled. Safe to disable on sites without comments.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -346,8 +337,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'admin_bar_script' => array(
-                'name'        => __('Admin Bar Frontend Script', 'disable-kit'),
-                'description' => __('Loads a small JavaScript file on the public site to support the admin toolbar shown to logged-in users. Safe to disable if you have disabled the admin bar or do not use it.', 'disable-kit'),
+                'name'        => __('Admin Bar Frontend Script', 'stripboard'),
+                'description' => __('Loads a small JavaScript file on the public site to support the admin toolbar shown to logged-in users. Safe to disable if you have disabled the admin bar or do not use it.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -355,8 +346,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'backbone_underscore' => array(
-                'name'        => __('Legacy JavaScript Libraries', 'disable-kit'),
-                'description' => __('Loads Backbone.js and Underscore.js — older JavaScript libraries required by some classic WordPress features. Disable only if no plugins or themes on your site use them. If things break, re-enable.', 'disable-kit'),
+                'name'        => __('Legacy JavaScript Libraries', 'stripboard'),
+                'description' => __('Loads Backbone.js and Underscore.js — older JavaScript libraries required by some classic WordPress features. Disable only if no plugins or themes on your site use them. If things break, re-enable.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -364,8 +355,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wp_util_script' => array(
-                'name'        => __('WordPress Helper Scripts', 'disable-kit'),
-                'description' => __('Loads wp-util.js, a small helper used by some WordPress AJAX features and media handling. Safe to disable on simple sites, but may break upload flows or dynamic forms on complex setups.', 'disable-kit'),
+                'name'        => __('WordPress Helper Scripts', 'stripboard'),
+                'description' => __('Loads wp-util.js, a small helper used by some WordPress AJAX features and media handling. Safe to disable on simple sites, but may break upload flows or dynamic forms on complex setups.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -373,8 +364,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'jquery_ui_scripts' => array(
-                'name'        => __('Interactive UI Scripts (jQuery UI)', 'disable-kit'),
-                'description' => __('Loads jQuery UI components like date pickers, sliders, and drag-and-drop. Many contact form and booking plugins depend on these. Disable only if you have confirmed nothing on your site uses jQuery UI.', 'disable-kit'),
+                'name'        => __('Interactive UI Scripts (jQuery UI)', 'stripboard'),
+                'description' => __('Loads jQuery UI components like date pickers, sliders, and drag-and-drop. Many contact form and booking plugins depend on these. Disable only if you have confirmed nothing on your site uses jQuery UI.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -382,8 +373,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'masonry_script' => array(
-                'name'        => __('Photo Grid Layout Scripts', 'disable-kit'),
-                'description' => __('Loads Masonry.js and ImagesLoaded.js, used for Pinterest-style waterfall image grids. Safe to disable if your theme or galleries do not use a masonry layout.', 'disable-kit'),
+                'name'        => __('Photo Grid Layout Scripts', 'stripboard'),
+                'description' => __('Loads Masonry.js and ImagesLoaded.js, used for Pinterest-style waterfall image grids. Safe to disable if your theme or galleries do not use a masonry layout.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -391,8 +382,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wp_mediaelement' => array(
-                'name'        => __('Audio/Video Player Scripts', 'disable-kit'),
-                'description' => __('Loads the MediaElement.js player used for audio and video blocks. Disable if you do not embed audio or video in your posts and use a third-party player instead.', 'disable-kit'),
+                'name'        => __('Audio/Video Player Scripts', 'stripboard'),
+                'description' => __('Loads the MediaElement.js player used for audio and video blocks. Disable if you do not embed audio or video in your posts and use a third-party player instead.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -400,8 +391,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wp_accessibility' => array(
-                'name'        => __('Accessibility Scripts', 'disable-kit'),
-                'description' => __('Loads wp-a11y.js which announces dynamic UI changes to screen readers. Disable only if you have confirmed no visitors use assistive technology and no plugins rely on it. Removing it may harm accessibility compliance.', 'disable-kit'),
+                'name'        => __('Accessibility Scripts', 'stripboard'),
+                'description' => __('Loads wp-a11y.js which announces dynamic UI changes to screen readers. Disable only if you have confirmed no visitors use assistive technology and no plugins rely on it. Removing it may harm accessibility compliance.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -409,8 +400,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'version_strings' => array(
-                'name'        => __('WordPress Version Number Exposure', 'disable-kit'),
-                'description' => __('Controls whether WordPress version metadata stays visible in page source and feeds. Disable this to hide version output and reduce version fingerprinting.', 'disable-kit'),
+                'name'        => __('WordPress Version Number Exposure', 'stripboard'),
+                'description' => __('Controls whether WordPress version metadata stays visible in page source and feeds. Disable this to hide version output and reduce version fingerprinting.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -419,8 +410,8 @@ class Disable_Kit {
                 'children'    => array('disable_wlwmanifest', 'disable_rsd_link', 'disable_wp_shortlink', 'generator_meta_rss')
             ),
             'disable_wlwmanifest' => array(
-                'name'        => __('Windows Live Writer Link', 'disable-kit'),
-                'description' => __('Removes a legacy link tag added for Windows Live Writer, a blogging app discontinued in 2017. Nobody needs this anymore — safe to disable on all sites.', 'disable-kit'),
+                'name'        => __('Windows Live Writer Link', 'stripboard'),
+                'description' => __('Removes a legacy link tag added for Windows Live Writer, a blogging app discontinued in 2017. Nobody needs this anymore — safe to disable on all sites.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -428,8 +419,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_wp_shortlink' => array(
-                'name'        => __('WordPress Shortlink Tag', 'disable-kit'),
-                'description' => __('Removes a short URL tag from your page source and HTTP headers. These shortlinks use the ?p=ID format and are rarely used. Safe to disable on all sites.', 'disable-kit'),
+                'name'        => __('WordPress Shortlink Tag', 'stripboard'),
+                'description' => __('Removes a short URL tag from your page source and HTTP headers. These shortlinks use the ?p=ID format and are rarely used. Safe to disable on all sites.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -437,8 +428,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_rest_api_links' => array(
-                'name'        => __('REST API Discovery Tags', 'disable-kit'),
-                'description' => __('Removes hint tags from your page source that tell clients where your REST API lives. The API still works — this only removes the auto-discovery advertisement. Safe for all sites.', 'disable-kit'),
+                'name'        => __('REST API Discovery Tags', 'stripboard'),
+                'description' => __('Removes hint tags from your page source that tell clients where your REST API lives. The API still works — this only removes the auto-discovery advertisement. Safe for all sites.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -446,8 +437,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_rss_feed_links' => array(
-                'name'        => __('RSS Feed Discovery Tags', 'disable-kit'),
-                'description' => __('Removes the RSS and Atom link tags from your page source that tell feed readers where your feeds are. Your feeds still work — this only removes the auto-discovery hints.', 'disable-kit'),
+                'name'        => __('RSS Feed Discovery Tags', 'stripboard'),
+                'description' => __('Removes the RSS and Atom link tags from your page source that tell feed readers where your feeds are. Your feeds still work — this only removes the auto-discovery hints.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -455,8 +446,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'remove_query_strings' => array(
-                'name'        => __('Cache-Friendly Asset URLs', 'disable-kit'),
-                'description' => __('Removes the ?ver= version number from CSS and JavaScript file URLs. Some proxy servers and CDNs refuse to cache URLs that contain query strings, so removing them can improve cache hit rates.', 'disable-kit'),
+                'name'        => __('Cache-Friendly Asset URLs', 'stripboard'),
+                'description' => __('Removes the ?ver= version number from CSS and JavaScript file URLs. Some proxy servers and CDNs refuse to cache URLs that contain query strings, so removing them can improve cache hit rates.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -464,8 +455,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_legacy_css' => array(
-                'name'        => __('Unused Legacy Styles', 'disable-kit'),
-                'description' => __('Stops loading old CSS for the classic Recent Comments widget and the classic gallery shortcode. Safe to disable on any site using a modern theme — these stylesheets are virtually never needed.', 'disable-kit'),
+                'name'        => __('Unused Legacy Styles', 'stripboard'),
+                'description' => __('Stops loading old CSS for the classic Recent Comments widget and the classic gallery shortcode. Safe to disable on any site using a modern theme — these stylesheets are virtually never needed.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -473,8 +464,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'remove_block_library_css' => array(
-                'name'        => __('Block Editor CSS', 'disable-kit'),
-                'description' => __('Removes three Gutenberg stylesheet files from your public pages. Only disable this if your site uses the Classic Editor and no blocks — it will break block layouts if blocks are in use.', 'disable-kit'),
+                'name'        => __('Block Editor CSS', 'stripboard'),
+                'description' => __('Removes three Gutenberg stylesheet files from your public pages. Only disable this if your site uses the Classic Editor and no blocks — it will break block layouts if blocks are in use.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -482,8 +473,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_auto_trash_empty' => array(
-                'name'        => __('Scheduled Trash Cleanup', 'disable-kit'),
-                'description' => __('WordPress automatically deletes trashed posts after 30 days via a background task. Disable if you prefer to manage trash manually or if the task is adding unnecessary database load.', 'disable-kit'),
+                'name'        => __('Scheduled Trash Cleanup', 'stripboard'),
+                'description' => __('WordPress automatically deletes trashed posts after 30 days via a background task. Disable if you prefer to manage trash manually or if the task is adding unnecessary database load.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -491,8 +482,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'dashicons_guests' => array(
-                'name'        => __('Dashicons for Logged-Out Visitors', 'disable-kit'),
-                'description' => __('WordPress can load the Dashicons icon font on the frontend even for visitors who are not logged in. Disable to save one frontend stylesheet request on most sites.', 'disable-kit'),
+                'name'        => __('Dashicons for Logged-Out Visitors', 'stripboard'),
+                'description' => __('WordPress can load the Dashicons icon font on the frontend even for visitors who are not logged in. Disable to save one frontend stylesheet request on most sites.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -500,8 +491,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'jquery_core_frontend' => array(
-                'name'        => __('jQuery Core on Frontend', 'disable-kit'),
-                'description' => __('Many modern themes no longer need jQuery on public pages. Disable to prevent loading jQuery core on the frontend. Keep enabled if your theme/plugins depend on jQuery.', 'disable-kit'),
+                'name'        => __('jQuery Core on Frontend', 'stripboard'),
+                'description' => __('Many modern themes no longer need jQuery on public pages. Disable to prevent loading jQuery core on the frontend. Keep enabled if your theme/plugins depend on jQuery.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'high',
                 'scope'       => 'frontend',
@@ -509,8 +500,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'jquery_migrate_admin' => array(
-                'name'        => __('jQuery Migrate in Admin', 'disable-kit'),
-                'description' => __('Removes jQuery Migrate from wp-admin. Useful for cleaner admin loads, but older admin plugins may rely on it.', 'disable-kit'),
+                'name'        => __('jQuery Migrate in Admin', 'stripboard'),
+                'description' => __('Removes jQuery Migrate from wp-admin. Useful for cleaner admin loads, but older admin plugins may rely on it.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -518,8 +509,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'global_styles_inline_css' => array(
-                'name'        => __('Global Styles Inline CSS', 'disable-kit'),
-                'description' => __('Disables WordPress global styles CSS output used mainly by block themes and block-based styling. Can reduce frontend head bloat on classic themes.', 'disable-kit'),
+                'name'        => __('Global Styles Inline CSS', 'stripboard'),
+                'description' => __('Disables WordPress global styles CSS output used mainly by block themes and block-based styling. Can reduce frontend head bloat on classic themes.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -527,8 +518,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'svg_duotone_filters' => array(
-                'name'        => __('SVG Duotone Filters Output', 'disable-kit'),
-                'description' => __('Stops WordPress from outputting hidden SVG filter markup used by some block image effects. Safe on sites not using duotone effects.', 'disable-kit'),
+                'name'        => __('SVG Duotone Filters Output', 'stripboard'),
+                'description' => __('Stops WordPress from outputting hidden SVG filter markup used by some block image effects. Safe on sites not using duotone effects.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -536,8 +527,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'adjacent_posts_links' => array(
-                'name'        => __('Adjacent Post Links in Head', 'disable-kit'),
-                'description' => __('Removes prev/next relational link tags from the HTML head. Most modern SEO setups do not require these tags.', 'disable-kit'),
+                'name'        => __('Adjacent Post Links in Head', 'stripboard'),
+                'description' => __('Removes prev/next relational link tags from the HTML head. Most modern SEO setups do not require these tags.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -545,8 +536,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'disable_rsd_link' => array(
-                'name'        => __('RSD Link Tag', 'disable-kit'),
-                'description' => __('Removes the legacy Really Simple Discovery (RSD) link tag from page head output. Rarely needed on modern sites.', 'disable-kit'),
+                'name'        => __('RSD Link Tag', 'stripboard'),
+                'description' => __('Removes the legacy Really Simple Discovery (RSD) link tag from page head output. Rarely needed on modern sites.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -554,8 +545,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comment_feeds' => array(
-                'name'        => __('Comment Feed Endpoints', 'disable-kit'),
-                'description' => __('Disables comment-specific feed endpoints (RSS2/Atom comments) while keeping normal post feeds configurable separately.', 'disable-kit'),
+                'name'        => __('Comment Feed Endpoints', 'stripboard'),
+                'description' => __('Disables comment-specific feed endpoints (RSS2/Atom comments) while keeping normal post feeds configurable separately.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -563,8 +554,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wp_sitemaps' => array(
-                'name'        => __('Built-In WordPress Sitemaps', 'disable-kit'),
-                'description' => __('Disables native WordPress XML sitemaps. Useful if your SEO plugin already generates sitemaps to avoid duplicate endpoints.', 'disable-kit'),
+                'name'        => __('Built-In WordPress Sitemaps', 'stripboard'),
+                'description' => __('Disables native WordPress XML sitemaps. Useful if your SEO plugin already generates sitemaps to avoid duplicate endpoints.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -572,8 +563,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'remote_block_patterns' => array(
-                'name'        => __('Remote Block Pattern Loading', 'disable-kit'),
-                'description' => __('Prevents WordPress from fetching block patterns from remote sources in wp-admin, reducing background requests and editor clutter.', 'disable-kit'),
+                'name'        => __('Remote Block Pattern Loading', 'stripboard'),
+                'description' => __('Prevents WordPress from fetching block patterns from remote sources in wp-admin, reducing background requests and editor clutter.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -581,8 +572,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'core_block_patterns' => array(
-                'name'        => __('Core Block Patterns', 'disable-kit'),
-                'description' => __('Disables default WordPress block patterns. Helpful on streamlined sites using custom templates or classic editors.', 'disable-kit'),
+                'name'        => __('Core Block Patterns', 'stripboard'),
+                'description' => __('Disables default WordPress block patterns. Helpful on streamlined sites using custom templates or classic editors.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -590,8 +581,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'block_editor_assets_non_editors' => array(
-                'name'        => __('Block Editor Assets for Non-Editors', 'disable-kit'),
-                'description' => __('Prevents loading block editor scripts/styles in wp-admin for users who cannot edit posts, reducing backend payload for support/shop roles.', 'disable-kit'),
+                'name'        => __('Block Editor Assets for Non-Editors', 'stripboard'),
+                'description' => __('Prevents loading block editor scripts/styles in wp-admin for users who cannot edit posts, reducing backend payload for support/shop roles.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -601,8 +592,8 @@ class Disable_Kit {
 
             // ── Security & Privacy ───────────────────────────────────────────
             'rest_api' => array(
-                'name'        => __('Unauthenticated REST API Access', 'disable-kit'),
-                'description' => __('Blocks guest (not logged-in) REST API requests. Logged-in users and authenticated API clients can still use the REST API. This reduces anonymous endpoint exposure without shutting down the API entirely.', 'disable-kit'),
+                'name'        => __('Unauthenticated REST API Access', 'stripboard'),
+                'description' => __('Blocks guest (not logged-in) REST API requests. Logged-in users and authenticated API clients can still use the REST API. This reduces anonymous endpoint exposure without shutting down the API entirely.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -611,8 +602,8 @@ class Disable_Kit {
                 'children'    => array('disable_rest_api_links', 'application_passwords', 'user_enumeration')
             ),
             'xmlrpc' => array(
-                'name'        => __('Legacy Remote Publishing (XML-RPC)', 'disable-kit'),
-                'description' => __('An older protocol used by mobile apps, Jetpack, and some desktop blogging tools to post content remotely. Frequently targeted by brute-force attacks. Safe to disable if you do not use mobile posting apps or Jetpack.', 'disable-kit'),
+                'name'        => __('Legacy Remote Publishing (XML-RPC)', 'stripboard'),
+                'description' => __('An older protocol used by mobile apps, Jetpack, and some desktop blogging tools to post content remotely. Frequently targeted by brute-force attacks. Safe to disable if you do not use mobile posting apps or Jetpack.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -620,28 +611,9 @@ class Disable_Kit {
                 'priority'    => 1,
                 'children'    => array('xmlrpc_pingback')
             ),
-            'wp_org_requests' => array(
-                'name'        => __('WordPress.org Communication', 'disable-kit'),
-                'description' => __('Periodic background calls to WordPress.org that check for plugin/theme updates and fetch news for the admin dashboard. Disabling stops update notifications entirely — you will not know when security patches are available.', 'disable-kit'),
-                'category'    => 'security',
-                'risk'        => 'high',
-                'scope'       => 'admin',
-                'default'     => true,
-                'priority'    => 1
-            ),
-            'update_checks' => array(
-                'name'        => __('Automatic Updates', 'disable-kit'),
-                'description' => __('WordPress automatic updater and background update checks for core, plugins, and themes. Disabling stops auto-install of security patches and clears scheduled update checks. Manual installs from the dashboard still work unless WordPress.org requests are also blocked. Not recommended unless you manage updates through a deployment pipeline.', 'disable-kit'),
-                'category'    => 'security',
-                'risk'        => 'high',
-                'scope'       => 'admin',
-                'default'     => true,
-                'priority'    => 1,
-                'children'    => array('core_auto_update_email', 'plugin_auto_update_email', 'theme_auto_update_email', 'wp_org_requests')
-            ),
             'user_registration' => array(
-                'name'        => __('Public User Registration', 'disable-kit'),
-                'description' => __('Allows visitors to create an account on your site. Disable to prevent new self-registrations — existing users are unaffected. Recommended for sites where only admins should add new users.', 'disable-kit'),
+                'name'        => __('Public User Registration', 'stripboard'),
+                'description' => __('Allows visitors to create an account on your site. Disable to prevent new self-registrations — existing users are unaffected. Recommended for sites where only admins should add new users.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -650,8 +622,8 @@ class Disable_Kit {
                 'children'    => array('registration_password')
             ),
             'user_enumeration' => array(
-                'name'        => __('Username Discovery', 'disable-kit'),
-                'description' => __('Controls public username discovery via ?author=1 URLs and REST user endpoints. Disable this feature to block username discovery and reduce information exposure to scanners.', 'disable-kit'),
+                'name'        => __('Username Discovery', 'stripboard'),
+                'description' => __('Controls public username discovery via ?author=1 URLs and REST user endpoints. Disable this feature to block username discovery and reduce information exposure to scanners.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -661,8 +633,8 @@ class Disable_Kit {
 
             // ── Admin Interface ──────────────────────────────────────────────
             'dashboard_widgets' => array(
-                'name'        => __('Dashboard Widgets', 'disable-kit'),
-                'description' => __('The default information boxes on the WordPress dashboard (Activity, Quick Draft, WordPress Events, etc.). Safe to disable — hides visual clutter for clients without affecting site functionality.', 'disable-kit'),
+                'name'        => __('Dashboard Widgets', 'stripboard'),
+                'description' => __('The default information boxes on the WordPress dashboard (Activity, Quick Draft, WordPress Events, etc.). Safe to disable — hides visual clutter for clients without affecting site functionality.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -671,8 +643,8 @@ class Disable_Kit {
                 'children'    => array('wp_news_dashboard', 'welcome_panel', 'browser_update_nag', 'php_update_nag')
             ),
             'admin_bar' => array(
-                'name'        => __('Admin Toolbar', 'disable-kit'),
-                'description' => __('The black bar shown at the top of the page for logged-in users, with links to the dashboard, post editing, and user profile. Disabling removes it site-wide for all users.', 'disable-kit'),
+                'name'        => __('Admin Toolbar', 'stripboard'),
+                'description' => __('The black bar shown at the top of the page for logged-in users, with links to the dashboard, post editing, and user profile. Disabling removes it site-wide for all users.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -681,8 +653,8 @@ class Disable_Kit {
                 'children'    => array('admin_bar_script')
             ),
             'customizer' => array(
-                'name'        => __('Theme Customizer', 'disable-kit'),
-                'description' => __('The live preview panel for adjusting site-wide colours, fonts, and layout. Disable to remove it from the Appearance menu. Not available on block themes anyway — safe to disable if you use a block theme.', 'disable-kit'),
+                'name'        => __('Theme Customizer', 'stripboard'),
+                'description' => __('The live preview panel for adjusting site-wide colours, fonts, and layout. Disable to remove it from the Appearance menu. Not available on block themes anyway — safe to disable if you use a block theme.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -691,8 +663,8 @@ class Disable_Kit {
                 'children'    => array('custom_header', 'custom_background', 'custom_logo', 'site_icon')
             ),
             'theme_editor' => array(
-                'name'        => __('Theme File Editor', 'disable-kit'),
-                'description' => __('The in-admin code editor for directly modifying theme PHP and CSS files. Disabling this is a security best practice — direct file edits via the browser are risky. Recommended to keep disabled after initial setup.', 'disable-kit'),
+                'name'        => __('Theme File Editor', 'stripboard'),
+                'description' => __('The in-admin code editor for directly modifying theme PHP and CSS files. Disabling this is a security best practice — direct file edits via the browser are risky. Recommended to keep disabled after initial setup.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -701,8 +673,8 @@ class Disable_Kit {
                 'children'    => array('plugin_editor')
             ),
             'plugin_editor' => array(
-                'name'        => __('Plugin File Editor', 'disable-kit'),
-                'description' => __('The in-admin code editor for directly modifying plugin PHP files. Disabling this is a security best practice — a single typo can crash your site. Recommended to keep disabled.', 'disable-kit'),
+                'name'        => __('Plugin File Editor', 'stripboard'),
+                'description' => __('The in-admin code editor for directly modifying plugin PHP files. Disabling this is a security best practice — a single typo can crash your site. Recommended to keep disabled.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -710,8 +682,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'welcome_panel' => array(
-                'name'        => __('Welcome Panel', 'disable-kit'),
-                'description' => __('The "Welcome to WordPress" box shown on the dashboard to new users. Safe to disable once your team is comfortable with the admin — reduces visual clutter.', 'disable-kit'),
+                'name'        => __('Welcome Panel', 'stripboard'),
+                'description' => __('The "Welcome to WordPress" box shown on the dashboard to new users. Safe to disable once your team is comfortable with the admin — reduces visual clutter.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -721,8 +693,8 @@ class Disable_Kit {
 
             // ── Feeds & Connections ──────────────────────────────────────────
             'rss_feeds' => array(
-                'name'        => __('RSS / Atom Feeds', 'disable-kit'),
-                'description' => __('Syndication feeds that let readers subscribe to your content via RSS readers or podcast apps. Disable only if you do not want your content syndicated and no services rely on your feeds.', 'disable-kit'),
+                'name'        => __('RSS / Atom Feeds', 'stripboard'),
+                'description' => __('Syndication feeds that let readers subscribe to your content via RSS readers or podcast apps. Disable only if you do not want your content syndicated and no services rely on your feeds.', 'stripboard'),
                 'category'    => 'feeds',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -731,8 +703,8 @@ class Disable_Kit {
                 'children'    => array('rdf_feed', 'disable_rss_feed_links')
             ),
             'rdf_feed' => array(
-                'name'        => __('RDF Feed (Legacy Syndication)', 'disable-kit'),
-                'description' => __('An older feed format used before RSS was standardised. Virtually no modern feed reader uses RDF. Safe to disable on all sites.', 'disable-kit'),
+                'name'        => __('RDF Feed (Legacy Syndication)', 'stripboard'),
+                'description' => __('An older feed format used before RSS was standardised. Virtually no modern feed reader uses RDF. Safe to disable on all sites.', 'stripboard'),
                 'category'    => 'feeds',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -740,8 +712,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'pingbacks' => array(
-                'name'        => __('Cross-Site Link Notifications', 'disable-kit'),
-                'description' => __('Sends and receives notifications when your posts link to other WordPress sites. Frequently abused for spam. Disable unless you specifically want to participate in the pingback/trackback network.', 'disable-kit'),
+                'name'        => __('Cross-Site Link Notifications', 'stripboard'),
+                'description' => __('Sends and receives notifications when your posts link to other WordPress sites. Frequently abused for spam. Disable unless you specifically want to participate in the pingback/trackback network.', 'stripboard'),
                 'category'    => 'feeds',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -751,8 +723,8 @@ class Disable_Kit {
 
             // ── Search & Archives ────────────────────────────────────────────
             'search' => array(
-                'name'        => __('Site Search', 'disable-kit'),
-                'description' => __('The built-in WordPress search that lets visitors find content on your site. Disabling returns a 404 for search requests. Only disable if you use an external search service like Algolia or Elasticsearch.', 'disable-kit'),
+                'name'        => __('Site Search', 'stripboard'),
+                'description' => __('The built-in WordPress search that lets visitors find content on your site. Disabling returns a 404 for search requests. Only disable if you use an external search service like Algolia or Elasticsearch.', 'stripboard'),
                 'category'    => 'archives',
                 'risk'        => 'high',
                 'scope'       => 'frontend',
@@ -760,8 +732,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'archives' => array(
-                'name'        => __('Date Archive Pages', 'disable-kit'),
-                'description' => __('Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling returns a 404 for these URLs and can help avoid duplicate content issues for SEO.', 'disable-kit'),
+                'name'        => __('Date Archive Pages', 'stripboard'),
+                'description' => __('Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling returns a 404 for these URLs and can help avoid duplicate content issues for SEO.', 'stripboard'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -769,8 +741,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'attachment_pages' => array(
-                'name'        => __('Media Attachment Pages', 'disable-kit'),
-                'description' => __('Individual pages generated for each uploaded image or file (e.g. /photo-of-something/). These thin pages are often weak for SEO. Disabling returns a 404 for attachment URLs; direct file URLs still work.', 'disable-kit'),
+                'name'        => __('Media Attachment Pages', 'stripboard'),
+                'description' => __('Individual pages generated for each uploaded image or file (e.g. /photo-of-something/). These thin pages are often weak for SEO. Disabling returns a 404 for attachment URLs; direct file URLs still work.', 'stripboard'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -778,8 +750,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'author_archives' => array(
-                'name'        => __('Author Archive Pages', 'disable-kit'),
-                'description' => __('Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these can duplicate your homepage. Disabling returns a 404 for author archive URLs.', 'disable-kit'),
+                'name'        => __('Author Archive Pages', 'stripboard'),
+                'description' => __('Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these can duplicate your homepage. Disabling returns a 404 for author archive URLs.', 'stripboard'),
                 'category'    => 'archives',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -789,8 +761,8 @@ class Disable_Kit {
 
             // ── Content & Text Processing ─────────────────────────────────────
             'capital_p_dangit' => array(
-                'name'        => __('Auto-correct "WordPress" Spelling', 'disable-kit'),
-                'description' => __('A tiny filter that runs on every content output to correct "Wordpress" to "WordPress". Purely cosmetic — disable to remove one unnecessary string replacement on every page load.', 'disable-kit'),
+                'name'        => __('Auto-correct "WordPress" Spelling', 'stripboard'),
+                'description' => __('A tiny filter that runs on every content output to correct "Wordpress" to "WordPress". Purely cosmetic — disable to remove one unnecessary string replacement on every page load.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -798,8 +770,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wptexturize' => array(
-                'name'        => __('Smart Punctuation (wptexturize)', 'disable-kit'),
-                'description' => __('Converts straight quotes to curly quotes, em-dashes, and other typographic symbols. CPU-heavy on long content. Disable if your theme or a plugin handles typography.', 'disable-kit'),
+                'name'        => __('Smart Punctuation (wptexturize)', 'stripboard'),
+                'description' => __('Converts straight quotes to curly quotes, em-dashes, and other typographic symbols. CPU-heavy on long content. Disable if your theme or a plugin handles typography.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -807,8 +779,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'convert_smilies' => array(
-                'name'        => __('Text Smilies to Images', 'disable-kit'),
-                'description' => __('Converts text emoticons like :-) to image-based smileys. Legacy feature — most sites use native emoji. Safe to disable.', 'disable-kit'),
+                'name'        => __('Text Smilies to Images', 'stripboard'),
+                'description' => __('Converts text emoticons like :-) to image-based smileys. Legacy feature — most sites use native emoji. Safe to disable.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -816,8 +788,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'post_formats' => array(
-                'name'        => __('Post Formats', 'disable-kit'),
-                'description' => __('Adds a meta box to choose a post format (aside, gallery, video, etc.). Unused on most modern themes. Disabling it removes UI clutter without affecting content display.', 'disable-kit'),
+                'name'        => __('Post Formats', 'stripboard'),
+                'description' => __('Adds a meta box to choose a post format (aside, gallery, video, etc.). Unused on most modern themes. Disabling it removes UI clutter without affecting content display.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -825,8 +797,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'link_manager' => array(
-                'name'        => __('Link Manager (Blogroll)', 'disable-kit'),
-                'description' => __('A deprecated link/blogroll manager from early WordPress. Still present as a hidden feature. Disable to remove this legacy code path.', 'disable-kit'),
+                'name'        => __('Link Manager (Blogroll)', 'stripboard'),
+                'description' => __('A deprecated link/blogroll manager from early WordPress. Still present as a hidden feature. Disable to remove this legacy code path.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -836,8 +808,8 @@ class Disable_Kit {
 
             // ── Media & Images ────────────────────────────────────────────────
             'responsive_images' => array(
-                'name'        => __('Responsive Images (srcset)', 'disable-kit'),
-                'description' => __('Adds srcset/sizes attributes to images for responsive loading. Useful if your CDN or lazy-load plugin handles responsive images instead. Disabling reduces HTML size.', 'disable-kit'),
+                'name'        => __('Responsive Images (srcset)', 'stripboard'),
+                'description' => __('Adds srcset/sizes attributes to images for responsive loading. Useful if your CDN or lazy-load plugin handles responsive images instead. Disabling reduces HTML size.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -845,8 +817,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'webp_uploads' => array(
-                'name'        => __('WebP Conversion on Upload', 'disable-kit'),
-                'description' => __('WordPress automatically generates WebP versions of uploaded images. Disable if using a separate image optimization plugin that handles format conversion.', 'disable-kit'),
+                'name'        => __('WebP Conversion on Upload', 'stripboard'),
+                'description' => __('WordPress automatically generates WebP versions of uploaded images. Disable if using a separate image optimization plugin that handles format conversion.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -854,8 +826,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'pdf_thumbnails' => array(
-                'name'        => __('PDF Thumbnail Generation', 'disable-kit'),
-                'description' => __('Generates thumbnail previews for uploaded PDF files. Saves server resources if PDF previews are not needed in the media library.', 'disable-kit'),
+                'name'        => __('PDF Thumbnail Generation', 'stripboard'),
+                'description' => __('Generates thumbnail previews for uploaded PDF files. Saves server resources if PDF previews are not needed in the media library.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -865,8 +837,8 @@ class Disable_Kit {
 
             // ── Frontend Head & Assets ────────────────────────────────────────
             'canonical_links' => array(
-                'name'        => __('Canonical Link Tags', 'disable-kit'),
-                'description' => __('Adds rel=canonical link tags to page headers for SEO. Duplicate tags can confuse crawlers if an SEO plugin is also active. Disable if your SEO plugin handles canonicity.', 'disable-kit'),
+                'name'        => __('Canonical Link Tags', 'stripboard'),
+                'description' => __('Adds rel=canonical link tags to page headers for SEO. Duplicate tags can confuse crawlers if an SEO plugin is also active. Disable if your SEO plugin handles canonicity.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -874,8 +846,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wp_resource_hints' => array(
-                'name'        => __('Resource Hints (dns-prefetch, preconnect)', 'disable-kit'),
-                'description' => __('Adds dns-prefetch and preconnect hints to page headers. Broad toggle for sites that manage resource hints via CDN or theme.', 'disable-kit'),
+                'name'        => __('Resource Hints (dns-prefetch, preconnect)', 'stripboard'),
+                'description' => __('Adds dns-prefetch and preconnect hints to page headers. Broad toggle for sites that manage resource hints via CDN or theme.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -884,8 +856,8 @@ class Disable_Kit {
                 'children'    => array('dns_prefetch')
             ),
             'generator_meta_rss' => array(
-                'name'        => __('Generator Tag in RSS Feeds', 'disable-kit'),
-                'description' => __('Adds a WordPress version generator tag to RSS feeds, separate from the HTML generator. Hiding it reduces version fingerprinting via feeds.', 'disable-kit'),
+                'name'        => __('Generator Tag in RSS Feeds', 'stripboard'),
+                'description' => __('Adds a WordPress version generator tag to RSS feeds, separate from the HTML generator. Hiding it reduces version fingerprinting via feeds.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -893,8 +865,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'interactivity_api' => array(
-                'name'        => __('Interactivity API Scripts', 'disable-kit'),
-                'description' => __('Loads the Interactivity API — new in WordPress 6.5 — on pages using interactive blocks. Safe to disable if your site does not use interactive blocks.', 'disable-kit'),
+                'name'        => __('Interactivity API Scripts', 'stripboard'),
+                'description' => __('Loads the Interactivity API — new in WordPress 6.5 — on pages using interactive blocks. Safe to disable if your site does not use interactive blocks.', 'stripboard'),
                 'category'    => 'speed',
                 'risk'        => 'medium',
                 'scope'       => 'frontend',
@@ -904,8 +876,8 @@ class Disable_Kit {
 
             // ── Security & Access ─────────────────────────────────────────────
             'application_passwords' => array(
-                'name'        => __('Application Passwords', 'disable-kit'),
-                'description' => __('Allows external apps to authenticate with WordPress via generated passwords. Reduces attack surface if your site does not use external integrations.', 'disable-kit'),
+                'name'        => __('Application Passwords', 'stripboard'),
+                'description' => __('Allows external apps to authenticate with WordPress via generated passwords. Reduces attack surface if your site does not use external integrations.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -913,8 +885,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'login_language_selector' => array(
-                'name'        => __('Login Page Language Selector', 'disable-kit'),
-                'description' => __('Shows a language dropdown on the login page. Single-language sites do not need this. Safe to disable.', 'disable-kit'),
+                'name'        => __('Login Page Language Selector', 'stripboard'),
+                'description' => __('Shows a language dropdown on the login page. Single-language sites do not need this. Safe to disable.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -922,8 +894,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'lost_password' => array(
-                'name'        => __('Lost Password Flow', 'disable-kit'),
-                'description' => __('The "Lost your password?" link on the login page. Useful for intranets where admins reset passwords manually. Disabling removes the password reset flow entirely.', 'disable-kit'),
+                'name'        => __('Lost Password Flow', 'stripboard'),
+                'description' => __('The "Lost your password?" link on the login page. Useful for intranets where admins reset passwords manually. Disabling removes the password reset flow entirely.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -933,8 +905,8 @@ class Disable_Kit {
 
             // ── Admin & Dashboard ─────────────────────────────────────────────
             'wp_news_dashboard' => array(
-                'name'        => __('WordPress Events & News Widget', 'disable-kit'),
-                'description' => __('Removes the WordPress Events and News dashboard widget, which makes an external request to WordPress.org on every dashboard load.', 'disable-kit'),
+                'name'        => __('WordPress Events & News Widget', 'stripboard'),
+                'description' => __('Removes the WordPress Events and News dashboard widget, which makes an external request to WordPress.org on every dashboard load.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -942,8 +914,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'admin_email_verification' => array(
-                'name'        => __('Admin Email Verification Screen', 'disable-kit'),
-                'description' => __('Removes the periodic "Is this still the admin email?" interruption. Useful for controlled environments where the admin email is stable.', 'disable-kit'),
+                'name'        => __('Admin Email Verification Screen', 'stripboard'),
+                'description' => __('Removes the periodic "Is this still the admin email?" interruption. Useful for controlled environments where the admin email is stable.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -951,8 +923,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'command_palette' => array(
-                'name'        => __('Command Palette', 'disable-kit'),
-                'description' => __('The Ctrl+K / Cmd+K command palette in the admin. Reduces JavaScript payload for users who do not use keyboard shortcuts.', 'disable-kit'),
+                'name'        => __('Command Palette', 'stripboard'),
+                'description' => __('The Ctrl+K / Cmd+K command palette in the admin. Reduces JavaScript payload for users who do not use keyboard shortcuts.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -960,8 +932,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'privacy_policy_guide' => array(
-                'name'        => __('Privacy Policy Guide', 'disable-kit'),
-                'description' => __('The suggested privacy policy content guide in Tools. Remove if your site already has a bespoke legal policy.', 'disable-kit'),
+                'name'        => __('Privacy Policy Guide', 'stripboard'),
+                'description' => __('The suggested privacy policy content guide in Tools. Remove if your site already has a bespoke legal policy.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -970,8 +942,8 @@ class Disable_Kit {
                 'children'    => array('export_erase_personal_data')
             ),
             'health_check' => array(
-                'name'        => __('Site Health', 'disable-kit'),
-                'description' => __('The Site Health tool in Tools menu. Disable to remove the menu item and async health checks on locked-down or staging sites.', 'disable-kit'),
+                'name'        => __('Site Health', 'stripboard'),
+                'description' => __('The Site Health tool in Tools menu. Disable to remove the menu item and async health checks on locked-down or staging sites.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -979,8 +951,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'export_erase_personal_data' => array(
-                'name'        => __('Export / Erase Personal Data Tools', 'disable-kit'),
-                'description' => __('The Export Personal Data and Erase Personal Data tools under Tools. Disable for sites not subject to GDPR-style data requests.', 'disable-kit'),
+                'name'        => __('Export / Erase Personal Data Tools', 'stripboard'),
+                'description' => __('The Export Personal Data and Erase Personal Data tools under Tools. Disable for sites not subject to GDPR-style data requests.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -990,8 +962,8 @@ class Disable_Kit {
 
             // ── Block Editor & Site Editor ────────────────────────────────────
             'block_directory' => array(
-                'name'        => __('Block Directory', 'disable-kit'),
-                'description' => __('Allows installing blocks from WordPress.org inside the block editor. Disable to prevent one-click block installation from the editor.', 'disable-kit'),
+                'name'        => __('Block Directory', 'stripboard'),
+                'description' => __('Allows installing blocks from WordPress.org inside the block editor. Disable to prevent one-click block installation from the editor.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'medium',
                 'scope'       => 'admin',
@@ -999,8 +971,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'font_library' => array(
-                'name'        => __('Font Library', 'disable-kit'),
-                'description' => __('The Font Library (WordPress 6.5+) for managing Google Fonts locally. Disable if your theme or CDN handles font loading.', 'disable-kit'),
+                'name'        => __('Font Library', 'stripboard'),
+                'description' => __('The Font Library (WordPress 6.5+) for managing Google Fonts locally. Disable if your theme or CDN handles font loading.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1008,8 +980,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'design_system' => array(
-                'name'        => __('Design System (Block Theme UI)', 'disable-kit'),
-                'description' => __('THE FULL NUKE — removes the entire block theme Design infrastructure including the top-level Design admin menu, wp_template, wp_template_part, wp_global_styles, and wp_block (reusable blocks) post types, their REST API endpoints, block template loading, and all related theme support. Only safe on classic (non-block) themes, or if you never want block editing anywhere.', 'disable-kit'),
+                'name'        => __('Design System (Block Theme UI)', 'stripboard'),
+                'description' => __('THE FULL NUKE — removes the entire block theme Design infrastructure including the top-level Design admin menu, wp_template, wp_template_part, wp_global_styles, and wp_block (reusable blocks) post types, their REST API endpoints, block template loading, and all related theme support. Only safe on classic (non-block) themes, or if you never want block editing anywhere.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'both',
@@ -1020,8 +992,8 @@ class Disable_Kit {
 
             // ── Granular Comment Controls ─────────────────────────────────────
             'comment_cookies' => array(
-                'name'        => __('Comment Author Cookies', 'disable-kit'),
-                'description' => __('Saves comment author name, email, and URL in a cookie for convenience. Disable for privacy-conscious setups.', 'disable-kit'),
+                'name'        => __('Comment Author Cookies', 'stripboard'),
+                'description' => __('Saves comment author name, email, and URL in a cookie for convenience. Disable for privacy-conscious setups.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1029,8 +1001,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comment_threading' => array(
-                'name'        => __('Threaded/Nested Comment Replies', 'disable-kit'),
-                'description' => __('Allows threaded replies to comments. Disable for a flat comment structure.', 'disable-kit'),
+                'name'        => __('Threaded/Nested Comment Replies', 'stripboard'),
+                'description' => __('Allows threaded replies to comments. Disable for a flat comment structure.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1038,8 +1010,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comment_url_field' => array(
-                'name'        => __('Website Field in Comment Form', 'disable-kit'),
-                'description' => __('Shows a website/URL input field in the comment form. Disable to reduce spam signals and simplify the comment form.', 'disable-kit'),
+                'name'        => __('Website Field in Comment Form', 'stripboard'),
+                'description' => __('Shows a website/URL input field in the comment form. Disable to reduce spam signals and simplify the comment form.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1051,8 +1023,8 @@ class Disable_Kit {
 
             // ── Theme / Customiser ───────────────────────────────────────────
             'custom_header' => array(
-                'name'        => __('Custom Header', 'disable-kit'),
-                'description' => __('Adds a custom header image uploader to the theme customizer. Disable if your theme handles headers separately.', 'disable-kit'),
+                'name'        => __('Custom Header', 'stripboard'),
+                'description' => __('Adds a custom header image uploader to the theme customizer. Disable if your theme handles headers separately.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1060,8 +1032,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'custom_background' => array(
-                'name'        => __('Custom Background', 'disable-kit'),
-                'description' => __('Adds a custom background color/image uploader to the theme customizer. Disable if your theme controls background styling.', 'disable-kit'),
+                'name'        => __('Custom Background', 'stripboard'),
+                'description' => __('Adds a custom background color/image uploader to the theme customizer. Disable if your theme controls background styling.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1069,8 +1041,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'custom_logo' => array(
-                'name'        => __('Custom Logo Uploader', 'disable-kit'),
-                'description' => __('Adds a custom logo uploader to the theme customizer. Disable if your theme handles logos separately.', 'disable-kit'),
+                'name'        => __('Custom Logo Uploader', 'stripboard'),
+                'description' => __('Adds a custom logo uploader to the theme customizer. Disable if your theme handles logos separately.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1078,8 +1050,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'site_icon' => array(
-                'name'        => __('Site Icon (Favicon Uploader)', 'disable-kit'),
-                'description' => __('The favicon uploader in the customizer. Disable if you set your favicon via theme or CDN.', 'disable-kit'),
+                'name'        => __('Site Icon (Favicon Uploader)', 'stripboard'),
+                'description' => __('The favicon uploader in the customizer. Disable if you set your favicon via theme or CDN.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1087,8 +1059,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'menus' => array(
-                'name'        => __('Navigation Menus', 'disable-kit'),
-                'description' => __('The navigation menu system (Appearance → Menus). Disable if your theme uses a different navigation approach or menus are hardcoded.', 'disable-kit'),
+                'name'        => __('Navigation Menus', 'stripboard'),
+                'description' => __('The navigation menu system (Appearance → Menus). Disable if your theme uses a different navigation approach or menus are hardcoded.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'admin',
@@ -1096,8 +1068,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'widgets' => array(
-                'name'        => __('Widgets Subsystem', 'disable-kit'),
-                'description' => __('The entire widgets system including Appearance → Widgets. Disable if your theme uses block-based widget areas or has no widget support.', 'disable-kit'),
+                'name'        => __('Widgets Subsystem', 'stripboard'),
+                'description' => __('The entire widgets system including Appearance → Widgets. Disable if your theme uses block-based widget areas or has no widget support.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'high',
                 'scope'       => 'admin',
@@ -1107,8 +1079,8 @@ class Disable_Kit {
 
             // ── Login & Security (additional) ────────────────────────────────
             'login_logo_link' => array(
-                'name'        => __('Login Logo Link to WordPress.org', 'disable-kit'),
-                'description' => __('Removes the WordPress.org link from the login page logo. Useful for white-label client sites.', 'disable-kit'),
+                'name'        => __('Login Logo Link to WordPress.org', 'stripboard'),
+                'description' => __('Removes the WordPress.org link from the login page logo. Useful for white-label client sites.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1116,8 +1088,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'registration_password' => array(
-                'name'        => __('User-Set Password on Registration', 'disable-kit'),
-                'description' => __('Shows a password field on the registration form. Disable to force WordPress-generated passwords for tighter control.', 'disable-kit'),
+                'name'        => __('User-Set Password on Registration', 'stripboard'),
+                'description' => __('Shows a password field on the registration form. Disable to force WordPress-generated passwords for tighter control.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'medium',
                 'scope'       => 'both',
@@ -1125,8 +1097,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'xmlrpc_pingback' => array(
-                'name'        => __('XML-RPC Pingback Methods', 'disable-kit'),
-                'description' => __('Specifically disables pingback XML-RPC methods while leaving other XML-RPC functionality intact. Reduces DDoS attack surface.', 'disable-kit'),
+                'name'        => __('XML-RPC Pingback Methods', 'stripboard'),
+                'description' => __('Specifically disables pingback XML-RPC methods while leaving other XML-RPC functionality intact. Reduces DDoS attack surface.', 'stripboard'),
                 'category'    => 'security',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -1136,8 +1108,8 @@ class Disable_Kit {
 
             // ── Granular Comment Controls (additional) ───────────────────────
             'comment_avatars' => array(
-                'name'        => __('Comment Avatars', 'disable-kit'),
-                'description' => __('Disables avatars inside comments only, without affecting other get_avatar() calls across the site.', 'disable-kit'),
+                'name'        => __('Comment Avatars', 'stripboard'),
+                'description' => __('Disables avatars inside comments only, without affecting other get_avatar() calls across the site.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1145,8 +1117,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'comment_html' => array(
-                'name'        => __('Allowed HTML in Comments', 'disable-kit'),
-                'description' => __('Strips all HTML tags from comment submissions. Makes comments text-only for improved security.', 'disable-kit'),
+                'name'        => __('Allowed HTML in Comments', 'stripboard'),
+                'description' => __('Strips all HTML tags from comment submissions. Makes comments text-only for improved security.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'frontend',
@@ -1156,8 +1128,8 @@ class Disable_Kit {
 
             // ── Admin Nags & Notifications ────────────────────────────────────
             'browser_update_nag' => array(
-                'name'        => __('Browser Update Nag', 'disable-kit'),
-                'description' => __('Removes the browser update nag from the admin dashboard. Reduces noise in controlled environments.', 'disable-kit'),
+                'name'        => __('Browser Update Nag', 'stripboard'),
+                'description' => __('Removes the browser update nag from the admin dashboard. Reduces noise in controlled environments.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1165,8 +1137,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'php_update_nag' => array(
-                'name'        => __('PHP Version Update Nag', 'disable-kit'),
-                'description' => __('Removes the PHP version update nag from the dashboard. Useful when the host manages PHP separately.', 'disable-kit'),
+                'name'        => __('PHP Version Update Nag', 'stripboard'),
+                'description' => __('Removes the PHP version update nag from the dashboard. Useful when the host manages PHP separately.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1174,8 +1146,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'core_auto_update_email' => array(
-                'name'        => __('Core Auto-Update Emails', 'disable-kit'),
-                'description' => __('Suppresses email notifications when WordPress core updates automatically. Disable to reduce admin inbox noise.', 'disable-kit'),
+                'name'        => __('Core Auto-Update Emails', 'stripboard'),
+                'description' => __('Suppresses email notifications when WordPress core updates automatically. Does not disable updates themselves — only the notification emails.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1183,8 +1155,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'plugin_auto_update_email' => array(
-                'name'        => __('Plugin Auto-Update Emails', 'disable-kit'),
-                'description' => __('Suppresses email notifications when plugins update automatically. Disable if you monitor updates via a dashboard or log.', 'disable-kit'),
+                'name'        => __('Plugin Auto-Update Emails', 'stripboard'),
+                'description' => __('Suppresses email notifications when plugins update automatically. Does not disable plugin updates — only the notification emails.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1192,8 +1164,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'theme_auto_update_email' => array(
-                'name'        => __('Theme Auto-Update Emails', 'disable-kit'),
-                'description' => __('Suppresses email notifications when themes update automatically. Disable for quieter admin email.', 'disable-kit'),
+                'name'        => __('Theme Auto-Update Emails', 'stripboard'),
+                'description' => __('Suppresses email notifications when themes update automatically. Does not disable theme updates — only the notification emails.', 'stripboard'),
                 'category'    => 'admin_ui',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1203,8 +1175,8 @@ class Disable_Kit {
 
             // ── Media Defaults ───────────────────────────────────────────────
             'default_attachment_display' => array(
-                'name'        => __('Default Attachment Link Behaviour', 'disable-kit'),
-                'description' => __('Forces all new image insertions to link to "none" instead of the attachment page by default.', 'disable-kit'),
+                'name'        => __('Default Attachment Link Behaviour', 'stripboard'),
+                'description' => __('Forces all new image insertions to link to "none" instead of the attachment page by default.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1214,8 +1186,8 @@ class Disable_Kit {
 
             // ── Block Editor (additional) ────────────────────────────────────
             'pattern_directory' => array(
-                'name'        => __('Pattern Directory (Remote Patterns)', 'disable-kit'),
-                'description' => __('Prevents loading remote block patterns from WordPress.org inside the editor. Reduces external requests.', 'disable-kit'),
+                'name'        => __('Pattern Directory (Remote Patterns)', 'stripboard'),
+                'description' => __('Prevents loading remote block patterns from WordPress.org inside the editor. Reduces external requests.', 'stripboard'),
                 'category'    => 'writing',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1225,8 +1197,8 @@ class Disable_Kit {
 
             // ── WooCommerce (additional) ─────────────────────────────────────
             'wc_order_attribution' => array(
-                'name'        => __('WooCommerce Order Attribution', 'disable-kit'),
-                'description' => __('Tracks how customers found your store (source, campaign, etc.). Disable if you do not use WooCommerce built-in analytics.', 'disable-kit'),
+                'name'        => __('WooCommerce Order Attribution', 'stripboard'),
+                'description' => __('Tracks how customers found your store (source, campaign, etc.). Disable if you do not use WooCommerce built-in analytics.', 'stripboard'),
                 'category'    => 'woocommerce',
                 'risk'        => 'low',
                 'scope'       => 'both',
@@ -1234,8 +1206,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wc_new_product_editor' => array(
-                'name'        => __('WooCommerce New Product Editor (Beta)', 'disable-kit'),
-                'description' => __('Opts out of the new block-based product editor beta. Reverts to the classic product editing screen.', 'disable-kit'),
+                'name'        => __('WooCommerce New Product Editor (Beta)', 'stripboard'),
+                'description' => __('Opts out of the new block-based product editor beta. Reverts to the classic product editing screen.', 'stripboard'),
                 'category'    => 'woocommerce',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1243,8 +1215,8 @@ class Disable_Kit {
                 'priority'    => 1
             ),
             'wc_analytics' => array(
-                'name'        => __('WooCommerce Analytics', 'disable-kit'),
-                'description' => __('Removes WooCommerce analytics scripts and reports. Reduces admin JS payload if you use a third-party analytics tool.', 'disable-kit'),
+                'name'        => __('WooCommerce Analytics', 'stripboard'),
+                'description' => __('Removes WooCommerce analytics scripts and reports. Reduces admin JS payload if you use a third-party analytics tool.', 'stripboard'),
                 'category'    => 'woocommerce',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -1261,8 +1233,8 @@ class Disable_Kit {
 
                 // ── WooCommerce ──────────────────────────────────────────────
                 'wc_marketing_hub' => array(
-                    'name'        => __('WooCommerce Marketing Hub', 'disable-kit'),
-                    'description' => __('The Marketing section in the WooCommerce admin menu, containing promotions and campaign tools built by WooCommerce. Remove to unclutter the admin menu for stores that do not use it.', 'disable-kit'),
+                    'name'        => __('WooCommerce Marketing Hub', 'stripboard'),
+                    'description' => __('The Marketing section in the WooCommerce admin menu, containing promotions and campaign tools built by WooCommerce. Remove to unclutter the admin menu for stores that do not use it.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1271,8 +1243,8 @@ class Disable_Kit {
                     'children'    => array('wc_marketplace_suggestions', 'wc_admin_notices', 'wc_store_alerts', 'wc_home_screen', 'wc_setup_wizard')
                 ),
                 'wc_marketplace_suggestions' => array(
-                    'name'        => __('WooCommerce Extension Suggestions', 'disable-kit'),
-                    'description' => __('In-admin recommendations to install paid WooCommerce extensions. Disable to stop these upsell prompts from appearing throughout the WooCommerce admin.', 'disable-kit'),
+                    'name'        => __('WooCommerce Extension Suggestions', 'stripboard'),
+                    'description' => __('In-admin recommendations to install paid WooCommerce extensions. Disable to stop these upsell prompts from appearing throughout the WooCommerce admin.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1280,8 +1252,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_admin_notices' => array(
-                    'name'        => __('WooCommerce Promotional Notices', 'disable-kit'),
-                    'description' => __('Admin-area banners and notices from WooCommerce promoting features, sales, and surveys. Safe to disable for a cleaner admin experience.', 'disable-kit'),
+                    'name'        => __('WooCommerce Promotional Notices', 'stripboard'),
+                    'description' => __('Admin-area banners and notices from WooCommerce promoting features, sales, and surveys. Safe to disable for a cleaner admin experience.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1289,8 +1261,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_setup_wizard' => array(
-                    'name'        => __('WooCommerce Setup Wizard', 'disable-kit'),
-                    'description' => __('The step-by-step store setup flow shown after installing WooCommerce. Disable once your store is set up to prevent it from re-appearing.', 'disable-kit'),
+                    'name'        => __('WooCommerce Setup Wizard', 'stripboard'),
+                    'description' => __('The step-by-step store setup flow shown after installing WooCommerce. Disable once your store is set up to prevent it from re-appearing.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1298,8 +1270,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_home_screen' => array(
-                    'name'        => __('WooCommerce Home Screen', 'disable-kit'),
-                    'description' => __('The WooCommerce analytics overview dashboard shown as the default screen. Disable to remove this screen and reduce admin page load — useful on stores that use a different dashboard plugin.', 'disable-kit'),
+                    'name'        => __('WooCommerce Home Screen', 'stripboard'),
+                    'description' => __('The WooCommerce analytics overview dashboard shown as the default screen. Disable to remove this screen and reduce admin page load — useful on stores that use a different dashboard plugin.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1307,8 +1279,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_store_alerts' => array(
-                    'name'        => __('WooCommerce Store Alert Banners', 'disable-kit'),
-                    'description' => __('Top-of-admin notification banners from WooCommerce about store issues and promotions. Safe to disable once you are comfortable managing your store without them.', 'disable-kit'),
+                    'name'        => __('WooCommerce Store Alert Banners', 'stripboard'),
+                    'description' => __('Top-of-admin notification banners from WooCommerce about store issues and promotions. Safe to disable once you are comfortable managing your store without them.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'admin',
@@ -1316,8 +1288,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_usage_tracking' => array(
-                    'name'        => __('WooCommerce Usage Tracking', 'disable-kit'),
-                    'description' => __('Sends anonymous data about your store setup to WooCommerce / Automattic to help them improve the product. Disable for privacy or to reduce background HTTP requests.', 'disable-kit'),
+                    'name'        => __('WooCommerce Usage Tracking', 'stripboard'),
+                    'description' => __('Sends anonymous data about your store setup to WooCommerce / Automattic to help them improve the product. Disable for privacy or to reduce background HTTP requests.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'low',
                     'scope'       => 'both',
@@ -1325,8 +1297,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_checkout_blocks' => array(
-                    'name'        => __('WooCommerce Checkout & Cart Blocks', 'disable-kit'),
-                    'description' => __('The new block-based Cart and Checkout experience. Disabling reverts to the classic shortcode-based checkout. Only disable if you have confirmed your payment gateway works with the classic checkout.', 'disable-kit'),
+                    'name'        => __('WooCommerce Checkout & Cart Blocks', 'stripboard'),
+                    'description' => __('The new block-based Cart and Checkout experience. Disabling reverts to the classic shortcode-based checkout. Only disable if you have confirmed your payment gateway works with the classic checkout.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'high',
                     'scope'       => 'both',
@@ -1335,8 +1307,8 @@ class Disable_Kit {
                     'children'    => array('wc_block_styles', 'wc_cart_fragments', 'wc_conditional_assets', 'wc_password_strength')
                 ),
                 'wc_block_styles' => array(
-                    'name'        => __('WooCommerce Block Styles', 'disable-kit'),
-                    'description' => __('CSS loaded for WooCommerce block components like the product grid and filter blocks. Disable only if your theme provides its own WooCommerce block styles.', 'disable-kit'),
+                    'name'        => __('WooCommerce Block Styles', 'stripboard'),
+                    'description' => __('CSS loaded for WooCommerce block components like the product grid and filter blocks. Disable only if your theme provides its own WooCommerce block styles.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'medium',
                     'scope'       => 'frontend',
@@ -1344,8 +1316,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_cart_fragments' => array(
-                    'name'        => __('WooCommerce Cart Counter Update', 'disable-kit'),
-                    'description' => __('Makes an AJAX request on every page load to fetch the live cart item count, so the cart icon stays up to date without a full page reload. Disabling removes this request but the cart count may show stale data until the page refreshes.', 'disable-kit'),
+                    'name'        => __('WooCommerce Cart Counter Update', 'stripboard'),
+                    'description' => __('Makes an AJAX request on every page load to fetch the live cart item count, so the cart icon stays up to date without a full page reload. Disabling removes this request but the cart count may show stale data until the page refreshes.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'high',
                     'scope'       => 'frontend',
@@ -1353,8 +1325,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_password_strength' => array(
-                    'name'        => __('Password Strength Meter', 'disable-kit'),
-                    'description' => __('Shows a strength indicator when customers set a password at checkout or account creation. Disable to remove this script if your theme provides its own strength checking or if you want to reduce page weight.', 'disable-kit'),
+                    'name'        => __('Password Strength Meter', 'stripboard'),
+                    'description' => __('Shows a strength indicator when customers set a password at checkout or account creation. Disable to remove this script if your theme provides its own strength checking or if you want to reduce page weight.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'medium',
                     'scope'       => 'both',
@@ -1362,8 +1334,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_conditional_assets' => array(
-                    'name'        => __('WooCommerce Assets on Non-Store Pages', 'disable-kit'),
-                    'description' => __('Keeps WooCommerce scripts/styles loaded on non-store pages too. Disable this to unload WooCommerce assets outside shop, product, cart, checkout, and account pages for better performance.', 'disable-kit'),
+                    'name'        => __('WooCommerce Assets on Non-Store Pages', 'stripboard'),
+                    'description' => __('Keeps WooCommerce scripts/styles loaded on non-store pages too. Disable this to unload WooCommerce assets outside shop, product, cart, checkout, and account pages for better performance.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'medium',
                     'scope'       => 'frontend',
@@ -1371,8 +1343,8 @@ class Disable_Kit {
                     'priority'    => 1
                 ),
                 'wc_reviews' => array(
-                    'name'        => __('Product Reviews & Ratings', 'disable-kit'),
-                    'description' => __('Allows customers to leave star ratings and written reviews on product pages. Disabling removes the review form and hides existing reviews from product pages.', 'disable-kit'),
+                    'name'        => __('Product Reviews & Ratings', 'stripboard'),
+                    'description' => __('Allows customers to leave star ratings and written reviews on product pages. Disabling removes the review form and hides existing reviews from product pages.', 'stripboard'),
                     'category'    => 'woocommerce',
                     'risk'        => 'medium',
                     'scope'       => 'both',
@@ -1383,7 +1355,7 @@ class Disable_Kit {
         }
 
         // Allow other plugins to modify the feature list
-        $this->features = apply_filters('disable_kit_features', $this->features);
+        $this->features = apply_filters('stripboard_features', $this->features);
     }
     
     /**
@@ -1565,7 +1537,7 @@ class Disable_Kit {
                     }
 
                     // Block unauthenticated (guest) REST API access.
-                    return new WP_Error('rest_disabled_guests', __('REST API is disabled for guest users.', 'disable-kit'), array('status' => 401));
+                    return new WP_Error('rest_disabled_guests', __('REST API is disabled for guest users.', 'stripboard'), array('status' => 401));
                 });
                 break;
                 
@@ -1597,15 +1569,6 @@ class Disable_Kit {
                 add_action('init', array($this, 'disable_heartbeat'));
                 break;
                 
-            case 'cron':
-                // Stop WP from spawning cron on frontend/admin page loads.
-                // Requires a real system cron hitting wp-cron.php, or jobs will stall.
-                // Do not empty the cron option — that breaks plugins that read schedules.
-                if (!defined('DISABLE_WP_CRON')) {
-                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Core WP constant.
-                    define('DISABLE_WP_CRON', true);
-                }
-                break;
                 
             case 'user_registration':
                 add_filter('option_users_can_register', '__return_false');
@@ -1687,21 +1650,7 @@ class Disable_Kit {
                 add_filter('get_avatar', '__return_false');
                 break;
                 
-            case 'wp_org_requests':
-                add_filter('pre_http_request', array($this, 'block_wp_org_requests'), 10, 3);
-                break;
                 
-            case 'update_checks':
-                // Prefer Core's automatic_updater / unhook approach over update-transient
-                // filters. Those transient hooks trip Plugin Check's updater sniff even when
-                // the intent is to disable checks, not ship a custom updater.
-                add_filter('automatic_updater_disabled', '__return_true');
-                add_filter('allow_dev_auto_core_updates', '__return_false');
-                add_filter('allow_minor_auto_core_updates', '__return_false');
-                add_filter('allow_major_auto_core_updates', '__return_false');
-                add_action('admin_init', array($this, 'strip_background_update_checks'), 1);
-                add_action('init', array($this, 'strip_background_update_checks'), 1);
-                break;
                 
             case 'dns_prefetch':
                 remove_action('wp_head', 'wp_resource_hints', 2);
@@ -1729,7 +1678,7 @@ class Disable_Kit {
             case 'jquery_migrate_admin':
                 add_action('admin_enqueue_scripts', function() {
                     $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-                    if (is_object($screen) && isset($screen->id) && 'settings_page_disable-kit' === $screen->id) {
+                    if (is_object($screen) && isset($screen->id) && 'settings_page_stripboard' === $screen->id) {
                         return;
                     }
 
@@ -2305,12 +2254,12 @@ class Disable_Kit {
         /**
          * Fires when a feature is being stripped.
          *
-         * Custom features registered via `disable_kit_features` should hook here:
-         * `add_action( 'disable_kit_disable_{$feature_key}', 'callback' );`
+         * Custom features registered via `stripboard_features` should hook here:
+         * `add_action( 'stripboard_disable_{$feature_key}', 'callback' );`
          *
          * @param string $feature_key Feature slug being disabled.
          */
-        do_action("disable_kit_disable_{$feature_key}");
+        do_action("stripboard_disable_{$feature_key}");
     }
     
     /**
@@ -2328,13 +2277,15 @@ class Disable_Kit {
             return;
         }
 
-        $legacy = get_option('wp_strip_settings', false);
-        if (false === $legacy || !is_array($legacy)) {
+        foreach (array('disable_kit_settings', 'wp_strip_settings') as $legacy_key) {
+            $legacy = get_option($legacy_key, false);
+            if (false === $legacy || !is_array($legacy)) {
+                continue;
+            }
+            update_option($this->options_key, $legacy);
+            delete_option($legacy_key);
             return;
         }
-
-        update_option($this->options_key, $legacy);
-        delete_option('wp_strip_settings');
     }
     
     /**
@@ -2387,12 +2338,12 @@ class Disable_Kit {
  * @param string $feature_key Feature slug.
  * @return bool|null True/false for registered features; null if plugin inactive or key unknown.
  */
-function disable_kit_is_feature_enabled($feature_key) {
-    if (!class_exists('Disable_Kit')) {
+function stripboard_is_feature_enabled($feature_key) {
+    if (!class_exists('Stripboard')) {
         return null;
     }
-    return Disable_Kit::is_enabled($feature_key);
+    return Stripboard::is_enabled($feature_key);
 }
 
 // Initialize the plugin
-Disable_Kit::get_instance();
+Stripboard::get_instance();

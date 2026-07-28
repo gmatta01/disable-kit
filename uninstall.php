@@ -1,8 +1,8 @@
 <?php
 /**
- * Uninstall script for Disable Kit
+ * Uninstall script for StripBoard
  * 
- * @package DisableKit
+ * @package Stripboard
  */
 
 // If uninstall not called from WordPress, then exit
@@ -11,28 +11,29 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 // Define plugin constants if not already defined
-if (!defined('DISABLE_KIT_VERSION')) {
-    define('DISABLE_KIT_VERSION', '1.0.0');
+if (!defined('STRIPBOARD_VERSION')) {
+    define('STRIPBOARD_VERSION', '1.0.1');
 }
 
 /**
  * Clean up plugin data on uninstall
  */
-class Disable_Kit_Uninstall {
+class Stripboard_Uninstall {
     
     /**
      * Run uninstall process
      */
     public static function uninstall() {
         // Remove plugin options
+        delete_option('stripboard_settings');
         delete_option('disable_kit_settings');
-        delete_option('wp_strip_settings'); // legacy key from earlier branding
+        delete_option('wp_strip_settings');
         
         // Remove any transients
-        delete_transient('disable_kit_cache');
+        delete_transient('stripboard_cache');
         
         // Remove user meta if any
-        delete_metadata('user', 0, 'disable_kit_dismissed_notices', '', true);
+        delete_metadata('user', 0, 'stripboard_dismissed_notices', '', true);
         
         // Flush rewrite rules to clean up any custom rules
         flush_rewrite_rules();
@@ -41,7 +42,7 @@ class Disable_Kit_Uninstall {
         wp_cache_flush();
         
         // Remove any scheduled events if any were created
-        wp_clear_scheduled_hook('disable_kit_cleanup');
+        wp_clear_scheduled_hook('stripboard_cleanup');
         
         // Log uninstall if WP_DEBUG is enabled
         // (intentionally silent in production)
@@ -49,4 +50,4 @@ class Disable_Kit_Uninstall {
 }
 
 // Run the uninstall process
-Disable_Kit_Uninstall::uninstall();
+Stripboard_Uninstall::uninstall();

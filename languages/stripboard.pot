@@ -1,80 +1,72 @@
-# Copyright (C) 2026 Disable Kit
-# This file is distributed under the same license as the Disable Kit plugin.
+# Copyright (C) 2026 StripBoard
+# This file is distributed under the same license as the StripBoard plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Disable Kit 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/gmatta01/disable-kit/issues\n"
+"Project-Id-Version: StripBoard 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/gmatta01/stripboard/issues\n"
 "POT-Creation-Date: 2026-07-24 06:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Domain: disable-kit\n"
+"X-Domain: stripboard\n"
 
 #: includes/admin.php:705
 msgid "<strong>Update checks are disabled.</strong> Your site will not check for WordPress, plugin, or theme updates. This is a security risk — you may miss critical security patches. Consider enabling this or setting up a manual update monitoring process."
 msgstr ""
 
-#: includes/admin.php:719
-msgid "<strong>WP-Cron spawning is disabled.</strong> Scheduled posts and plugin jobs will not run unless your host triggers <code>wp-cron.php</code> via a real system cron. Re-enable this toggle or configure system cron before leaving it off."
-msgstr ""
-
-#: includes/admin.php:712
-msgid "<strong>WordPress.org communication is blocked.</strong> Your site cannot reach WordPress.org for updates, translations, or plugin/theme information. Security patches may not be detected. Consider enabling this or using an alternative update monitoring solution."
-msgstr ""
-
-#: disable-kit.php:322
+#: stripboard.php:322
 msgid "A compatibility shim that allows old jQuery code written before 2012 to keep working. Safe to disable on modern sites. If anything breaks after disabling, re-enable it — an old plugin likely depends on it."
 msgstr ""
 
-#: disable-kit.php:827
+#: stripboard.php:827
 msgid "A deprecated link/blogroll manager from early WordPress. Still present as a hidden feature. Disable to remove this legacy code path."
 msgstr ""
 
-#: disable-kit.php:791
+#: stripboard.php:791
 msgid "A tiny filter that runs on every content output to correct \"Wordpress\" to \"WordPress\". Purely cosmetic — disable to remove one unnecessary string replacement on every page load."
 msgstr ""
 
-#: disable-kit.php:403
+#: stripboard.php:403
 msgid "Accessibility Scripts"
 msgstr ""
 
-#: disable-kit.php:885
+#: stripboard.php:885
 msgid "Adds a WordPress version generator tag to RSS feeds, separate from the HTML generator. Hiding it reduces version fingerprinting via feeds."
 msgstr ""
 
-#: disable-kit.php:1061
+#: stripboard.php:1061
 msgid "Adds a custom background color/image uploader to the theme customizer. Disable if your theme controls background styling."
 msgstr ""
 
-#: disable-kit.php:1052
+#: stripboard.php:1052
 msgid "Adds a custom header image uploader to the theme customizer. Disable if your theme handles headers separately."
 msgstr ""
 
-#: disable-kit.php:1070
+#: stripboard.php:1070
 msgid "Adds a custom logo uploader to the theme customizer. Disable if your theme handles logos separately."
 msgstr ""
 
-#: disable-kit.php:266
+#: stripboard.php:266
 msgid "Adds a hidden tag that tells browsers to pre-resolve domain names for external services before they are needed, slightly speeding up those connections. Safe to disable if you manage your own performance hints."
 msgstr ""
 
-#: disable-kit.php:818
+#: stripboard.php:818
 msgid "Adds a meta box to choose a post format (aside, gallery, video, etc.). Unused on most modern themes. Disabling it removes UI clutter without affecting content display."
 msgstr ""
 
-#: disable-kit.php:876
+#: stripboard.php:876
 msgid "Adds dns-prefetch and preconnect hints to page headers. Broad toggle for sites that manage resource hints via CDN or theme."
 msgstr ""
 
-#: disable-kit.php:867
+#: stripboard.php:867
 msgid "Adds rel=canonical link tags to page headers for SEO. Duplicate tags can confuse crawlers if an SEO plugin is also active. Disable if your SEO plugin handles canonicity."
 msgstr ""
 
-#: disable-kit.php:838
+#: stripboard.php:838
 msgid "Adds srcset/sizes attributes to images for responsive loading. Useful if your CDN or lazy-load plugin handles responsive images instead. Disabling reduces HTML size."
 msgstr ""
 
-#: disable-kit.php:538
+#: stripboard.php:538
 msgid "Adjacent Post Links in Head"
 msgstr ""
 
@@ -82,11 +74,11 @@ msgstr ""
 msgid "Admin"
 msgstr ""
 
-#: disable-kit.php:349
+#: stripboard.php:349
 msgid "Admin Bar Frontend Script"
 msgstr ""
 
-#: disable-kit.php:942
+#: stripboard.php:942
 msgid "Admin Email Verification Screen"
 msgstr ""
 
@@ -94,39 +86,39 @@ msgstr ""
 msgid "Admin Interface"
 msgstr ""
 
-#: disable-kit.php:672
+#: stripboard.php:672
 msgid "Admin Toolbar"
 msgstr ""
 
-#: disable-kit.php:1279
+#: stripboard.php:1279
 msgid "Admin-area banners and notices from WooCommerce promoting features, sales, and surveys. Safe to disable for a cleaner admin experience."
 msgstr ""
 
-#: disable-kit.php:1145
+#: stripboard.php:1145
 msgid "Allowed HTML in Comments"
 msgstr ""
 
-#: disable-kit.php:1369
+#: stripboard.php:1369
 msgid "Allows customers to leave star ratings and written reviews on product pages. Disabling removes the review form and hides existing reviews from product pages."
 msgstr ""
 
-#: disable-kit.php:152
+#: stripboard.php:152
 msgid "Allows editing your entire site layout — header, footer, templates — using blocks. Only available with block themes. Disabling removes it from the admin menu but does not break the site."
 msgstr ""
 
-#: disable-kit.php:905
+#: stripboard.php:905
 msgid "Allows external apps to authenticate with WordPress via generated passwords. Reduces attack surface if your site does not use external integrations."
 msgstr ""
 
-#: disable-kit.php:991
+#: stripboard.php:991
 msgid "Allows installing blocks from WordPress.org inside the block editor. Disable to prevent one-click block installation from the editor."
 msgstr ""
 
-#: disable-kit.php:1030
+#: stripboard.php:1030
 msgid "Allows threaded replies to comments. Disable for a flat comment structure."
 msgstr ""
 
-#: disable-kit.php:643
+#: stripboard.php:643
 msgid "Allows visitors to create an account on your site. Disable to prevent new self-registrations — existing users are unaffected. Recommended for sites where only admins should add new users."
 msgstr ""
 
@@ -134,15 +126,15 @@ msgstr ""
 msgid "Already disabled"
 msgstr ""
 
-#: disable-kit.php:733
+#: stripboard.php:733
 msgid "An older feed format used before RSS was standardised. Virtually no modern feed reader uses RDF. Safe to disable on all sites."
 msgstr ""
 
-#: disable-kit.php:614
+#: stripboard.php:614
 msgid "An older protocol used by mobile apps, Jetpack, and some desktop blogging tools to post content remotely. Frequently targeted by brute-force attacks. Safe to disable if you do not use mobile posting apps or Jetpack."
 msgstr ""
 
-#: disable-kit.php:904
+#: stripboard.php:904
 msgid "Application Passwords"
 msgstr ""
 
@@ -150,63 +142,63 @@ msgstr ""
 msgid "Are you sure you want to disable this feature? This may affect your site functionality."
 msgstr ""
 
-#: disable-kit.php:394
+#: stripboard.php:394
 msgid "Audio/Video Player Scripts"
 msgstr ""
 
-#: disable-kit.php:779
+#: stripboard.php:779
 msgid "Author Archive Pages"
 msgstr ""
 
-#: disable-kit.php:226
+#: stripboard.php:226
 msgid "Auto-Save While Editing"
 msgstr ""
 
-#: disable-kit.php:292
+#: stripboard.php:292
 msgid "Auto-Scale Oversized Images"
 msgstr ""
 
-#: disable-kit.php:790
+#: stripboard.php:790
 msgid "Auto-correct \"WordPress\" Spelling"
 msgstr ""
 
-#: disable-kit.php:237
+#: stripboard.php:237
 msgid "Automatic Link Previews (oEmbed)"
 msgstr ""
 
-#: disable-kit.php:632
+#: stripboard.php:632
 msgid "Automatic Updates"
 msgstr ""
 
-#: disable-kit.php:633
+#: stripboard.php:633
 msgid "Automatically installs WordPress core security releases, and optionally theme/plugin updates. Disabling means security patches will not be applied without manual action. Not recommended unless you manage updates through a deployment pipeline."
 msgstr ""
 
-#: disable-kit.php:227
+#: stripboard.php:227
 msgid "Automatically saves a draft copy of your post every 60 seconds while you type. Disabling may cause you to lose work if your browser crashes or connection drops."
 msgstr ""
 
-#: disable-kit.php:303
+#: stripboard.php:303
 msgid "Background Auto-Sync"
 msgstr ""
 
-#: disable-kit.php:990
+#: stripboard.php:990
 msgid "Block Directory"
 msgstr ""
 
-#: disable-kit.php:123
+#: stripboard.php:123
 msgid "Block Editor (Gutenberg)"
 msgstr ""
 
-#: disable-kit.php:592
+#: stripboard.php:592
 msgid "Block Editor Assets for Non-Editors"
 msgstr ""
 
-#: disable-kit.php:475
+#: stripboard.php:475
 msgid "Block Editor CSS"
 msgstr ""
 
-#: disable-kit.php:142
+#: stripboard.php:142
 msgid "Block Widgets Editor"
 msgstr ""
 
@@ -218,35 +210,35 @@ msgstr ""
 msgid "Block themes use the Site Editor instead of the Theme Customizer."
 msgstr ""
 
-#: disable-kit.php:604
+#: stripboard.php:604
 msgid "Blocks guest (not logged-in) REST API requests. Logged-in users and authenticated API clients can still use the REST API. This reduces anonymous endpoint exposure without shutting down the API entirely."
 msgstr ""
 
-#: disable-kit.php:160
+#: stripboard.php:160
 msgid "Blog Posts"
 msgstr ""
 
-#: disable-kit.php:265
+#: stripboard.php:265
 msgid "Browser DNS Pre-loading"
 msgstr ""
 
-#: disable-kit.php:1156
+#: stripboard.php:1156
 msgid "Browser Update Nag"
 msgstr ""
 
-#: disable-kit.php:565
+#: stripboard.php:565
 msgid "Built-In WordPress Sitemaps"
 msgstr ""
 
-#: disable-kit.php:1333
+#: stripboard.php:1333
 msgid "CSS loaded for WooCommerce block components like the product grid and filter blocks. Disable only if your theme provides its own WooCommerce block styles."
 msgstr ""
 
-#: disable-kit.php:457
+#: stripboard.php:457
 msgid "Cache-Friendly Asset URLs"
 msgstr ""
 
-#: disable-kit.php:866
+#: stripboard.php:866
 msgid "Canonical Link Tags"
 msgstr ""
 
@@ -258,31 +250,31 @@ msgstr ""
 msgid "Changes saved successfully!"
 msgstr ""
 
-#: disable-kit.php:133
+#: stripboard.php:133
 msgid "Classic Editor (TinyMCE)"
 msgstr ""
 
-#: disable-kit.php:951
+#: stripboard.php:951
 msgid "Command Palette"
 msgstr ""
 
-#: disable-kit.php:1020
+#: stripboard.php:1020
 msgid "Comment Author Cookies"
 msgstr ""
 
-#: disable-kit.php:1136
+#: stripboard.php:1136
 msgid "Comment Avatars"
 msgstr ""
 
-#: disable-kit.php:556
+#: stripboard.php:556
 msgid "Comment Feed Endpoints"
 msgstr ""
 
-#: disable-kit.php:340
+#: stripboard.php:340
 msgid "Comment Reply Script"
 msgstr ""
 
-#: disable-kit.php:207
+#: stripboard.php:207
 msgid "Comments System"
 msgstr ""
 
@@ -290,47 +282,47 @@ msgstr ""
 msgid "Comments are already disabled for the main content types."
 msgstr ""
 
-#: disable-kit.php:652
+#: stripboard.php:652
 msgid "Controls public username discovery via ?author=1 URLs and REST user endpoints. Disable this feature to block username discovery and reduce information exposure to scanners."
 msgstr ""
 
-#: disable-kit.php:413
+#: stripboard.php:413
 msgid "Controls whether WordPress version metadata stays visible in page source and feeds. Disable this to hide version output and reduce version fingerprinting."
 msgstr ""
 
-#: disable-kit.php:800
+#: stripboard.php:800
 msgid "Converts straight quotes to curly quotes, em-dashes, and other typographic symbols. CPU-heavy on long content. Disable if your theme or a plugin handles typography."
 msgstr ""
 
-#: disable-kit.php:809
+#: stripboard.php:809
 msgid "Converts text emoticons like :-) to image-based smileys. Legacy feature — most sites use native emoji. Safe to disable."
 msgstr ""
 
-#: disable-kit.php:1174
+#: stripboard.php:1174
 msgid "Core Auto-Update Emails"
 msgstr ""
 
-#: disable-kit.php:583
+#: stripboard.php:583
 msgid "Core Block Patterns"
 msgstr ""
 
-#: disable-kit.php:741
+#: stripboard.php:741
 msgid "Cross-Site Link Notifications"
 msgstr ""
 
-#: disable-kit.php:1060
+#: stripboard.php:1060
 msgid "Custom Background"
 msgstr ""
 
-#: disable-kit.php:1051
+#: stripboard.php:1051
 msgid "Custom Header"
 msgstr ""
 
-#: disable-kit.php:1069
+#: stripboard.php:1069
 msgid "Custom Logo Uploader"
 msgstr ""
 
-#: disable-kit.php:662
+#: stripboard.php:662
 msgid "Dashboard Widgets"
 msgstr ""
 
@@ -338,19 +330,19 @@ msgstr ""
 msgid "Dashboard cleanup and admin-only screens that can simplify the backend for clients."
 msgstr ""
 
-#: disable-kit.php:493
+#: stripboard.php:493
 msgid "Dashicons for Logged-Out Visitors"
 msgstr ""
 
-#: disable-kit.php:761
+#: stripboard.php:761
 msgid "Date Archive Pages"
 msgstr ""
 
-#: disable-kit.php:1203
+#: stripboard.php:1203
 msgid "Default Attachment Link Behaviour"
 msgstr ""
 
-#: disable-kit.php:1008
+#: stripboard.php:1008
 msgid "Design System (Block Theme UI)"
 msgstr ""
 
@@ -358,23 +350,23 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: disable-kit.php:521
+#: stripboard.php:521
 msgid "Disables WordPress global styles CSS output used mainly by block themes and block-based styling. Can reduce frontend head bloat on classic themes."
 msgstr ""
 
-#: disable-kit.php:1137
+#: stripboard.php:1137
 msgid "Disables avatars inside comments only, without affecting other get_avatar() calls across the site."
 msgstr ""
 
-#: disable-kit.php:557
+#: stripboard.php:557
 msgid "Disables comment-specific feed endpoints (RSS2/Atom comments) while keeping normal post feeds configurable separately."
 msgstr ""
 
-#: disable-kit.php:584
+#: stripboard.php:584
 msgid "Disables default WordPress block patterns. Helpful on streamlined sites using custom templates or classic editors."
 msgstr ""
 
-#: disable-kit.php:566
+#: stripboard.php:566
 msgid "Disables native WordPress XML sitemaps. Useful if your SEO plugin already generates sitemaps to avoid duplicate endpoints."
 msgstr ""
 
@@ -398,7 +390,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: disable-kit.php:979
+#: stripboard.php:979
 msgid "Export / Erase Personal Data Tools"
 msgstr ""
 
@@ -426,11 +418,11 @@ msgstr ""
 msgid "File editing is already blocked in WordPress config."
 msgstr ""
 
-#: disable-kit.php:999
+#: stripboard.php:999
 msgid "Font Library"
 msgstr ""
 
-#: disable-kit.php:1204
+#: stripboard.php:1204
 msgid "Forces all new image insertions to link to \"none\" instead of the attachment page by default."
 msgstr ""
 
@@ -446,27 +438,27 @@ msgstr ""
 msgid "Frontend scripts, CSS, head tags, scheduled tasks, and server-load related features."
 msgstr ""
 
-#: disable-kit.php:151
+#: stripboard.php:151
 msgid "Full Site Editor"
 msgstr ""
 
-#: disable-kit.php:856
+#: stripboard.php:856
 msgid "Generates thumbnail previews for uploaded PDF files. Saves server resources if PDF previews are not needed in the media library."
 msgstr ""
 
-#: disable-kit.php:884
+#: stripboard.php:884
 msgid "Generator Tag in RSS Feeds"
 msgstr ""
 
-#: disable-kit.php:520
+#: stripboard.php:520
 msgid "Global Styles Inline CSS"
 msgstr ""
 
-#: disable-kit.php:274
+#: stripboard.php:274
 msgid "Google Fonts Loading"
 msgstr ""
 
-#: disable-kit.php:256
+#: stripboard.php:256
 msgid "Gravatar Profile Images"
 msgstr ""
 
@@ -478,87 +470,87 @@ msgstr ""
 msgid "High-impact features can affect editing, scheduled posts, checkout, feeds, or plugin compatibility. If a feature is already disabled by your theme, another plugin, or WordPress config, its toggle is locked and marked “Already disabled”."
 msgstr ""
 
-#: disable-kit.php:1270
+#: stripboard.php:1270
 msgid "In-admin recommendations to install paid WooCommerce extensions. Disable to stop these upsell prompts from appearing throughout the WooCommerce admin."
 msgstr ""
 
-#: disable-kit.php:771
+#: stripboard.php:771
 msgid "Individual pages generated for each uploaded image or file (e.g. /photo-of-something/). These thin pages are often weak for SEO. Disabling returns a 404 for attachment URLs; direct file URLs still work."
 msgstr ""
 
-#: disable-kit.php:376
+#: stripboard.php:376
 msgid "Interactive UI Scripts (jQuery UI)"
 msgstr ""
 
-#: disable-kit.php:893
+#: stripboard.php:893
 msgid "Interactivity API Scripts"
 msgstr ""
 
-#: disable-kit.php:1360
+#: stripboard.php:1360
 msgid "Keeps WooCommerce scripts/styles loaded on non-store pages too. Disable this to unload WooCommerce assets outside shop, product, cart, checkout, and account pages for better performance."
 msgstr ""
 
-#: disable-kit.php:199
+#: stripboard.php:199
 msgid "Keyword labels attached to posts. Disabling removes tag management and tag archive pages. Safe if your site does not use tags for navigation or SEO."
 msgstr ""
 
-#: disable-kit.php:358
+#: stripboard.php:358
 msgid "Legacy JavaScript Libraries"
 msgstr ""
 
-#: disable-kit.php:613
+#: stripboard.php:613
 msgid "Legacy Remote Publishing (XML-RPC)"
 msgstr ""
 
-#: disable-kit.php:826
+#: stripboard.php:826
 msgid "Link Manager (Blogroll)"
 msgstr ""
 
-#: disable-kit.php:359
+#: stripboard.php:359
 msgid "Loads Backbone.js and Underscore.js — older JavaScript libraries required by some classic WordPress features. Disable only if no plugins or themes on your site use them. If things break, re-enable."
 msgstr ""
 
-#: disable-kit.php:386
+#: stripboard.php:386
 msgid "Loads Masonry.js and ImagesLoaded.js, used for Pinterest-style waterfall image grids. Safe to disable if your theme or galleries do not use a masonry layout."
 msgstr ""
 
-#: disable-kit.php:248
+#: stripboard.php:248
 msgid "Loads a JavaScript file to render emoji consistently across older browsers. Modern browsers display emoji natively, so this script is usually unnecessary and adds a small page load overhead."
 msgstr ""
 
-#: disable-kit.php:332
+#: stripboard.php:332
 msgid "Loads a script that lets other sites embed your content as a preview card. Disable if you do not need your content to be embeddable elsewhere — saves one HTTP request."
 msgstr ""
 
-#: disable-kit.php:350
+#: stripboard.php:350
 msgid "Loads a small JavaScript file on the public site to support the admin toolbar shown to logged-in users. Safe to disable if you have disabled the admin bar or do not use it."
 msgstr ""
 
-#: disable-kit.php:341
+#: stripboard.php:341
 msgid "Loads a tiny script that moves the comment form below the reply you clicked. Only needed if comments are enabled. Safe to disable on sites without comments."
 msgstr ""
 
-#: disable-kit.php:257
+#: stripboard.php:257
 msgid "Loads comment author avatars from Gravatar.com. Each avatar is an external HTTP request. Disable to remove these requests and show a default avatar instead."
 msgstr ""
 
-#: disable-kit.php:377
+#: stripboard.php:377
 msgid "Loads jQuery UI components like date pickers, sliders, and drag-and-drop. Many contact form and booking plugins depend on these. Disable only if you have confirmed nothing on your site uses jQuery UI."
 msgstr ""
 
-#: disable-kit.php:894
+#: stripboard.php:894
 msgid "Loads the Interactivity API — new in WordPress 6.5 — on pages using interactive blocks. Safe to disable if your site does not use interactive blocks."
 msgstr ""
 
-#: disable-kit.php:395
+#: stripboard.php:395
 msgid "Loads the MediaElement.js player used for audio and video blocks. Disable if you do not embed audio or video in your posts and use a third-party player instead."
 msgstr ""
 
-#: disable-kit.php:404
+#: stripboard.php:404
 msgid "Loads wp-a11y.js which announces dynamic UI changes to screen readers. Disable only if you have confirmed no visitors use assistive technology and no plugins rely on it. Removing it may harm accessibility compliance."
 msgstr ""
 
-#: disable-kit.php:368
+#: stripboard.php:368
 msgid "Loads wp-util.js, a small helper used by some WordPress AJAX features and media handling. Safe to disable on simple sites, but may break upload flows or dynamic forms on complex setups."
 msgstr ""
 
@@ -566,23 +558,23 @@ msgstr ""
 msgid "Locked because Design System is disabled. Enable Design System to manage the Full Site Editor separately."
 msgstr ""
 
-#: disable-kit.php:1107
+#: stripboard.php:1107
 msgid "Login Logo Link to WordPress.org"
 msgstr ""
 
-#: disable-kit.php:913
+#: stripboard.php:913
 msgid "Login Page Language Selector"
 msgstr ""
 
-#: disable-kit.php:922
+#: stripboard.php:922
 msgid "Lost Password Flow"
 msgstr ""
 
-#: disable-kit.php:1342
+#: stripboard.php:1342
 msgid "Makes an AJAX request on every page load to fetch the live cart item count, so the cart icon stays up to date without a full page reload. Disabling removes this request but the cart count may show stale data until the page refreshes."
 msgstr ""
 
-#: disable-kit.php:503
+#: stripboard.php:503
 msgid "Many modern themes no longer need jQuery on public pages. Disable to prevent loading jQuery core on the frontend. Keep enabled if your theme/plugins depend on jQuery."
 msgstr ""
 
@@ -590,11 +582,11 @@ msgstr ""
 msgid "Media & Embeds"
 msgstr ""
 
-#: disable-kit.php:770
+#: stripboard.php:770
 msgid "Media Attachment Pages"
 msgstr ""
 
-#: disable-kit.php:179
+#: stripboard.php:179
 msgid "Media Attachments"
 msgstr ""
 
@@ -606,11 +598,11 @@ msgstr ""
 msgid "Mixed"
 msgstr ""
 
-#: disable-kit.php:283
+#: stripboard.php:283
 msgid "Native Image Lazy Loading"
 msgstr ""
 
-#: disable-kit.php:1087
+#: stripboard.php:1087
 msgid "Navigation Menus"
 msgstr ""
 
@@ -622,71 +614,71 @@ msgstr ""
 msgid "No features match your search."
 msgstr ""
 
-#: disable-kit.php:1235
+#: stripboard.php:1235
 msgid "Opts out of the new block-based product editor beta. Reverts to the classic product editing screen."
 msgstr ""
 
-#: disable-kit.php:190
+#: stripboard.php:190
 msgid "Organises posts into groups. Disabling removes category management and category archive pages. Safe only for sites that do not use post categories at all."
 msgstr ""
 
-#: disable-kit.php:855
+#: stripboard.php:855
 msgid "PDF Thumbnail Generation"
 msgstr ""
 
-#: disable-kit.php:1165
+#: stripboard.php:1165
 msgid "PHP Version Update Nag"
 msgstr ""
 
-#: disable-kit.php:170
+#: stripboard.php:170
 msgid "Pages"
 msgstr ""
 
-#: disable-kit.php:780
+#: stripboard.php:780
 msgid "Pages that list all posts by a specific author (e.g. /author/john/). On single-author sites these can duplicate your homepage. Disabling returns a 404 for author archive URLs."
 msgstr ""
 
-#: disable-kit.php:762
+#: stripboard.php:762
 msgid "Pages that list all posts from a given year, month, or day (e.g. /2024/03/). Rarely linked to on modern sites. Disabling returns a 404 for these URLs and can help avoid duplicate content issues for SEO."
 msgstr ""
 
-#: disable-kit.php:1350
+#: stripboard.php:1350
 msgid "Password Strength Meter"
 msgstr ""
 
-#: disable-kit.php:1214
+#: stripboard.php:1214
 msgid "Pattern Directory (Remote Patterns)"
 msgstr ""
 
-#: disable-kit.php:624
+#: stripboard.php:624
 msgid "Periodic background calls to WordPress.org that check for plugin/theme updates and fetch news for the admin dashboard. Disabling stops update notifications entirely — you will not know when security patches are available."
 msgstr ""
 
-#: disable-kit.php:385
+#: stripboard.php:385
 msgid "Photo Grid Layout Scripts"
 msgstr ""
 
-#: disable-kit.php:1183
+#: stripboard.php:1183
 msgid "Plugin Auto-Update Emails"
 msgstr ""
 
-#: disable-kit.php:702
+#: stripboard.php:702
 msgid "Plugin File Editor"
 msgstr ""
 
-#: disable-kit.php:189
+#: stripboard.php:189
 msgid "Post Categories"
 msgstr ""
 
-#: disable-kit.php:817
+#: stripboard.php:817
 msgid "Post Formats"
 msgstr ""
 
-#: disable-kit.php:217
+#: stripboard.php:217
 msgid "Post Revision History"
 msgstr ""
 
-#: disable-kit.php:198
+#: stripboard.php:198
 msgid "Post Tags"
 msgstr ""
 
@@ -702,51 +694,51 @@ msgstr ""
 msgid "Post tags are already disabled elsewhere."
 msgstr ""
 
-#: disable-kit.php:575
+#: stripboard.php:575
 msgid "Prevents WordPress from fetching block patterns from remote sources in wp-admin, reducing background requests and editor clutter."
 msgstr ""
 
-#: disable-kit.php:593
+#: stripboard.php:593
 msgid "Prevents loading block editor scripts/styles in wp-admin for users who cannot edit posts, reducing backend payload for support/shop roles."
 msgstr ""
 
-#: disable-kit.php:1215
+#: stripboard.php:1215
 msgid "Prevents loading remote block patterns from WordPress.org inside the editor. Reduces external requests."
 msgstr ""
 
-#: disable-kit.php:960
+#: stripboard.php:960
 msgid "Privacy Policy Guide"
 msgstr ""
 
-#: disable-kit.php:1368
+#: stripboard.php:1368
 msgid "Product Reviews & Ratings"
 msgstr ""
 
-#: disable-kit.php:642
+#: stripboard.php:642
 msgid "Public User Registration"
 msgstr ""
 
-#: disable-kit.php:732
+#: stripboard.php:732
 msgid "RDF Feed (Legacy Syndication)"
 msgstr ""
 
-#: disable-kit.php:439
+#: stripboard.php:439
 msgid "REST API Discovery Tags"
 msgstr ""
 
-#: disable-kit.php:1562
+#: stripboard.php:1562
 msgid "REST API is disabled for guest users."
 msgstr ""
 
-#: disable-kit.php:547
+#: stripboard.php:547
 msgid "RSD Link Tag"
 msgstr ""
 
-#: disable-kit.php:722
+#: stripboard.php:722
 msgid "RSS / Atom Feeds"
 msgstr ""
 
-#: disable-kit.php:448
+#: stripboard.php:448
 msgid "RSS Feed Discovery Tags"
 msgstr ""
 
@@ -754,7 +746,7 @@ msgstr ""
 msgid "Red = high impact"
 msgstr ""
 
-#: disable-kit.php:574
+#: stripboard.php:574
 msgid "Remote Block Pattern Loading"
 msgstr ""
 
@@ -762,79 +754,79 @@ msgstr ""
 msgid "Remote access, updates, public registration, and privacy hardening."
 msgstr ""
 
-#: disable-kit.php:1244
+#: stripboard.php:1244
 msgid "Removes WooCommerce analytics scripts and reports. Reduces admin JS payload if you use a third-party analytics tool."
 msgstr ""
 
-#: disable-kit.php:422
+#: stripboard.php:422
 msgid "Removes a legacy link tag added for Windows Live Writer, a blogging app discontinued in 2017. Nobody needs this anymore — safe to disable on all sites."
 msgstr ""
 
-#: disable-kit.php:431
+#: stripboard.php:431
 msgid "Removes a short URL tag from your page source and HTTP headers. These shortlinks use the ?p=ID format and are rarely used. Safe to disable on all sites."
 msgstr ""
 
-#: disable-kit.php:440
+#: stripboard.php:440
 msgid "Removes hint tags from your page source that tell clients where your REST API lives. The API still works — this only removes the auto-discovery advertisement. Safe for all sites."
 msgstr ""
 
-#: disable-kit.php:512
+#: stripboard.php:512
 msgid "Removes jQuery Migrate from wp-admin. Useful for cleaner admin loads, but older admin plugins may rely on it."
 msgstr ""
 
-#: disable-kit.php:539
+#: stripboard.php:539
 msgid "Removes prev/next relational link tags from the HTML head. Most modern SEO setups do not require these tags."
 msgstr ""
 
-#: disable-kit.php:458
+#: stripboard.php:458
 msgid "Removes the ?ver= version number from CSS and JavaScript file URLs. Some proxy servers and CDNs refuse to cache URLs that contain query strings, so removing them can improve cache hit rates."
 msgstr ""
 
-#: disable-kit.php:1166
+#: stripboard.php:1166
 msgid "Removes the PHP version update nag from the dashboard. Useful when the host manages PHP separately."
 msgstr ""
 
-#: disable-kit.php:449
+#: stripboard.php:449
 msgid "Removes the RSS and Atom link tags from your page source that tell feed readers where your feeds are. Your feeds still work — this only removes the auto-discovery hints."
 msgstr ""
 
-#: disable-kit.php:934
+#: stripboard.php:934
 msgid "Removes the WordPress Events and News dashboard widget, which makes an external request to WordPress.org on every dashboard load."
 msgstr ""
 
-#: disable-kit.php:1108
+#: stripboard.php:1108
 msgid "Removes the WordPress.org link from the login page logo. Useful for white-label client sites."
 msgstr ""
 
-#: disable-kit.php:1157
+#: stripboard.php:1157
 msgid "Removes the browser update nag from the admin dashboard. Reduces noise in controlled environments."
 msgstr ""
 
-#: disable-kit.php:548
+#: stripboard.php:548
 msgid "Removes the legacy Really Simple Discovery (RSD) link tag from page head output. Rarely needed on modern sites."
 msgstr ""
 
-#: disable-kit.php:943
+#: stripboard.php:943
 msgid "Removes the periodic \"Is this still the admin email?\" interruption. Useful for controlled environments where the admin email is stable."
 msgstr ""
 
-#: disable-kit.php:476
+#: stripboard.php:476
 msgid "Removes three Gutenberg stylesheet files from your public pages. Only disable this if your site uses the Classic Editor and no blocks — it will break block layouts if blocks are in use."
 msgstr ""
 
-#: disable-kit.php:143
+#: stripboard.php:143
 msgid "Replaces the classic widget area with a block-based editor. Disable to restore the traditional drag-and-drop widget panel, which some plugins still rely on."
 msgstr ""
 
-#: disable-kit.php:875
+#: stripboard.php:875
 msgid "Resource Hints (dns-prefetch, preconnect)"
 msgstr ""
 
-#: disable-kit.php:837
+#: stripboard.php:837
 msgid "Responsive Images (srcset)"
 msgstr ""
 
-#: disable-kit.php:529
+#: stripboard.php:529
 msgid "SVG Duotone Filters Output"
 msgstr ""
 
@@ -850,11 +842,11 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: disable-kit.php:218
+#: stripboard.php:218
 msgid "Saves a copy of your post every time you update it, allowing you to roll back changes. Disabling stops new revisions from being created. Existing revisions remain in the database."
 msgstr ""
 
-#: disable-kit.php:1021
+#: stripboard.php:1021
 msgid "Saves comment author name, email, and URL in a cookie for convenience. Disable for privacy-conscious setups."
 msgstr ""
 
@@ -862,11 +854,11 @@ msgstr ""
 msgid "Saving changes..."
 msgstr ""
 
-#: disable-kit.php:312
+#: stripboard.php:312
 msgid "Scheduled Tasks (WP-Cron)"
 msgstr ""
 
-#: disable-kit.php:484
+#: stripboard.php:484
 msgid "Scheduled Trash Cleanup"
 msgstr ""
 
@@ -894,43 +886,43 @@ msgstr ""
 msgid "Security & Privacy"
 msgstr ""
 
-#: disable-kit.php:304
+#: stripboard.php:304
 msgid "Sends a request to the server every 60 seconds while you have an admin page open, keeping your login session alive and enabling auto-save. Disabling reduces server load on shared hosting but stops real-time lock warnings in the editor."
 msgstr ""
 
-#: disable-kit.php:742
+#: stripboard.php:742
 msgid "Sends and receives notifications when your posts link to other WordPress sites. Frequently abused for spam. Disable unless you specifically want to participate in the pingback/trackback network."
 msgstr ""
 
-#: disable-kit.php:1315
+#: stripboard.php:1315
 msgid "Sends anonymous data about your store setup to WooCommerce / Automattic to help them improve the product. Disable for privacy or to reduce background HTTP requests."
 msgstr ""
 
-#: disable-kit.php:914
+#: stripboard.php:914
 msgid "Shows a language dropdown on the login page. Single-language sites do not need this. Safe to disable."
 msgstr ""
 
-#: disable-kit.php:1117
+#: stripboard.php:1117
 msgid "Shows a password field on the registration form. Disable to force WordPress-generated passwords for tighter control."
 msgstr ""
 
-#: disable-kit.php:1351
+#: stripboard.php:1351
 msgid "Shows a strength indicator when customers set a password at checkout or account creation. Disable to remove this script if your theme provides its own strength checking or if you want to reduce page weight."
 msgstr ""
 
-#: disable-kit.php:1039
+#: stripboard.php:1039
 msgid "Shows a website/URL input field in the comment form. Disable to reduce spam signals and simplify the comment form."
 msgstr ""
 
-#: disable-kit.php:970
+#: stripboard.php:970
 msgid "Site Health"
 msgstr ""
 
-#: disable-kit.php:1078
+#: stripboard.php:1078
 msgid "Site Icon (Favicon Uploader)"
 msgstr ""
 
-#: disable-kit.php:752
+#: stripboard.php:752
 msgid "Site Search"
 msgstr ""
 
@@ -938,51 +930,47 @@ msgstr ""
 msgid "Site Speed"
 msgstr ""
 
-#: disable-kit.php:799
+#: stripboard.php:799
 msgid "Smart Punctuation (wptexturize)"
 msgstr ""
 
-#: disable-kit.php:275
+#: stripboard.php:275
 msgid "Some themes and plugins automatically load fonts from Google Fonts servers. Disable to stop these requests — useful for GDPR compliance or if you host fonts locally."
 msgstr ""
 
-#: disable-kit.php:1126
+#: stripboard.php:1126
 msgid "Specifically disables pingback XML-RPC methods while leaving other XML-RPC functionality intact. Reduces DDoS attack surface."
 msgstr ""
 
-#: disable-kit.php:171
+#: stripboard.php:171
 msgid "Static pages (About, Contact, etc.). Disabling removes the Pages menu and all static pages from the admin. Only disable if your site is a pure single-page or application build."
 msgstr ""
 
-#: disable-kit.php:530
+#: stripboard.php:530
 msgid "Stops WordPress from outputting hidden SVG filter markup used by some block image effects. Safe on sites not using duotone effects."
 msgstr ""
 
-#: disable-kit.php:313
-msgid "Stops WordPress from spawning WP-Cron on page loads (sets DISABLE_WP_CRON). Scheduled events remain in the database but will not run unless your host triggers wp-cron.php via a real system cron. Disable only if that system cron is already configured — otherwise scheduled posts and plugin jobs will stall."
-msgstr ""
-
-#: disable-kit.php:467
+#: stripboard.php:467
 msgid "Stops loading old CSS for the classic Recent Comments widget and the classic gallery shortcode. Safe to disable on any site using a modern theme — these stylesheets are virtually never needed."
 msgstr ""
 
-#: disable-kit.php:1146
+#: stripboard.php:1146
 msgid "Strips all HTML tags from comment submissions. Makes comments text-only for improved security."
 msgstr ""
 
-#: disable-kit.php:1175
+#: stripboard.php:1175
 msgid "Suppresses email notifications when WordPress core updates automatically. Disable to reduce admin inbox noise."
 msgstr ""
 
-#: disable-kit.php:1184
+#: stripboard.php:1184
 msgid "Suppresses email notifications when plugins update automatically. Disable if you monitor updates via a dashboard or log."
 msgstr ""
 
-#: disable-kit.php:1193
+#: stripboard.php:1193
 msgid "Suppresses email notifications when themes update automatically. Disable for quieter admin email."
 msgstr ""
 
-#: disable-kit.php:723
+#: stripboard.php:723
 msgid "Syndication feeds that let readers subscribe to your content via RSS readers or podcast apps. Disable only if you do not want your content syndicated and no services rely on your feeds."
 msgstr ""
 
@@ -990,31 +978,31 @@ msgstr ""
 msgid "Syndication formats and cross-site communication features such as RSS and pingbacks."
 msgstr ""
 
-#: disable-kit.php:1009
+#: stripboard.php:1009
 msgid "THE FULL NUKE — removes the entire block theme Design infrastructure including the top-level Design admin menu, wp_template, wp_template_part, wp_global_styles, and wp_block (reusable blocks) post types, their REST API endpoints, block template loading, and all related theme support. Only safe on classic (non-block) themes, or if you never want block editing anywhere."
 msgstr ""
 
-#: disable-kit.php:808
+#: stripboard.php:808
 msgid "Text Smilies to Images"
 msgstr ""
 
-#: disable-kit.php:923
+#: stripboard.php:923
 msgid "The \"Lost your password?\" link on the login page. Useful for intranets where admins reset passwords manually. Disabling removes the password reset flow entirely."
 msgstr ""
 
-#: disable-kit.php:712
+#: stripboard.php:712
 msgid "The \"Welcome to WordPress\" box shown on the dashboard to new users. Safe to disable once your team is comfortable with the admin — reduces visual clutter."
 msgstr ""
 
-#: disable-kit.php:952
+#: stripboard.php:952
 msgid "The Ctrl+K / Cmd+K command palette in the admin. Reduces JavaScript payload for users who do not use keyboard shortcuts."
 msgstr ""
 
-#: disable-kit.php:980
+#: stripboard.php:980
 msgid "The Export Personal Data and Erase Personal Data tools under Tools. Disable for sites not subject to GDPR-style data requests."
 msgstr ""
 
-#: disable-kit.php:1000
+#: stripboard.php:1000
 msgid "The Font Library (WordPress 6.5+) for managing Google Fonts locally. Disable if your theme or CDN handles font loading."
 msgstr ""
 
@@ -1022,7 +1010,7 @@ msgstr ""
 msgid "The Full Site Editor is not available because the active theme is not a block theme."
 msgstr ""
 
-#: disable-kit.php:1261
+#: stripboard.php:1261
 msgid "The Marketing section in the WooCommerce admin menu, containing promotions and campaign tools built by WooCommerce. Remove to unclutter the admin menu for stores that do not use it."
 msgstr ""
 
@@ -1034,99 +1022,99 @@ msgstr ""
 msgid "The Posts content type has already been removed by another plugin or theme."
 msgstr ""
 
-#: disable-kit.php:971
+#: stripboard.php:971
 msgid "The Site Health tool in Tools menu. Disable to remove the menu item and async health checks on locked-down or staging sites."
 msgstr ""
 
-#: disable-kit.php:1297
+#: stripboard.php:1297
 msgid "The WooCommerce analytics overview dashboard shown as the default screen. Disable to remove this screen and reduce admin page load — useful on stores that use a different dashboard plugin."
 msgstr ""
 
-#: disable-kit.php:673
+#: stripboard.php:673
 msgid "The black bar shown at the top of the page for logged-in users, with links to the dashboard, post editing, and user profile. Disabling removes it site-wide for all users."
 msgstr ""
 
-#: disable-kit.php:753
+#: stripboard.php:753
 msgid "The built-in WordPress search that lets visitors find content on your site. Disabling returns a 404 for search requests. Only disable if you use an external search service like Algolia or Elasticsearch."
 msgstr ""
 
-#: disable-kit.php:161
+#: stripboard.php:161
 msgid "The core blog post content type. Disabling removes the Posts menu and all post-related pages from the admin. Only safe for sites that do not publish blog content."
 msgstr ""
 
-#: disable-kit.php:663
+#: stripboard.php:663
 msgid "The default information boxes on the WordPress dashboard (Activity, Quick Draft, WordPress Events, etc.). Safe to disable — hides visual clutter for clients without affecting site functionality."
 msgstr ""
 
-#: disable-kit.php:1097
+#: stripboard.php:1097
 msgid "The entire widgets system including Appearance → Widgets. Disable if your theme uses block-based widget areas or has no widget support."
 msgstr ""
 
-#: disable-kit.php:1079
+#: stripboard.php:1079
 msgid "The favicon uploader in the customizer. Disable if you set your favicon via theme or CDN."
 msgstr ""
 
-#: disable-kit.php:703
+#: stripboard.php:703
 msgid "The in-admin code editor for directly modifying plugin PHP files. Disabling this is a security best practice — a single typo can crash your site. Recommended to keep disabled."
 msgstr ""
 
-#: disable-kit.php:693
+#: stripboard.php:693
 msgid "The in-admin code editor for directly modifying theme PHP and CSS files. Disabling this is a security best practice — direct file edits via the browser are risky. Recommended to keep disabled after initial setup."
 msgstr ""
 
-#: disable-kit.php:134
+#: stripboard.php:134
 msgid "The legacy text editor toolbar. Disable this only if every user on your site is comfortable with the block editor and no plugins depend on the old TinyMCE interface."
 msgstr ""
 
-#: disable-kit.php:683
+#: stripboard.php:683
 msgid "The live preview panel for adjusting site-wide colours, fonts, and layout. Disable to remove it from the Appearance menu. Not available on block themes anyway — safe to disable if you use a block theme."
 msgstr ""
 
-#: disable-kit.php:180
+#: stripboard.php:180
 msgid "The media library and file uploads. Disabling removes the Media menu. Images already on your site remain, but you cannot add new ones through the admin."
 msgstr ""
 
-#: disable-kit.php:124
+#: stripboard.php:124
 msgid "The modern drag-and-drop editor for posts and pages. Disabling it reverts to the Classic Editor. Most page builders like Elementor still work without it, but the native block editor will be gone."
 msgstr ""
 
-#: disable-kit.php:1088
+#: stripboard.php:1088
 msgid "The navigation menu system (Appearance → Menus). Disable if your theme uses a different navigation approach or menus are hardcoded."
 msgstr ""
 
-#: disable-kit.php:1324
+#: stripboard.php:1324
 msgid "The new block-based Cart and Checkout experience. Disabling reverts to the classic shortcode-based checkout. Only disable if you have confirmed your payment gateway works with the classic checkout."
 msgstr ""
 
-#: disable-kit.php:1288
+#: stripboard.php:1288
 msgid "The step-by-step store setup flow shown after installing WooCommerce. Disable once your store is set up to prevent it from re-appearing."
 msgstr ""
 
-#: disable-kit.php:961
+#: stripboard.php:961
 msgid "The suggested privacy policy content guide in Tools. Remove if your site already has a bespoke legal policy."
 msgstr ""
 
-#: disable-kit.php:1192
+#: stripboard.php:1192
 msgid "Theme Auto-Update Emails"
 msgstr ""
 
-#: disable-kit.php:682
+#: stripboard.php:682
 msgid "Theme Customizer"
 msgstr ""
 
-#: disable-kit.php:692
+#: stripboard.php:692
 msgid "Theme File Editor"
 msgstr ""
 
-#: disable-kit.php:1029
+#: stripboard.php:1029
 msgid "Threaded/Nested Comment Replies"
 msgstr ""
 
-#: disable-kit.php:1306
+#: stripboard.php:1306
 msgid "Top-of-admin notification banners from WooCommerce about store issues and promotions. Safe to disable once you are comfortable managing your store without them."
 msgstr ""
 
-#: disable-kit.php:1226
+#: stripboard.php:1226
 msgid "Tracks how customers found your store (source, campaign, etc.). Disable if you do not use WooCommerce built-in analytics."
 msgstr ""
 
@@ -1134,11 +1122,11 @@ msgstr ""
 msgid "Turn WordPress features on or off with plain-English guidance, risk labels, and scope tags. Changes affect WordPress at the load level, not just menu visibility."
 msgstr ""
 
-#: disable-kit.php:238
+#: stripboard.php:238
 msgid "Turns YouTube, Twitter, and other links into embedded previews automatically. Also lets your content be embedded on other sites. Disable if you prefer plain links and want to reduce external requests."
 msgstr ""
 
-#: disable-kit.php:603
+#: stripboard.php:603
 msgid "Unauthenticated REST API Access"
 msgstr ""
 
@@ -1150,7 +1138,7 @@ msgstr ""
 msgid "Unsaved changes"
 msgstr ""
 
-#: disable-kit.php:466
+#: stripboard.php:466
 msgid "Unused Legacy Styles"
 msgstr ""
 
@@ -1162,39 +1150,39 @@ msgstr ""
 msgid "User registration is already turned off in Settings > General."
 msgstr ""
 
-#: disable-kit.php:1116
+#: stripboard.php:1116
 msgid "User-Set Password on Registration"
 msgstr ""
 
-#: disable-kit.php:651
+#: stripboard.php:651
 msgid "Username Discovery"
 msgstr ""
 
-#: disable-kit.php:208
+#: stripboard.php:208
 msgid "Visitor comments on posts and pages. Disabling removes comment forms, the admin comments menu, and all comment data from page loads. Cannot be reversed per-post once globally disabled."
 msgstr ""
 
 #: includes/admin.php:23 includes/admin.php:24
-msgid "Disable Kit"
+msgid "StripBoard"
 msgstr ""
 
-#: disable-kit.php:846
+#: stripboard.php:846
 msgid "WebP Conversion on Upload"
 msgstr ""
 
-#: disable-kit.php:1038
+#: stripboard.php:1038
 msgid "Website Field in Comment Form"
 msgstr ""
 
-#: disable-kit.php:711
+#: stripboard.php:711
 msgid "Welcome Panel"
 msgstr ""
 
-#: disable-kit.php:1096
+#: stripboard.php:1096
 msgid "Widgets Subsystem"
 msgstr ""
 
-#: disable-kit.php:421
+#: stripboard.php:421
 msgid "Windows Live Writer Link"
 msgstr ""
 
@@ -1202,59 +1190,59 @@ msgstr ""
 msgid "WooCommerce"
 msgstr ""
 
-#: disable-kit.php:1243
+#: stripboard.php:1243
 msgid "WooCommerce Analytics"
 msgstr ""
 
-#: disable-kit.php:1359
+#: stripboard.php:1359
 msgid "WooCommerce Assets on Non-Store Pages"
 msgstr ""
 
-#: disable-kit.php:1332
+#: stripboard.php:1332
 msgid "WooCommerce Block Styles"
 msgstr ""
 
-#: disable-kit.php:1341
+#: stripboard.php:1341
 msgid "WooCommerce Cart Counter Update"
 msgstr ""
 
-#: disable-kit.php:1323
+#: stripboard.php:1323
 msgid "WooCommerce Checkout & Cart Blocks"
 msgstr ""
 
-#: disable-kit.php:1269
+#: stripboard.php:1269
 msgid "WooCommerce Extension Suggestions"
 msgstr ""
 
-#: disable-kit.php:1296
+#: stripboard.php:1296
 msgid "WooCommerce Home Screen"
 msgstr ""
 
-#: disable-kit.php:1260
+#: stripboard.php:1260
 msgid "WooCommerce Marketing Hub"
 msgstr ""
 
-#: disable-kit.php:1234
+#: stripboard.php:1234
 msgid "WooCommerce New Product Editor (Beta)"
 msgstr ""
 
-#: disable-kit.php:1225
+#: stripboard.php:1225
 msgid "WooCommerce Order Attribution"
 msgstr ""
 
-#: disable-kit.php:1278
+#: stripboard.php:1278
 msgid "WooCommerce Promotional Notices"
 msgstr ""
 
-#: disable-kit.php:1287
+#: stripboard.php:1287
 msgid "WooCommerce Setup Wizard"
 msgstr ""
 
-#: disable-kit.php:1305
+#: stripboard.php:1305
 msgid "WooCommerce Store Alert Banners"
 msgstr ""
 
-#: disable-kit.php:1314
+#: stripboard.php:1314
 msgid "WooCommerce Usage Tracking"
 msgstr ""
 
@@ -1262,51 +1250,51 @@ msgstr ""
 msgid "WooCommerce-specific onboarding, admin clutter, checkout behaviour, and storefront scripts."
 msgstr ""
 
-#: disable-kit.php:331
+#: stripboard.php:331
 msgid "WordPress Embed Script"
 msgstr ""
 
-#: disable-kit.php:247
+#: stripboard.php:247
 msgid "WordPress Emoji Support"
 msgstr ""
 
-#: disable-kit.php:933
+#: stripboard.php:933
 msgid "WordPress Events & News Widget"
 msgstr ""
 
-#: disable-kit.php:367
+#: stripboard.php:367
 msgid "WordPress Helper Scripts"
 msgstr ""
 
-#: disable-kit.php:430
+#: stripboard.php:430
 msgid "WordPress Shortlink Tag"
 msgstr ""
 
-#: disable-kit.php:412
+#: stripboard.php:412
 msgid "WordPress Version Number Exposure"
 msgstr ""
 
-#: disable-kit.php:284
+#: stripboard.php:284
 msgid "WordPress automatically adds loading=\"lazy\" to images and iframes so they only load when scrolled into view. Disable only if you are using a third-party lazy loading plugin that conflicts with it."
 msgstr ""
 
-#: disable-kit.php:485
+#: stripboard.php:485
 msgid "WordPress automatically deletes trashed posts after 30 days via a background task. Disable if you prefer to manage trash manually or if the task is adding unnecessary database load."
 msgstr ""
 
-#: disable-kit.php:847
+#: stripboard.php:847
 msgid "WordPress automatically generates WebP versions of uploaded images. Disable if using a separate image optimization plugin that handles format conversion."
 msgstr ""
 
-#: disable-kit.php:494
+#: stripboard.php:494
 msgid "WordPress can load the Dashicons icon font on the frontend even for visitors who are not logged in. Disable to save one frontend stylesheet request on most sites."
 msgstr ""
 
-#: disable-kit.php:293
+#: stripboard.php:293
 msgid "WordPress resizes images larger than 2560px wide on upload to save storage. Disable if you need to preserve original full-resolution images exactly as uploaded."
 msgstr ""
 
-#: disable-kit.php:623
+#: stripboard.php:623
 msgid "WordPress.org Communication"
 msgstr ""
 
@@ -1314,7 +1302,7 @@ msgstr ""
 msgid "Writing & Content"
 msgstr ""
 
-#: disable-kit.php:1125
+#: stripboard.php:1125
 msgid "XML-RPC Pingback Methods"
 msgstr ""
 
@@ -1330,14 +1318,14 @@ msgstr ""
 msgid "You have unsaved changes. Are you sure you want to leave?"
 msgstr ""
 
-#: disable-kit.php:502
+#: stripboard.php:502
 msgid "jQuery Core on Frontend"
 msgstr ""
 
-#: disable-kit.php:321
+#: stripboard.php:321
 msgid "jQuery Migrate Script"
 msgstr ""
 
-#: disable-kit.php:511
+#: stripboard.php:511
 msgid "jQuery Migrate in Admin"
 msgstr ""
