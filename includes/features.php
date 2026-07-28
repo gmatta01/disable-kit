@@ -257,13 +257,16 @@ trait Stripboard_Features {
      * Disable emoji
      */
     public function disable_emoji() {
-        // Remove emoji CDN hostname from DNS prefetching hints
+        // Remove emoji CDN hostname from DNS prefetching hints.
+        // Avoid apply_filters( 'emoji_svg_url' ) — that core hook name trips PrefixAllGlobals.
         add_filter('wp_resource_hints', function($urls, $relation_type) {
-            if ('dns-prefetch' === $relation_type) {
-                $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/15.0.3/svg/');
-                $urls = array_diff($urls, array($emoji_svg_url));
+            if ('dns-prefetch' !== $relation_type || !is_array($urls)) {
+                return $urls;
             }
-            return $urls;
+
+            return array_values(array_filter($urls, function($url) {
+                return is_string($url) && false === strpos($url, 's.w.org/images/core/emoji');
+            }));
         }, 10, 2);
         
         // Remove emoji scripts and styles
