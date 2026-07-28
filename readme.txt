@@ -8,11 +8,11 @@ Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Disable unwanted features.
+Simply disable unwanted WordPress features from one settings board.
 
 == Description ==
 
-StripBoard gives administrators control over core WordPress (and WooCommerce) subsystems at the load level—using hooks, not menu hiding. Disable unwanted features from one settings board.
+StripBoard lets you simply disable unwanted features from WordPress (and WooCommerce) at the load level—using hooks, not menu hiding—all from one settings board.
 
 * Toggleable features across writing, media, speed, security, admin UI, feeds, archives, and WooCommerce
 * Plain-English descriptions, risk labels (high / medium / low), and scope tags (admin / frontend / both)

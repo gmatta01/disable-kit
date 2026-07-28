@@ -1,8 +1,8 @@
 # StripBoard
 
-Disable unwanted features.
+Simply disable unwanted WordPress features from one settings board.
 
-**StripBoard** gives administrators control over core WordPress (and WooCommerce) features at the load level—hooks, not menu hiding. Every toggle includes plain-English guidance, a risk label, and a scope tag.
+**StripBoard** lets you turn off unused core WordPress (and WooCommerce) features at the load level—hooks, not menu hiding. Every toggle includes plain-English guidance, a risk label, and a scope tag.
 
 No bloat. No page builders. No subscriptions.
 

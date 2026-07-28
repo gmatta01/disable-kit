@@ -2,7 +2,7 @@
 /**
  * Plugin Name: StripBoard
  * Plugin URI: https://github.com/gmatta01/disable-kit
- * Description: Disable unwanted features.
+ * Description: Simply disable unwanted WordPress features from one settings board.
  * Version: 1.0.1
  * Author: GM
  * Author URI: https://github.com/gmatta01
