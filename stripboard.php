@@ -3,7 +3,7 @@
  * Plugin Name: StripBoard
  * Plugin URI: https://github.com/gmatta01/disable-kit
  * Description: Simply disable unwanted WordPress features from one settings board.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: GM
  * Author URI: https://github.com/gmatta01
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('STRIPBOARD_VERSION', '1.0.1');
+define('STRIPBOARD_VERSION', '1.0.2');
 define('STRIPBOARD_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('STRIPBOARD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('STRIPBOARD_PLUGIN_FILE', __FILE__);
@@ -1176,7 +1176,7 @@ class Stripboard {
             // ── Media Defaults ───────────────────────────────────────────────
             'default_attachment_display' => array(
                 'name'        => __('Default Attachment Link Behaviour', 'stripboard'),
-                'description' => __('Forces all new image insertions to link to "none" instead of the attachment page by default.', 'stripboard'),
+                'description' => __('While off, new media insertions behave as if the default link type is “none” (no link). This is applied at runtime only — it does not lock or repeatedly overwrite the Media setting in the database.', 'stripboard'),
                 'category'    => 'media',
                 'risk'        => 'low',
                 'scope'       => 'admin',
@@ -2218,13 +2218,15 @@ class Stripboard {
                 add_filter('auto_theme_update_send_email', '__return_false');
                 break;
 
-            // ── Media Defaults (Phase 2) ─────────────────────────────────────
+            // ── Media Defaults ───────────────────────────────────────────────
             case 'default_attachment_display':
-                add_action('admin_init', function() {
-                    update_option('image_default_link_type', 'none');
+                // Runtime only: do not update_option() or lock pre_update_option_*.
+                // Admins remain free to change Settings → Media; we only override reads
+                // while this StripBoard toggle is off.
+                add_filter('option_image_default_link_type', function() {
+                    return 'none';
                 });
-                // Lock the option so it stays
-                add_filter('pre_update_option_image_default_link_type', function() {
+                add_filter('default_option_image_default_link_type', function() {
                     return 'none';
                 });
                 break;
