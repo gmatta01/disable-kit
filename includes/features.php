@@ -395,6 +395,10 @@ trait Stripboard_Features {
      * @return bool|null True/false for registered features; null if the key is unknown.
      */
     public function is_feature_enabled($feature_key) {
+        if (empty($this->features) && did_action('init')) {
+            $this->boot_features();
+        }
+
         if (!isset($this->features[$feature_key])) {
             return null;
         }

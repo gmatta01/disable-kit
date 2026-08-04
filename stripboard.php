@@ -3,7 +3,7 @@
  * Plugin Name: StripBoard
  * Plugin URI: https://github.com/gmatta01/disable-kit
  * Description: Simply disable unwanted WordPress features from one settings board.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: GM
  * Author URI: https://github.com/gmatta01
  * License: GPL v2 or later
@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('STRIPBOARD_VERSION', '1.0.2');
+define('STRIPBOARD_VERSION', '1.0.3');
 define('STRIPBOARD_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('STRIPBOARD_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('STRIPBOARD_PLUGIN_FILE', __FILE__);
@@ -77,8 +77,41 @@ class Stripboard {
     private function __construct() {
         $this->maybe_migrate_legacy_settings();
         $this->init_hooks();
+
+        // WP 6.7+: translations (__()) must not run before init.
+        if (did_action('init')) {
+            $this->boot_features();
+        } else {
+            add_action('init', array($this, 'boot_features'), 0);
+        }
+    }
+
+    /**
+     * Build the feature registry and apply disables (init or later only).
+     */
+    public function boot_features() {
+        if (!empty($this->features)) {
+            return;
+        }
+
         $this->define_features();
         $this->init_feature_controls();
+    }
+
+    /**
+     * Schedule a callback on a hook, or run it now if that hook already fired.
+     *
+     * @param string   $hook     Hook name.
+     * @param callable $callback Callback.
+     * @param int      $priority Priority.
+     */
+    private function run_on_hook_or_now($hook, $callback, $priority = 10) {
+        if (did_action($hook)) {
+            call_user_func($callback);
+            return;
+        }
+
+        add_action($hook, $callback, $priority);
     }
     
     /**
@@ -1988,7 +2021,7 @@ class Stripboard {
                 break;
 
             case 'post_formats':
-                add_action('after_setup_theme', function() {
+                $this->run_on_hook_or_now('after_setup_theme', function() {
                     remove_theme_support('post-formats');
                 }, 100);
                 break;
@@ -2121,19 +2154,19 @@ class Stripboard {
 
             // ── Theme / Customiser (Phase 2) ────────────────────────────────
             case 'custom_header':
-                add_action('after_setup_theme', function() {
+                $this->run_on_hook_or_now('after_setup_theme', function() {
                     remove_theme_support('custom-header');
                 }, 100);
                 break;
 
             case 'custom_background':
-                add_action('after_setup_theme', function() {
+                $this->run_on_hook_or_now('after_setup_theme', function() {
                     remove_theme_support('custom-background');
                 }, 100);
                 break;
 
             case 'custom_logo':
-                add_action('after_setup_theme', function() {
+                $this->run_on_hook_or_now('after_setup_theme', function() {
                     remove_theme_support('custom-logo');
                 }, 100);
                 break;
@@ -2145,7 +2178,7 @@ class Stripboard {
                 break;
 
             case 'menus':
-                add_action('after_setup_theme', function() {
+                $this->run_on_hook_or_now('after_setup_theme', function() {
                     remove_theme_support('menus');
                     remove_theme_support('nav-menus');
                 }, 100);
@@ -2312,6 +2345,9 @@ class Stripboard {
      * Plugin activation
      */
     public function activate() {
+        // Activation can run after init in admin; ensure registry exists for defaults.
+        $this->boot_features();
+
         // Set default settings if none exist
         if (!get_option($this->options_key)) {
             $default_settings = array();
