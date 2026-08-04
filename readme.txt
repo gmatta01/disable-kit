@@ -4,7 +4,7 @@ Tags: performance, security, disable features, cleanup, woocommerce
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,9 @@ No. Those toggles only suppress notification emails. They do not disable core, p
 
 == Changelog ==
 
+= 1.0.3 =
+* Load translated feature strings on init to satisfy WordPress 6.7+ translation timing
+
 = 1.0.2 =
 * Soften default attachment link toggle: runtime filter only, no global option lock
 
@@ -82,6 +85,9 @@ No. Those toggles only suppress notification emails. They do not disable core, p
 * Developer extension API
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Fixes early translation loading notice on WordPress 6.7+.
 
 = 1.0.2 =
 Attachment link behaviour no longer locks the Media setting.

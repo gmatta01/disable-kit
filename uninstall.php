@@ -12,7 +12,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 
 // Define plugin constants if not already defined
 if (!defined('STRIPBOARD_VERSION')) {
-    define('STRIPBOARD_VERSION', '1.0.1');
+    define('STRIPBOARD_VERSION', '1.0.3');
 }
 
 /**
